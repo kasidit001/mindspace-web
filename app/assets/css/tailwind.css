@@ -10,3 +10,38 @@
   color: var(--shiki-dark) !important;
   background-color: var(--shiki-dark-bg) !important;
 }
+
+/* Inline `code` pills (block code inside <pre> keeps its own shiki/ProsePre
+   styling, so it's explicitly excluded here). */
+.prose code:not(pre code) {
+  background-color: rgb(15 23 42 / 0.06);
+  border-radius: 0.35em;
+  padding: 0.2em 0.45em;
+  font-size: 0.875em;
+}
+.dark .prose code:not(pre code) {
+  background-color: rgb(255 255 255 / 0.08);
+}
+
+/* @nuxtjs/mdc wraps h2-h4 text in a self-referencing <a href="#slug">
+   (see mdc.headings.anchorLinks). Reveal a docs-style "#" marker on hover
+   instead of turning the whole heading into an underlined link. */
+.prose :where(h2, h3, h4) > a {
+  text-decoration: none;
+  color: inherit;
+  position: relative;
+}
+.prose :where(h2, h3, h4) > a:hover {
+  text-decoration: none;
+}
+.prose :where(h2, h3, h4) > a::before {
+  content: '#';
+  position: absolute;
+  left: -1.1em;
+  color: theme('colors.emerald.500');
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.prose :where(h2, h3, h4) > a:hover::before {
+  opacity: 1;
+}

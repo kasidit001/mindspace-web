@@ -7,6 +7,7 @@ const lessonId = computed(() => route.params.lessonId as string)
 const { data: lesson, status, error } = useLesson(lessonId)
 const { data: courses } = useCourses()
 const progress = useProgressStore()
+const focusMode = useFocusMode()
 
 watch(
   lesson,
@@ -45,7 +46,11 @@ watch(lessonId, () => {
 </script>
 
 <template>
-  <div ref="rootEl" class="mx-auto max-w-3xl px-8 py-10">
+  <div
+    ref="rootEl"
+    class="mx-auto px-8 py-10 transition-[max-width] duration-200"
+    :class="focusMode ? 'max-w-4xl' : 'max-w-3xl'"
+  >
     <p v-if="status === 'pending'" class="text-slate-500">Loading lesson…</p>
 
     <p v-else-if="error" class="text-red-600 dark:text-red-400">
@@ -53,9 +58,20 @@ watch(lessonId, () => {
     </p>
 
     <template v-else-if="lesson">
-      <nav class="mb-2 text-sm text-slate-500 dark:text-slate-400">
-        {{ lesson.course.title }}
-      </nav>
+      <div class="mb-2 flex items-center justify-between gap-4">
+        <nav class="text-sm text-slate-500 dark:text-slate-400">
+          {{ lesson.course.title }}
+        </nav>
+        <button
+          type="button"
+          class="hidden shrink-0 items-center gap-1.5 rounded-full border border-slate-200 px-3 py-1 text-xs font-medium text-slate-600 transition-colors hover:border-emerald-400 hover:text-emerald-700 dark:border-slate-700 dark:text-slate-300 dark:hover:border-emerald-600 dark:hover:text-emerald-400 lg:inline-flex"
+          :class="{ 'border-emerald-400 text-emerald-700 dark:border-emerald-600 dark:text-emerald-400': focusMode }"
+          @click="focusMode = !focusMode"
+        >
+          <span aria-hidden="true">{{ focusMode ? '⤢' : '⤡' }}</span>
+          {{ focusMode ? 'Exit focus mode' : 'Focus mode' }}
+        </button>
+      </div>
       <h1 class="text-2xl font-bold">{{ lesson.title }}</h1>
 
       <!-- Markdown content, with syntax-highlighted TypeScript code blocks -->
