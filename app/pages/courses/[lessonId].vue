@@ -37,6 +37,13 @@ const nextLesson = computed(() => {
   return i !== -1 && i < list.length - 1 ? list[i + 1] : null
 })
 
+// Rough estimate — word count over a 200wpm reading pace, matching the
+// convention on most docs/blog sites. Not meant to be precise.
+const readingMinutes = computed(() => {
+  const words = lesson.value?.content.trim().split(/\s+/).filter(Boolean).length ?? 0
+  return Math.max(1, Math.round(words / 200))
+})
+
 const rootEl = ref<HTMLElement | null>(null)
 
 // Scroll the reading pane back to the top whenever navigating between lessons.
@@ -51,43 +58,47 @@ watch(lessonId, () => {
     class="mx-auto px-8 py-10 transition-[max-width] duration-200"
     :class="focusMode ? 'max-w-4xl' : 'max-w-3xl'"
   >
-    <p v-if="status === 'pending'" class="text-slate-500">Loading lesson…</p>
+    <!-- Loading skeleton -->
+    <div v-if="status === 'pending'" class="animate-pulse space-y-4">
+      <div class="h-3 w-32 rounded bg-zinc-200 dark:bg-white/10" />
+      <div class="h-8 w-2/3 rounded bg-zinc-200 dark:bg-white/10" />
+      <div class="mt-8 space-y-3">
+        <div class="h-4 w-full rounded bg-zinc-100 dark:bg-white/[0.06]" />
+        <div class="h-4 w-full rounded bg-zinc-100 dark:bg-white/[0.06]" />
+        <div class="h-4 w-5/6 rounded bg-zinc-100 dark:bg-white/[0.06]" />
+      </div>
+    </div>
 
-    <p v-else-if="error" class="text-red-600 dark:text-red-400">
-      Couldn't load this lesson (it may not exist, or mindspace-api isn't running on port 8080).
-    </p>
+    <div v-else-if="error" class="rounded-xl border border-red-200 bg-red-50 p-6 text-center dark:border-red-900/50 dark:bg-red-950/30">
+      <p class="text-3xl" aria-hidden="true">🔌</p>
+      <p class="mt-2 font-medium text-red-700 dark:text-red-400">Couldn't load this lesson</p>
+      <p class="mt-1 text-sm text-red-600/80 dark:text-red-400/70">
+        It may not exist, or mindspace-api isn't running on port 8080.
+      </p>
+    </div>
 
     <template v-else-if="lesson">
-      <div class="mb-2 flex items-center justify-between gap-4">
-        <nav class="text-sm text-slate-500 dark:text-slate-400">
-          {{ lesson.course.title }}
-        </nav>
-        <button
-          type="button"
-          class="hidden shrink-0 items-center gap-1.5 rounded-full border border-slate-200 px-3 py-1 text-xs font-medium text-slate-600 transition-colors hover:border-emerald-400 hover:text-emerald-700 dark:border-slate-700 dark:text-slate-300 dark:hover:border-emerald-600 dark:hover:text-emerald-400 lg:inline-flex"
-          :class="{ 'border-emerald-400 text-emerald-700 dark:border-emerald-600 dark:text-emerald-400': focusMode }"
-          @click="focusMode = !focusMode"
-        >
-          <span aria-hidden="true">{{ focusMode ? '⤢' : '⤡' }}</span>
-          {{ focusMode ? 'Exit focus mode' : 'Focus mode' }}
-        </button>
+      <div class="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-zinc-500 dark:text-zinc-400">
+        <span class="sm:hidden">{{ lesson.course.title }}</span>
+        <span class="hidden sm:inline" aria-hidden="true">·</span>
+        <span>{{ readingMinutes }} min read</span>
       </div>
-      <h1 class="text-2xl font-bold">{{ lesson.title }}</h1>
+      <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">{{ lesson.title }}</h1>
 
       <!-- Markdown content, with syntax-highlighted TypeScript code blocks -->
-      <div class="prose prose-slate mt-6 max-w-none dark:prose-invert">
+      <div class="prose prose-zinc mt-6 max-w-none dark:prose-invert">
         <MDC :value="lesson.content" tag="div" />
       </div>
 
       <!-- Previous / next lesson navigation -->
-      <nav class="mt-10 flex items-stretch gap-4 border-t border-slate-200 pt-6 dark:border-slate-800">
+      <nav class="mt-10 flex items-stretch gap-4 border-t border-zinc-200 pt-6 dark:border-white/10">
         <NuxtLink
           v-if="previousLesson"
           :to="`/courses/${previousLesson.id}`"
-          class="group flex-1 rounded-lg border border-slate-200 p-3 text-left transition-colors hover:border-emerald-400 dark:border-slate-800 dark:hover:border-emerald-600"
+          class="group flex-1 rounded-lg border border-zinc-200 p-3 text-left transition-colors hover:border-emerald-400 dark:border-white/10 dark:hover:border-emerald-600"
         >
-          <span class="block text-xs text-slate-500 dark:text-slate-400">← Previous</span>
-          <span class="mt-0.5 block truncate font-medium text-slate-800 group-hover:text-emerald-700 dark:text-slate-200 dark:group-hover:text-emerald-400">
+          <span class="block text-xs text-zinc-500 dark:text-zinc-400">← Previous</span>
+          <span class="mt-0.5 block truncate font-medium text-zinc-800 group-hover:text-emerald-700 dark:text-zinc-200 dark:group-hover:text-emerald-400">
             {{ previousLesson.title }}
           </span>
         </NuxtLink>
@@ -96,10 +107,10 @@ watch(lessonId, () => {
         <NuxtLink
           v-if="nextLesson"
           :to="`/courses/${nextLesson.id}`"
-          class="group flex-1 rounded-lg border border-slate-200 p-3 text-right transition-colors hover:border-emerald-400 dark:border-slate-800 dark:hover:border-emerald-600"
+          class="group flex-1 rounded-lg border border-zinc-200 p-3 text-right transition-colors hover:border-emerald-400 dark:border-white/10 dark:hover:border-emerald-600"
         >
-          <span class="block text-xs text-slate-500 dark:text-slate-400">Next →</span>
-          <span class="mt-0.5 block truncate font-medium text-slate-800 group-hover:text-emerald-700 dark:text-slate-200 dark:group-hover:text-emerald-400">
+          <span class="block text-xs text-zinc-500 dark:text-zinc-400">Next →</span>
+          <span class="mt-0.5 block truncate font-medium text-zinc-800 group-hover:text-emerald-700 dark:text-zinc-200 dark:group-hover:text-emerald-400">
             {{ nextLesson.title }}
           </span>
         </NuxtLink>

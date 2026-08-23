@@ -1,8 +1,9 @@
 <script setup lang="ts">
 // Overrides @nuxtjs/mdc's default <ProsePre> to add a copy-to-clipboard
-// button and a filename/language chip. Auto-picked up because it lives at
-// ~/components/mdc/ProsePre.vue (see @nuxtjs/mdc's component-override
-// convention).
+// button, a filename/language chip, and line numbers (via the `line`
+// attribute shiki already stamps on each line span — see tailwind.css).
+// Auto-picked up because it lives at ~/components/mdc/ProsePre.vue (see
+// @nuxtjs/mdc's component-override convention).
 const props = withDefaults(
   defineProps<{
     code?: string
@@ -43,7 +44,7 @@ async function copy() {
   <div class="group relative my-0">
     <div
       v-if="filename || language"
-      class="flex items-center justify-between rounded-t-lg border border-b-0 border-slate-200 bg-slate-50 px-4 py-1.5 text-xs text-slate-500 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-400"
+      class="flex items-center justify-between rounded-t-xl border border-b-0 border-zinc-200 bg-zinc-50 px-4 py-1.5 font-mono text-xs text-zinc-500 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-400"
     >
       <span>{{ filename || language }}</span>
     </div>
@@ -51,18 +52,22 @@ async function copy() {
     <pre
       :class="[
         $props.class,
-        'overflow-x-auto rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm leading-relaxed dark:border-slate-700 dark:bg-slate-900/60',
+        'overflow-x-auto rounded-xl border border-zinc-200 bg-zinc-50 p-4 font-mono text-[0.85rem] leading-relaxed dark:border-white/10 dark:bg-white/[0.03]',
         filename || language ? 'rounded-t-none' : ''
       ]"
     ><slot /></pre>
 
     <button
       type="button"
-      class="absolute right-2 rounded-md border border-slate-200 bg-white/90 px-2 py-1 text-xs text-slate-500 opacity-0 shadow-sm transition-opacity focus:opacity-100 group-hover:opacity-100 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-900/90 dark:text-slate-400 dark:hover:text-slate-100"
-      :class="filename || language ? 'top-11' : 'top-2'"
+      class="absolute right-2 flex items-center gap-1 rounded-md border border-zinc-200 bg-white/90 px-2 py-1 font-mono text-[0.7rem] text-zinc-500 opacity-0 shadow-sm backdrop-blur transition-opacity focus:opacity-100 group-hover:opacity-100 hover:text-zinc-800 dark:border-white/10 dark:bg-zinc-900/90 dark:text-zinc-400 dark:hover:text-zinc-100"
+      :class="[
+        filename || language ? 'top-11' : 'top-2',
+        copied ? 'text-emerald-600 dark:text-emerald-400' : ''
+      ]"
       @click="copy"
     >
-      {{ copied ? 'Copied!' : 'Copy' }}
+      <span aria-hidden="true">{{ copied ? '✓' : '⧉' }}</span>
+      {{ copied ? 'Copied' : 'Copy' }}
     </button>
   </div>
 </template>

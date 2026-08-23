@@ -2,6 +2,96 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ---------------------------------------------------------------------
+   Design tokens — "Terminal Glass": zinc neutral base, two semantic glows
+   (emerald = learning/progress, indigo = AI). Dark-first, light supported.
+--------------------------------------------------------------------- */
+:root {
+  --grain-opacity: 0.035;
+}
+
+body {
+  font-feature-settings: 'ss01' 1, 'cv01' 1;
+}
+
+/* Subtle grain overlay for atmosphere on hero/glass surfaces. Applied via
+   the `.bg-grain` utility rather than globally, so it stays a deliberate
+   accent rather than noise everywhere. */
+.bg-grain::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Glassmorphism surfaces */
+.glass {
+  background-color: rgb(255 255 255 / 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgb(24 24 27 / 0.08);
+}
+.dark .glass {
+  background-color: rgb(24 24 27 / 0.55);
+  border-color: rgb(255 255 255 / 0.08);
+}
+
+.glass-strong {
+  background-color: rgb(255 255 255 / 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgb(24 24 27 / 0.08);
+}
+.dark .glass-strong {
+  background-color: rgb(9 9 11 / 0.75);
+  border-color: rgb(255 255 255 / 0.1);
+}
+
+/* Thin, unobtrusive scrollbars for the reading pane / sidebar / drawers */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(161 161 170 / 0.5) transparent;
+}
+.scrollbar-thin::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: rgb(161 161 170 / 0.4);
+  border-radius: 9999px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(161 161 170 / 0.65);
+}
+
+/* Staggered fade-up reveal, driven by --delay set inline per element */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.reveal {
+  animation: fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--delay, 0s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------------------
+   Markdown reader
+--------------------------------------------------------------------- */
+
 /* @nuxtjs/mdc emits shiki's dual light/dark theme as CSS variables per span
    (--shiki-default / --shiki-dark). Swap to the dark variant whenever a `.dark`
    ancestor class is present, matching our Tailwind `darkMode: 'class'` setup. */
@@ -11,10 +101,26 @@
   background-color: var(--shiki-dark-bg) !important;
 }
 
+/* Line numbers: shiki already stamps a `line="N"` attribute on each line
+   span — render it as a gutter via ::before rather than shipping a JS
+   line-numbering plugin. */
+.shiki .line {
+  padding-left: 0.25em;
+}
+.shiki .line::before {
+  content: attr(line);
+  display: inline-block;
+  width: 1.75em;
+  margin-right: 1em;
+  text-align: right;
+  color: rgb(161 161 170 / 0.5);
+  user-select: none;
+}
+
 /* Inline `code` pills (block code inside <pre> keeps its own shiki/ProsePre
    styling, so it's explicitly excluded here). */
 .prose code:not(pre code) {
-  background-color: rgb(15 23 42 / 0.06);
+  background-color: rgb(24 24 27 / 0.06);
   border-radius: 0.35em;
   padding: 0.2em 0.45em;
   font-size: 0.875em;
