@@ -4,6 +4,7 @@ const route = useRoute()
 const progress = useProgressStore()
 const paletteOpen = useCommandPaletteOpen()
 const focusMode = useFocusMode()
+const chatOpen = useChatDrawerOpen()
 const { theme, toggle: toggleTheme } = useTheme()
 
 const sidebarOpen = ref(false)
@@ -51,19 +52,19 @@ function resetProgress() {
 </script>
 
 <template>
-  <div class="flex h-screen flex-col overflow-hidden bg-white text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
+  <div class="flex h-screen flex-col overflow-hidden bg-canvas text-zinc-900 dark:bg-canvas-dark dark:text-zinc-100">
     <!-- Persistent top bar: brand, breadcrumbs, spotlight search, controls -->
-    <header class="flex shrink-0 items-center gap-3 border-b border-zinc-200 px-4 py-2.5 dark:border-white/10">
+    <header class="flex h-12 shrink-0 items-center gap-3 border-b border-divider px-3 dark:border-divider-dark">
       <button
         type="button"
-        class="text-xl leading-none text-zinc-600 dark:text-zinc-300 lg:hidden"
+        class="text-lg leading-none text-zinc-600 dark:text-zinc-300 lg:hidden"
         aria-label="Open sidebar"
         @click="sidebarOpen = true"
       >
         ☰
       </button>
 
-      <NuxtLink to="/" class="shrink-0 font-bold tracking-tight">Mindspace</NuxtLink>
+      <NuxtLink to="/" class="shrink-0 text-sm font-semibold tracking-tight">Mindspace</NuxtLink>
 
       <!-- Breadcrumbs -->
       <nav
@@ -82,7 +83,7 @@ function resetProgress() {
       <div class="flex flex-1 justify-center">
         <button
           type="button"
-          class="flex w-full max-w-md items-center gap-2 rounded-full border border-zinc-200 bg-zinc-50 px-4 py-2 text-left text-sm text-zinc-500 transition-colors hover:border-zinc-300 hover:bg-white dark:border-white/10 dark:bg-white/[0.04] dark:text-zinc-400 dark:hover:bg-white/[0.07]"
+          class="flex w-full max-w-md items-center gap-2 rounded border border-divider bg-zinc-50 px-3 py-1.5 text-left text-sm text-zinc-500 transition-colors hover:border-zinc-300 hover:bg-white dark:border-divider-dark dark:bg-white/[0.04] dark:text-zinc-400 dark:hover:bg-white/[0.07]"
           @click="paletteOpen = true"
         >
           <span aria-hidden="true">🔎</span>
@@ -94,10 +95,10 @@ function resetProgress() {
       <!-- Focus mode (desktop only — on mobile the sidebar is already an overlay) -->
       <button
         type="button"
-        class="hidden shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors lg:inline-flex"
+        class="hidden shrink-0 items-center gap-1.5 rounded border px-2.5 py-1 text-xs font-medium transition-colors lg:inline-flex"
         :class="focusMode
-          ? 'border-emerald-400 text-emerald-700 dark:border-emerald-600 dark:text-emerald-400'
-          : 'border-zinc-200 text-zinc-600 hover:border-zinc-300 dark:border-white/10 dark:text-zinc-300 dark:hover:border-white/20'"
+          ? 'border-emerald-500 text-emerald-700 dark:text-emerald-400'
+          : 'border-divider text-zinc-600 hover:border-zinc-300 dark:border-divider-dark dark:text-zinc-300 dark:hover:border-white/20'"
         :title="focusMode ? 'Exit focus mode' : 'Hide sidebar to focus on reading'"
         @click="focusMode = !focusMode"
       >
@@ -105,10 +106,24 @@ function resetProgress() {
         Focus
       </button>
 
+      <!-- AI Assistant toggle (tool-window style, docks on desktop) -->
+      <button
+        type="button"
+        class="shrink-0 rounded border px-2.5 py-1 text-xs font-medium transition-colors"
+        :class="chatOpen
+          ? 'border-indigo-500 text-indigo-700 dark:text-indigo-400'
+          : 'border-divider text-zinc-600 hover:border-zinc-300 dark:border-divider-dark dark:text-zinc-300 dark:hover:border-white/20'"
+        :title="chatOpen ? 'Close AI Assistant' : 'Open AI Assistant'"
+        @click="chatOpen = !chatOpen"
+      >
+        <span aria-hidden="true">✨</span>
+        <span class="hidden sm:inline">Assistant</span>
+      </button>
+
       <!-- Theme toggle -->
       <button
         type="button"
-        class="shrink-0 rounded-full border border-zinc-200 p-2 text-sm text-zinc-600 transition-colors hover:border-zinc-300 dark:border-white/10 dark:text-zinc-300 dark:hover:border-white/20"
+        class="shrink-0 rounded border border-divider p-1.5 text-sm text-zinc-600 transition-colors hover:border-zinc-300 dark:border-divider-dark dark:text-zinc-300 dark:hover:border-white/20"
         :aria-label="theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
         @click="toggleTheme"
       >
@@ -119,7 +134,7 @@ function resetProgress() {
       <div class="relative shrink-0">
         <button
           type="button"
-          class="flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 text-sm font-semibold text-white shadow-glow"
+          class="flex size-7 items-center justify-center rounded-full bg-emerald-600 text-xs font-semibold text-white"
           aria-label="Your progress"
           @click="profileOpen = !profileOpen"
         >
@@ -130,7 +145,7 @@ function resetProgress() {
 
         <div
           v-if="profileOpen"
-          class="glass-strong absolute right-0 z-50 mt-2 w-56 rounded-xl p-4 text-sm shadow-xl"
+          class="absolute right-0 z-50 mt-2 w-56 rounded border border-divider bg-canvas p-4 text-sm shadow-md dark:border-divider-dark dark:bg-canvas-dark"
         >
           <p class="font-semibold text-zinc-900 dark:text-white">Your progress</p>
           <p class="mt-1 text-zinc-500 dark:text-zinc-400">
@@ -138,13 +153,13 @@ function resetProgress() {
           </p>
           <div class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-white/10">
             <div
-              class="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-500"
+              class="h-full rounded-full bg-emerald-600 transition-all duration-500"
               :style="{ width: totalLessons ? `${Math.round((completedTotal / totalLessons) * 100)}%` : '0%' }"
             />
           </div>
           <button
             type="button"
-            class="mt-3 w-full rounded-md border border-zinc-200 py-1.5 text-xs text-zinc-500 hover:border-red-300 hover:text-red-600 dark:border-white/10 dark:text-zinc-400 dark:hover:border-red-800 dark:hover:text-red-400"
+            class="mt-3 w-full rounded border border-divider py-1.5 text-xs text-zinc-500 hover:border-red-300 hover:text-red-600 dark:border-divider-dark dark:text-zinc-400 dark:hover:border-red-800 dark:hover:text-red-400"
             @click="resetProgress"
           >
             Reset progress
@@ -161,15 +176,15 @@ function resetProgress() {
         @click="sidebarOpen = false"
       />
 
-      <!-- Left sidebar: courses & lessons -->
+      <!-- Left sidebar: compact lesson tree -->
       <aside
-        class="scrollbar-thin fixed inset-y-0 left-0 z-40 w-72 shrink-0 transform overflow-y-auto border-r border-zinc-200 bg-white transition-transform duration-200 dark:border-white/10 dark:bg-zinc-950 lg:static lg:z-auto lg:translate-x-0"
+        class="scrollbar-thin fixed inset-y-0 left-0 z-40 w-64 shrink-0 transform overflow-y-auto border-r border-divider bg-canvas transition-transform duration-200 dark:border-divider-dark dark:bg-canvas-dark lg:static lg:z-auto lg:translate-x-0"
         :class="[
           sidebarOpen ? 'translate-x-0' : '-translate-x-full',
           focusMode ? 'lg:hidden' : ''
         ]"
       >
-        <div class="flex items-center justify-between border-b border-zinc-200 px-4 py-4 dark:border-white/10 lg:hidden">
+        <div class="flex items-center justify-between border-b border-divider px-4 py-3 dark:border-divider-dark lg:hidden">
           <span class="text-sm font-semibold text-zinc-500 dark:text-zinc-400">Courses</span>
           <button
             type="button"
@@ -182,13 +197,13 @@ function resetProgress() {
         </div>
 
         <!-- Loading skeleton -->
-        <div v-if="status === 'pending'" class="space-y-4 px-4 py-4">
-          <div v-for="i in 2" :key="i" class="space-y-2">
+        <div v-if="status === 'pending'" class="space-y-3 px-3 py-3">
+          <div v-for="i in 2" :key="i" class="space-y-1.5">
             <div class="h-3 w-24 animate-pulse rounded bg-zinc-200 dark:bg-white/10" />
             <div
               v-for="j in 3"
               :key="j"
-              class="h-6 w-full animate-pulse rounded bg-zinc-100 dark:bg-white/[0.06]"
+              class="h-5 w-full animate-pulse rounded bg-zinc-100 dark:bg-white/[0.06]"
               :style="{ animationDelay: `${j * 80}ms` }"
             />
           </div>
@@ -198,7 +213,7 @@ function resetProgress() {
           <p class="text-red-600 dark:text-red-400">Couldn't load courses — mindspace-api may be offline.</p>
           <button
             type="button"
-            class="mt-3 flex items-center gap-1.5 rounded-md border border-zinc-200 px-2.5 py-1.5 text-xs font-medium text-zinc-600 hover:border-emerald-400 hover:text-emerald-700 disabled:opacity-50 dark:border-white/10 dark:text-zinc-300 dark:hover:border-emerald-600 dark:hover:text-emerald-400"
+            class="mt-3 flex items-center gap-1.5 rounded border border-divider px-2.5 py-1.5 text-xs font-medium text-zinc-600 hover:border-emerald-400 hover:text-emerald-700 disabled:opacity-50 dark:border-divider-dark dark:text-zinc-300 dark:hover:border-emerald-600 dark:hover:text-emerald-400"
             :disabled="pending"
             @click="refresh()"
           >
@@ -207,24 +222,24 @@ function resetProgress() {
           </button>
         </div>
 
-        <nav v-else class="px-2 py-2">
-          <div v-for="course in courses" :key="course.id" class="mb-4">
-            <p class="px-2 py-1 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+        <nav v-else class="px-1.5 py-2">
+          <div v-for="course in courses" :key="course.id" class="mb-3">
+            <p class="px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
               {{ course.title }}
             </p>
             <ul>
               <li v-for="lesson in course.lessons" :key="lesson.id">
                 <NuxtLink
                   :to="`/courses/${lesson.id}`"
-                  class="flex items-center gap-2 rounded-md border-l-2 px-2.5 py-1.5 text-sm transition-colors duration-150"
+                  class="flex items-center gap-2 border-l-2 px-2.5 py-1 text-[13px] leading-5 transition-colors duration-100"
                   :class="route.params.lessonId === lesson.id
-                    ? 'border-emerald-500 bg-emerald-50 font-medium text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400'
-                    : 'border-transparent text-zinc-700 hover:border-zinc-300 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:border-white/20 dark:hover:bg-white/[0.05]'"
+                    ? 'border-emerald-500 bg-zinc-100 font-medium text-zinc-900 dark:bg-white/[0.06] dark:text-white'
+                    : 'border-transparent text-zinc-600 hover:bg-zinc-50 dark:text-zinc-400 dark:hover:bg-white/[0.04]'"
                 >
                   <span class="flex-1 truncate">{{ lesson.order }}. {{ lesson.title }}</span>
                   <span
                     v-if="mounted && progress.isCompleted(lesson.id)"
-                    class="shrink-0 text-emerald-500"
+                    class="shrink-0 text-emerald-600 dark:text-emerald-500"
                     title="Completed"
                     aria-label="Completed"
                   >
@@ -235,7 +250,7 @@ function resetProgress() {
             </ul>
           </div>
 
-          <p v-if="courses && courses.length === 0" class="px-2 py-1 text-sm text-zinc-500">
+          <p v-if="courses && courses.length === 0" class="px-2.5 py-1 text-sm text-zinc-500">
             No courses yet.
           </p>
         </nav>
@@ -245,9 +260,10 @@ function resetProgress() {
       <main class="scrollbar-thin min-w-0 flex-1 overflow-y-auto">
         <slot />
       </main>
-    </div>
 
-    <!-- AI chat drawer, available everywhere in the course layout -->
-    <ChatDrawer />
+      <!-- AI Assistant — a real docked panel on desktop (pushes content,
+           doesn't cover it), an overlay drawer on mobile. -->
+      <ChatDrawer />
+    </div>
   </div>
 </template>
