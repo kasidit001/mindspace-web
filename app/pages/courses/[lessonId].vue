@@ -60,16 +60,16 @@ watch(lessonId, () => {
   >
     <!-- Loading skeleton -->
     <div v-if="status === 'pending'" class="animate-pulse space-y-4">
-      <div class="h-3 w-32 rounded bg-zinc-200 dark:bg-white/10" />
-      <div class="h-8 w-2/3 rounded bg-zinc-200 dark:bg-white/10" />
+      <div class="h-3 w-32 rounded-md bg-zinc-200 dark:bg-white/10" />
+      <div class="h-8 w-2/3 rounded-md bg-zinc-200 dark:bg-white/10" />
       <div class="mt-8 space-y-3">
-        <div class="h-4 w-full rounded bg-zinc-100 dark:bg-white/[0.06]" />
-        <div class="h-4 w-full rounded bg-zinc-100 dark:bg-white/[0.06]" />
-        <div class="h-4 w-5/6 rounded bg-zinc-100 dark:bg-white/[0.06]" />
+        <div class="h-4 w-full rounded-md bg-zinc-100 dark:bg-white/[0.06]" />
+        <div class="h-4 w-full rounded-md bg-zinc-100 dark:bg-white/[0.06]" />
+        <div class="h-4 w-5/6 rounded-md bg-zinc-100 dark:bg-white/[0.06]" />
       </div>
     </div>
 
-    <div v-else-if="error" class="rounded border border-red-200 bg-red-50 p-6 text-center dark:border-red-900/50 dark:bg-red-950/30">
+    <div v-else-if="error" class="rounded-md border border-red-200 bg-red-50 p-6 text-center dark:border-red-900/50 dark:bg-red-950/30">
       <p class="text-3xl" aria-hidden="true">🔌</p>
       <p class="mt-2 font-medium text-red-700 dark:text-red-400">Couldn't load this lesson</p>
       <p class="mt-1 text-sm text-red-600/80 dark:text-red-400/70">
@@ -95,10 +95,10 @@ watch(lessonId, () => {
         <NuxtLink
           v-if="previousLesson"
           :to="`/courses/${previousLesson.id}`"
-          class="group flex-1 rounded border border-divider p-3 text-left transition-colors hover:border-emerald-400 dark:border-divider-dark dark:hover:border-emerald-600"
+          class="group flex-1 rounded-md border border-divider p-3 text-left transition-colors hover:border-accent-400 dark:border-divider-dark dark:hover:border-accent-600"
         >
           <span class="block text-xs text-zinc-500 dark:text-zinc-400">← Previous</span>
-          <span class="mt-0.5 block truncate font-medium text-zinc-800 group-hover:text-emerald-700 dark:text-zinc-200 dark:group-hover:text-emerald-400">
+          <span class="mt-0.5 block truncate font-medium text-zinc-800 group-hover:text-accent-700 dark:text-zinc-200 dark:group-hover:text-accent-400">
             {{ previousLesson.title }}
           </span>
         </NuxtLink>
@@ -107,10 +107,10 @@ watch(lessonId, () => {
         <NuxtLink
           v-if="nextLesson"
           :to="`/courses/${nextLesson.id}`"
-          class="group flex-1 rounded border border-divider p-3 text-right transition-colors hover:border-emerald-400 dark:border-divider-dark dark:hover:border-emerald-600"
+          class="group flex-1 rounded-md border border-divider p-3 text-right transition-colors hover:border-accent-400 dark:border-divider-dark dark:hover:border-accent-600"
         >
           <span class="block text-xs text-zinc-500 dark:text-zinc-400">Next →</span>
-          <span class="mt-0.5 block truncate font-medium text-zinc-800 group-hover:text-emerald-700 dark:text-zinc-200 dark:group-hover:text-emerald-400">
+          <span class="mt-0.5 block truncate font-medium text-zinc-800 group-hover:text-accent-700 dark:text-zinc-200 dark:group-hover:text-accent-400">
             {{ nextLesson.title }}
           </span>
         </NuxtLink>

@@ -83,21 +83,21 @@ function resetProgress() {
       <div class="flex flex-1 justify-center">
         <button
           type="button"
-          class="flex w-full max-w-md items-center gap-2 rounded border border-divider bg-zinc-50 px-3 py-1.5 text-left text-sm text-zinc-500 transition-colors hover:border-zinc-300 hover:bg-white dark:border-divider-dark dark:bg-white/[0.04] dark:text-zinc-400 dark:hover:bg-white/[0.07]"
+          class="flex w-full max-w-md items-center gap-2 rounded-md border border-divider bg-zinc-50 px-3 py-1.5 text-left text-sm text-zinc-500 transition-colors hover:border-zinc-300 hover:bg-white dark:border-divider-dark dark:bg-white/[0.04] dark:text-zinc-400 dark:hover:bg-white/[0.07]"
           @click="paletteOpen = true"
         >
           <span aria-hidden="true">🔎</span>
           <span class="flex-1 truncate">Search lessons, or ask the AI…</span>
-          <kbd class="hidden shrink-0 rounded border border-zinc-300 px-1.5 py-0.5 font-mono text-[10px] dark:border-zinc-600 sm:inline">⌘K</kbd>
+          <kbd class="hidden shrink-0 rounded-md border border-zinc-300 px-1.5 py-0.5 font-mono text-[10px] dark:border-zinc-600 sm:inline">⌘K</kbd>
         </button>
       </div>
 
       <!-- Focus mode (desktop only — on mobile the sidebar is already an overlay) -->
       <button
         type="button"
-        class="hidden shrink-0 items-center gap-1.5 rounded border px-2.5 py-1 text-xs font-medium transition-colors lg:inline-flex"
+        class="hidden shrink-0 items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium transition-colors lg:inline-flex"
         :class="focusMode
-          ? 'border-emerald-500 text-emerald-700 dark:text-emerald-400'
+          ? 'border-accent-500 text-accent-700 dark:text-accent-400'
           : 'border-divider text-zinc-600 hover:border-zinc-300 dark:border-divider-dark dark:text-zinc-300 dark:hover:border-white/20'"
         :title="focusMode ? 'Exit focus mode' : 'Hide sidebar to focus on reading'"
         @click="focusMode = !focusMode"
@@ -109,9 +109,9 @@ function resetProgress() {
       <!-- AI Assistant toggle (tool-window style, docks on desktop) -->
       <button
         type="button"
-        class="shrink-0 rounded border px-2.5 py-1 text-xs font-medium transition-colors"
+        class="shrink-0 rounded-md border px-2.5 py-1 text-xs font-medium transition-colors"
         :class="chatOpen
-          ? 'border-indigo-500 text-indigo-700 dark:text-indigo-400'
+          ? 'border-ai-500 text-ai-700 dark:text-ai-400'
           : 'border-divider text-zinc-600 hover:border-zinc-300 dark:border-divider-dark dark:text-zinc-300 dark:hover:border-white/20'"
         :title="chatOpen ? 'Close AI Assistant' : 'Open AI Assistant'"
         @click="chatOpen = !chatOpen"
@@ -123,7 +123,7 @@ function resetProgress() {
       <!-- Theme toggle -->
       <button
         type="button"
-        class="shrink-0 rounded border border-divider p-1.5 text-sm text-zinc-600 transition-colors hover:border-zinc-300 dark:border-divider-dark dark:text-zinc-300 dark:hover:border-white/20"
+        class="shrink-0 rounded-md border border-divider p-1.5 text-sm text-zinc-600 transition-colors hover:border-zinc-300 dark:border-divider-dark dark:text-zinc-300 dark:hover:border-white/20"
         :aria-label="theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
         @click="toggleTheme"
       >
@@ -134,7 +134,7 @@ function resetProgress() {
       <div class="relative shrink-0">
         <button
           type="button"
-          class="flex size-7 items-center justify-center rounded-full bg-emerald-600 text-xs font-semibold text-white"
+          class="flex size-7 items-center justify-center rounded-full bg-accent-600 text-xs font-semibold text-white"
           aria-label="Your progress"
           @click="profileOpen = !profileOpen"
         >
@@ -145,7 +145,7 @@ function resetProgress() {
 
         <div
           v-if="profileOpen"
-          class="absolute right-0 z-50 mt-2 w-56 rounded border border-divider bg-canvas p-4 text-sm shadow-md dark:border-divider-dark dark:bg-canvas-dark"
+          class="absolute right-0 z-50 mt-2 w-56 rounded-md border border-divider bg-canvas p-4 text-sm shadow-md dark:border-divider-dark dark:bg-canvas-dark"
         >
           <p class="font-semibold text-zinc-900 dark:text-white">Your progress</p>
           <p class="mt-1 text-zinc-500 dark:text-zinc-400">
@@ -153,13 +153,13 @@ function resetProgress() {
           </p>
           <div class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-white/10">
             <div
-              class="h-full rounded-full bg-emerald-600 transition-all duration-500"
+              class="h-full rounded-full bg-accent-600 transition-all duration-500"
               :style="{ width: totalLessons ? `${Math.round((completedTotal / totalLessons) * 100)}%` : '0%' }"
             />
           </div>
           <button
             type="button"
-            class="mt-3 w-full rounded border border-divider py-1.5 text-xs text-zinc-500 hover:border-red-300 hover:text-red-600 dark:border-divider-dark dark:text-zinc-400 dark:hover:border-red-800 dark:hover:text-red-400"
+            class="mt-3 w-full rounded-md border border-divider py-1.5 text-xs text-zinc-500 hover:border-red-300 hover:text-red-600 dark:border-divider-dark dark:text-zinc-400 dark:hover:border-red-800 dark:hover:text-red-400"
             @click="resetProgress"
           >
             Reset progress
@@ -199,11 +199,11 @@ function resetProgress() {
         <!-- Loading skeleton -->
         <div v-if="status === 'pending'" class="space-y-3 px-3 py-3">
           <div v-for="i in 2" :key="i" class="space-y-1.5">
-            <div class="h-3 w-24 animate-pulse rounded bg-zinc-200 dark:bg-white/10" />
+            <div class="h-3 w-24 animate-pulse rounded-md bg-zinc-200 dark:bg-white/10" />
             <div
               v-for="j in 3"
               :key="j"
-              class="h-5 w-full animate-pulse rounded bg-zinc-100 dark:bg-white/[0.06]"
+              class="h-5 w-full animate-pulse rounded-md bg-zinc-100 dark:bg-white/[0.06]"
               :style="{ animationDelay: `${j * 80}ms` }"
             />
           </div>
@@ -213,7 +213,7 @@ function resetProgress() {
           <p class="text-red-600 dark:text-red-400">Couldn't load courses — mindspace-api may be offline.</p>
           <button
             type="button"
-            class="mt-3 flex items-center gap-1.5 rounded border border-divider px-2.5 py-1.5 text-xs font-medium text-zinc-600 hover:border-emerald-400 hover:text-emerald-700 disabled:opacity-50 dark:border-divider-dark dark:text-zinc-300 dark:hover:border-emerald-600 dark:hover:text-emerald-400"
+            class="mt-3 flex items-center gap-1.5 rounded-md border border-divider px-2.5 py-1.5 text-xs font-medium text-zinc-600 hover:border-accent-400 hover:text-accent-700 disabled:opacity-50 dark:border-divider-dark dark:text-zinc-300 dark:hover:border-accent-600 dark:hover:text-accent-400"
             :disabled="pending"
             @click="refresh()"
           >
@@ -233,13 +233,13 @@ function resetProgress() {
                   :to="`/courses/${lesson.id}`"
                   class="flex items-center gap-2 border-l-2 px-2.5 py-1 text-[13px] leading-5 transition-colors duration-100"
                   :class="route.params.lessonId === lesson.id
-                    ? 'border-emerald-500 bg-zinc-100 font-medium text-zinc-900 dark:bg-white/[0.06] dark:text-white'
+                    ? 'border-accent-500 bg-zinc-100 font-medium text-zinc-900 dark:bg-white/[0.06] dark:text-white'
                     : 'border-transparent text-zinc-600 hover:bg-zinc-50 dark:text-zinc-400 dark:hover:bg-white/[0.04]'"
                 >
                   <span class="flex-1 truncate">{{ lesson.order }}. {{ lesson.title }}</span>
                   <span
                     v-if="mounted && progress.isCompleted(lesson.id)"
-                    class="shrink-0 text-emerald-600 dark:text-emerald-500"
+                    class="shrink-0 text-accent-600 dark:text-accent-500"
                     title="Completed"
                     aria-label="Completed"
                   >

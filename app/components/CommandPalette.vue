@@ -110,7 +110,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydownGlobal))
     class="fixed inset-0 z-50 flex justify-center bg-black/30 px-4 pt-[12vh]"
     @click.self="close"
   >
-    <div class="reveal h-fit w-full max-w-lg overflow-hidden rounded border border-divider bg-canvas shadow-md dark:border-divider-dark dark:bg-canvas-dark">
+    <div class="reveal h-fit w-full max-w-lg overflow-hidden rounded-md border border-divider bg-canvas shadow-md dark:border-divider-dark dark:bg-canvas-dark">
       <div class="flex items-center gap-2 border-b border-divider px-4 py-3 dark:border-divider-dark">
         <span class="text-zinc-400" aria-hidden="true">🔎</span>
         <input
@@ -121,7 +121,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydownGlobal))
           class="flex-1 bg-transparent text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none dark:text-white"
           @keydown="onKeydownInput"
         >
-        <kbd class="rounded border border-zinc-300 px-1.5 py-0.5 font-mono text-[10px] text-zinc-400 dark:border-zinc-600">esc</kbd>
+        <kbd class="rounded-md border border-zinc-300 px-1.5 py-0.5 font-mono text-[10px] text-zinc-400 dark:border-zinc-600">esc</kbd>
       </div>
 
       <ul class="scrollbar-thin max-h-80 overflow-y-auto py-2" role="listbox">
@@ -134,7 +134,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydownGlobal))
             type="button"
             class="flex w-full items-center gap-3 px-4 py-2 text-left text-sm"
             :class="i === activeIndex
-              ? (item.type === 'ask' ? 'bg-indigo-50 dark:bg-indigo-500/10' : 'bg-emerald-50 dark:bg-emerald-500/10')
+              ? (item.type === 'ask' ? 'bg-ai-50 dark:bg-ai-500/10' : 'bg-accent-50 dark:bg-accent-500/10')
               : 'hover:bg-zinc-50 dark:hover:bg-white/[0.05]'"
             @mouseenter="activeIndex = i"
             @click="selectItem(item)"
@@ -154,10 +154,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydownGlobal))
             </template>
             <kbd
               v-if="i === activeIndex"
-              class="rounded border px-1.5 py-0.5 font-mono text-[10px]"
+              class="rounded-md border px-1.5 py-0.5 font-mono text-[10px]"
               :class="item.type === 'ask'
-                ? 'border-indigo-300 text-indigo-600 dark:border-indigo-700 dark:text-indigo-400'
-                : 'border-emerald-300 text-emerald-700 dark:border-emerald-700 dark:text-emerald-400'"
+                ? 'border-ai-300 text-ai-600 dark:border-ai-700 dark:text-ai-400'
+                : 'border-accent-300 text-accent-700 dark:border-accent-700 dark:text-accent-400'"
             >
               ↵
             </kbd>
@@ -166,9 +166,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydownGlobal))
       </ul>
 
       <div class="border-t border-divider px-4 py-2 font-mono text-[11px] text-zinc-400 dark:border-divider-dark">
-        <kbd class="rounded border border-zinc-300 px-1 dark:border-zinc-600">↑↓</kbd> navigate ·
-        <kbd class="rounded border border-zinc-300 px-1 dark:border-zinc-600">↵</kbd> select ·
-        <kbd class="rounded border border-zinc-300 px-1 dark:border-zinc-600">esc</kbd> close
+        <kbd class="rounded-md border border-zinc-300 px-1 dark:border-zinc-600">↑↓</kbd> navigate ·
+        <kbd class="rounded-md border border-zinc-300 px-1 dark:border-zinc-600">↵</kbd> select ·
+        <kbd class="rounded-md border border-zinc-300 px-1 dark:border-zinc-600">esc</kbd> close
       </div>
     </div>
   </div>

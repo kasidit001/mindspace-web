@@ -20,6 +20,32 @@ export default <Partial<Config>>{
         divider: {
           DEFAULT: '#E6E6E6',
           dark: '#2B2D30'
+        },
+        // JetBrains-authentic brand accents, replacing the old emerald/indigo
+        // pair. `accent` (Kotlin/JetBrains purple) is primary — learning,
+        // progress, links. `ai` (JetBrains cyan) marks anything AI-Assistant
+        // related, keeping the same two-accent semantic split as before.
+        // 600 is the exact requested hex in both scales; the rest are a
+        // hand-tuned scale around it.
+        accent: {
+          50: '#F3EFFF',
+          100: '#E7DFFF',
+          300: '#B49AFF',
+          400: '#9B7BFF',
+          500: '#8B65FF',
+          600: '#7F52FF',
+          700: '#6B3FE0',
+          900: '#3D2280'
+        },
+        ai: {
+          50: '#E6FBFB',
+          100: '#CCF7F8',
+          300: '#66E3E5',
+          400: '#33D9DC',
+          500: '#1AD1D5',
+          600: '#00CDD1',
+          700: '#00A5A8',
+          900: '#005557'
         }
       },
       typography: ({ theme }: { theme: (path: string) => string }) => ({
@@ -28,8 +54,8 @@ export default <Partial<Config>>{
             maxWidth: 'none',
             fontSize: '1rem',
             lineHeight: '1.75',
-            '--tw-prose-links': theme('colors.emerald.600'),
-            '--tw-prose-invert-links': theme('colors.emerald.400'),
+            '--tw-prose-links': theme('colors.accent.700'),
+            '--tw-prose-invert-links': theme('colors.accent.400'),
             a: { fontWeight: '500', textDecoration: 'none' },
             'a:hover': { textDecoration: 'underline' },
             p: { marginTop: '1.25em', marginBottom: '1.25em' },
@@ -40,7 +66,7 @@ export default <Partial<Config>>{
               fontStyle: 'normal',
               fontWeight: '400',
               borderLeftWidth: '3px',
-              borderLeftColor: theme('colors.emerald.400'),
+              borderLeftColor: theme('colors.accent.400'),
               color: 'inherit',
               opacity: '0.85'
             },
