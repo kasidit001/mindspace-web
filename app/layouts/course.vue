@@ -26,10 +26,10 @@ const route = useRoute()
             <li v-for="lesson in course.lessons" :key="lesson.id">
               <NuxtLink
                 :to="`/courses/${lesson.id}`"
-                class="block rounded-md px-2 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-slate-800"
+                class="block rounded-md border-l-2 px-2.5 py-1.5 text-sm transition-colors duration-150"
                 :class="route.params.lessonId === lesson.id
-                  ? 'bg-emerald-50 font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                  : 'text-slate-700 dark:text-slate-300'"
+                  ? 'border-emerald-500 bg-emerald-50 font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                  : 'border-transparent text-slate-700 hover:border-slate-300 hover:bg-slate-100 dark:text-slate-300 dark:hover:border-slate-700 dark:hover:bg-slate-800'"
               >
                 {{ lesson.order }}. {{ lesson.title }}
               </NuxtLink>
