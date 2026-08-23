@@ -1,17 +1,28 @@
 <script setup lang="ts">
 const { exchanges, ask } = useChatAsk()
+const open = useChatDrawerOpen()
 
-const open = ref(false)
 const question = ref('')
 const scrollEl = ref<HTMLElement | null>(null)
+
+function scrollToBottom() {
+  scrollEl.value?.scrollTo({ top: scrollEl.value.scrollHeight, behavior: 'smooth' })
+}
+
+// Auto-scroll whenever the conversation changes: a new question is added,
+// an answer streams in, or pending/error state flips.
+watch(exchanges, () => nextTick(scrollToBottom), { deep: true })
+
+// Also jump to the latest message when the drawer is (re)opened.
+watch(open, (isOpen) => {
+  if (isOpen) nextTick(scrollToBottom)
+})
 
 async function submit() {
   const q = question.value
   if (!q.trim()) return
   question.value = ''
   await ask(q)
-  await nextTick()
-  scrollEl.value?.scrollTo({ top: scrollEl.value.scrollHeight, behavior: 'smooth' })
 }
 </script>
 
@@ -60,7 +71,12 @@ async function submit() {
         </div>
 
         <div class="max-w-[90%] rounded-lg rounded-bl-none bg-slate-100 px-3 py-2 text-sm text-slate-800 dark:bg-slate-800 dark:text-slate-100">
-          <p v-if="ex.pending" class="animate-pulse text-slate-500 dark:text-slate-400">Thinking…</p>
+          <!-- Skeleton loading state while waiting for the AI response -->
+          <div v-if="ex.pending" class="space-y-2 py-0.5" aria-label="Waiting for answer">
+            <div class="h-3 w-4/5 animate-pulse rounded bg-slate-300 dark:bg-slate-600" />
+            <div class="h-3 w-3/5 animate-pulse rounded bg-slate-300 dark:bg-slate-600" style="animation-delay: 100ms" />
+            <div class="h-3 w-2/5 animate-pulse rounded bg-slate-300 dark:bg-slate-600" style="animation-delay: 200ms" />
+          </div>
           <p v-else-if="ex.error" class="text-red-600 dark:text-red-400">{{ ex.error }}</p>
           <template v-else>
             <p class="whitespace-pre-wrap">{{ ex.answer }}</p>

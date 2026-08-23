@@ -6,6 +6,15 @@ const lessonId = computed(() => route.params.lessonId as string)
 
 const { data: lesson, status, error } = useLesson(lessonId)
 const { data: courses } = useCourses()
+const progress = useProgressStore()
+
+watch(
+  lesson,
+  (l) => {
+    if (l) progress.markCompleted(l.id)
+  },
+  { immediate: true }
+)
 
 const siblingLessons = computed(() => {
   const course = courses.value?.find((c) => c.id === lesson.value?.courseId)
