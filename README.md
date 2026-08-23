@@ -1,23 +1,35 @@
-# Nuxt Minimal Starter
+# mindspace-web
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Frontend for **Mindspace** — a course/lesson viewer with an AI tutor chat panel,
+built with Nuxt 3, Tailwind CSS, and Pinia. Talks to the [`mindspace-api`](../mindspace-api)
+backend for course content and AI-assisted Q&A.
+
+## Features
+
+- **Course layout & sidebar** (`/courses`) — browse courses and lessons via a
+  left-hand navigation sidebar.
+- **Markdown rendering** — lesson content is rendered with [`@nuxtjs/mdc`](https://github.com/nuxt-modules/mdc),
+  including syntax-highlighted TypeScript code blocks (via Shiki, light/dark themes).
+- **AI Chat Panel** — a slide-in drawer for asking questions about course content,
+  backed by `POST /api/chat/ask`, with answers grounded in cited lesson references.
 
 ## Setup
 
-Make sure to install dependencies:
+Install dependencies:
 
 ```bash
-# npm
 npm install
+```
 
-# pnpm
-pnpm install
+Copy the example env file and point it at your running `mindspace-api` instance:
 
-# yarn
-yarn install
+```bash
+cp .env.example .env
+```
 
-# bun
-bun install
+```env
+# .env
+NUXT_PUBLIC_API_BASE=http://localhost:8080
 ```
 
 ## Development Server
@@ -25,51 +37,30 @@ bun install
 Start the development server on `http://localhost:3000`:
 
 ```bash
-# npm
 npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
 ```
+
+Make sure `mindspace-api` is running on port `8080` (see that project's README) so
+the courses list, lesson content, and AI chat panel have data to work with.
 
 ## Production
 
 Build the application for production:
 
 ```bash
-# npm
 npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
 ```
 
-Locally preview production build:
+Locally preview the production build:
 
 ```bash
-# npm
 npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
 ```
 
 Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+
+## Branching workflow
+
+- `develop` is the default/integration branch.
+- New work happens on `feature/<short-description>` branches cut from `develop`.
+- Open a PR back into `develop`; merge once reviewed.
