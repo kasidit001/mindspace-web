@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* @nuxtjs/mdc emits shiki's dual light/dark theme as CSS variables per span
+   (--shiki-default / --shiki-dark). Swap to the dark variant whenever a `.dark`
+   ancestor class is present, matching our Tailwind `darkMode: 'class'` setup. */
+.dark .shiki,
+.dark .shiki span {
+  color: var(--shiki-dark) !important;
+  background-color: var(--shiki-dark-bg) !important;
+}
