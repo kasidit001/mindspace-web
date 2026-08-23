@@ -56,7 +56,7 @@ watch(lessonId, () => {
   <div
     ref="rootEl"
     class="mx-auto px-8 py-10 transition-[max-width] duration-200"
-    :class="focusMode ? 'max-w-4xl' : 'max-w-3xl'"
+    :class="focusMode ? 'max-w-[880px]' : 'max-w-[720px]'"
   >
     <!-- Loading skeleton -->
     <div v-if="status === 'pending'" class="animate-pulse space-y-4">
@@ -69,7 +69,7 @@ watch(lessonId, () => {
       </div>
     </div>
 
-    <div v-else-if="error" class="rounded-xl border border-red-200 bg-red-50 p-6 text-center dark:border-red-900/50 dark:bg-red-950/30">
+    <div v-else-if="error" class="rounded border border-red-200 bg-red-50 p-6 text-center dark:border-red-900/50 dark:bg-red-950/30">
       <p class="text-3xl" aria-hidden="true">🔌</p>
       <p class="mt-2 font-medium text-red-700 dark:text-red-400">Couldn't load this lesson</p>
       <p class="mt-1 text-sm text-red-600/80 dark:text-red-400/70">
@@ -91,11 +91,11 @@ watch(lessonId, () => {
       </div>
 
       <!-- Previous / next lesson navigation -->
-      <nav class="mt-10 flex items-stretch gap-4 border-t border-zinc-200 pt-6 dark:border-white/10">
+      <nav class="mt-10 flex items-stretch gap-4 border-t border-divider pt-6 dark:border-divider-dark">
         <NuxtLink
           v-if="previousLesson"
           :to="`/courses/${previousLesson.id}`"
-          class="group flex-1 rounded-lg border border-zinc-200 p-3 text-left transition-colors hover:border-emerald-400 dark:border-white/10 dark:hover:border-emerald-600"
+          class="group flex-1 rounded border border-divider p-3 text-left transition-colors hover:border-emerald-400 dark:border-divider-dark dark:hover:border-emerald-600"
         >
           <span class="block text-xs text-zinc-500 dark:text-zinc-400">← Previous</span>
           <span class="mt-0.5 block truncate font-medium text-zinc-800 group-hover:text-emerald-700 dark:text-zinc-200 dark:group-hover:text-emerald-400">
@@ -107,7 +107,7 @@ watch(lessonId, () => {
         <NuxtLink
           v-if="nextLesson"
           :to="`/courses/${nextLesson.id}`"
-          class="group flex-1 rounded-lg border border-zinc-200 p-3 text-right transition-colors hover:border-emerald-400 dark:border-white/10 dark:hover:border-emerald-600"
+          class="group flex-1 rounded border border-divider p-3 text-right transition-colors hover:border-emerald-400 dark:border-divider-dark dark:hover:border-emerald-600"
         >
           <span class="block text-xs text-zinc-500 dark:text-zinc-400">Next →</span>
           <span class="mt-0.5 block truncate font-medium text-zinc-800 group-hover:text-emerald-700 dark:text-zinc-200 dark:group-hover:text-emerald-400">

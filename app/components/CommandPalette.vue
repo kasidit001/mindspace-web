@@ -107,11 +107,11 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydownGlobal))
 <template>
   <div
     v-if="open"
-    class="fixed inset-0 z-50 flex justify-center bg-black/40 px-4 pt-[12vh] backdrop-blur-sm"
+    class="fixed inset-0 z-50 flex justify-center bg-black/30 px-4 pt-[12vh]"
     @click.self="close"
   >
-    <div class="glass-strong reveal h-fit w-full max-w-lg overflow-hidden rounded-2xl shadow-2xl">
-      <div class="flex items-center gap-2 border-b border-zinc-200/70 px-4 py-3 dark:border-white/10">
+    <div class="reveal h-fit w-full max-w-lg overflow-hidden rounded border border-divider bg-canvas shadow-md dark:border-divider-dark dark:bg-canvas-dark">
+      <div class="flex items-center gap-2 border-b border-divider px-4 py-3 dark:border-divider-dark">
         <span class="text-zinc-400" aria-hidden="true">🔎</span>
         <input
           ref="inputEl"
@@ -165,7 +165,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydownGlobal))
         </li>
       </ul>
 
-      <div class="border-t border-zinc-200/70 px-4 py-2 font-mono text-[11px] text-zinc-400 dark:border-white/10">
+      <div class="border-t border-divider px-4 py-2 font-mono text-[11px] text-zinc-400 dark:border-divider-dark">
         <kbd class="rounded border border-zinc-300 px-1 dark:border-zinc-600">↑↓</kbd> navigate ·
         <kbd class="rounded border border-zinc-300 px-1 dark:border-zinc-600">↵</kbd> select ·
         <kbd class="rounded border border-zinc-300 px-1 dark:border-zinc-600">esc</kbd> close

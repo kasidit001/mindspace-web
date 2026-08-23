@@ -11,8 +11,15 @@ export default defineNuxtConfig({
     // Without it, @nuxt/fonts only provisions a family once it scans literal
     // `font-family` text in compiled CSS — which never reliably sees fonts
     // referenced only via Tailwind's JS config (tailwind.config.ts).
+    //
+    // Note: "JetBrains Sans" was requested but isn't actually available for
+    // web use — JetBrains has confirmed it's unreleased and restricted to
+    // their own domains/products (see their YouTrack WRS-2431). IBM Plex
+    // Sans substitutes: also designed for developer-tool UIs, openly
+    // licensed (SIL OFL), and genuinely available. JetBrains Mono is real
+    // and unaffected.
     families: [
-      { name: 'Plus Jakarta Sans', provider: 'google', weights: [400, 500, 600, 700, 800], global: true },
+      { name: 'IBM Plex Sans', provider: 'google', weights: [400, 500, 600, 700], global: true },
       { name: 'JetBrains Mono', provider: 'google', weights: [400, 500, 600], global: true }
     ]
   },
@@ -25,7 +32,7 @@ export default defineNuxtConfig({
     highlight: {
       theme: {
         default: 'vitesse-light',
-        dark: 'poimandres'
+        dark: 'vitesse-dark'
       },
       langs: ['ts', 'typescript', 'js', 'javascript', 'json', 'bash', 'html', 'css', 'vue', 'md']
     }
