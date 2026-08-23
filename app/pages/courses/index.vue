@@ -41,23 +41,23 @@ const levelIcon: Record<string, string> = {
     <h1 class="text-3xl font-bold tracking-tight">Explore Courses</h1>
     <p class="mt-2 text-zinc-600 dark:text-zinc-400">
       Pick up where you left off, or start something new. Press
-      <kbd class="rounded border border-divider px-1 font-mono text-xs dark:border-divider-dark">⌘K</kbd>
+      <kbd class="rounded-md border border-divider px-1 font-mono text-xs dark:border-divider-dark">⌘K</kbd>
       to jump straight to a lesson.
     </p>
 
     <!-- Loading skeleton -->
     <div v-if="status === 'pending'" class="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
-      <div v-for="i in 2" :key="i" class="flex animate-pulse items-center gap-4 rounded border border-divider p-5 dark:border-divider-dark">
-        <div class="size-10 shrink-0 rounded bg-zinc-200 dark:bg-white/10" />
+      <div v-for="i in 2" :key="i" class="flex animate-pulse items-center gap-4 rounded-md border border-divider p-5 dark:border-divider-dark">
+        <div class="size-10 shrink-0 rounded-md bg-zinc-200 dark:bg-white/10" />
         <div class="flex-1 space-y-2">
-          <div class="h-4 w-1/2 rounded bg-zinc-200 dark:bg-white/10" />
-          <div class="h-3 w-1/3 rounded bg-zinc-100 dark:bg-white/[0.06]" />
+          <div class="h-4 w-1/2 rounded-md bg-zinc-200 dark:bg-white/10" />
+          <div class="h-3 w-1/3 rounded-md bg-zinc-100 dark:bg-white/[0.06]" />
         </div>
       </div>
     </div>
 
     <!-- Error / reconnect state -->
-    <div v-else-if="error" class="mt-10 flex flex-col items-center rounded border border-dashed border-red-200 p-12 text-center dark:border-red-900/50">
+    <div v-else-if="error" class="mt-10 flex flex-col items-center rounded-md border border-dashed border-red-200 p-12 text-center dark:border-red-900/50">
       <p class="text-4xl" aria-hidden="true">🔌</p>
       <p class="mt-3 font-medium text-zinc-800 dark:text-zinc-100">Can't reach mindspace-api</p>
       <p class="mt-1 max-w-sm text-sm text-zinc-500 dark:text-zinc-400">
@@ -65,7 +65,7 @@ const levelIcon: Record<string, string> = {
       </p>
       <button
         type="button"
-        class="mt-5 flex items-center gap-1.5 rounded bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+        class="mt-5 flex items-center gap-1.5 rounded-md bg-accent-600 px-4 py-2 text-sm font-semibold text-white hover:bg-accent-700 disabled:opacity-50"
         :disabled="pending"
         @click="refresh()"
       >
@@ -80,12 +80,12 @@ const levelIcon: Record<string, string> = {
         v-for="course in courses"
         :key="course.id"
         :to="firstLessonId(course) ? `/courses/${firstLessonId(course)}` : '/courses'"
-        class="flex items-center gap-4 rounded border border-divider p-5 transition-colors"
+        class="flex items-center gap-4 rounded-md border border-divider p-5 transition-colors"
         :class="firstLessonId(course)
-          ? 'hover:border-emerald-400 dark:hover:border-emerald-600'
+          ? 'hover:border-accent-400 dark:hover:border-accent-600'
           : 'pointer-events-none opacity-60'"
       >
-        <span class="flex size-10 shrink-0 items-center justify-center rounded bg-zinc-100 text-xl dark:bg-white/[0.06]">
+        <span class="flex size-10 shrink-0 items-center justify-center rounded-md bg-zinc-100 text-xl dark:bg-white/[0.06]">
           {{ levelIcon[getCourseLevel(course)] }}
         </span>
         <div class="min-w-0 flex-1">

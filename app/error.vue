@@ -29,14 +29,14 @@ function retry() {
     <div class="mt-8 flex gap-3">
       <button
         type="button"
-        class="rounded bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+        class="rounded-md bg-accent-600 px-4 py-2 text-sm font-semibold text-white hover:bg-accent-700"
         @click="retry"
       >
         {{ isNotFound ? 'Go to courses' : 'Reconnect' }}
       </button>
       <NuxtLink
         to="/"
-        class="rounded border border-divider px-4 py-2 text-sm font-semibold text-zinc-800 hover:bg-zinc-50 dark:border-divider-dark dark:text-zinc-100 dark:hover:bg-white/5"
+        class="rounded-md border border-divider px-4 py-2 text-sm font-semibold text-zinc-800 hover:bg-zinc-50 dark:border-divider-dark dark:text-zinc-100 dark:hover:bg-white/5"
       >
         Home
       </NuxtLink>

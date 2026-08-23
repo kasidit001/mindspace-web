@@ -43,7 +43,7 @@ async function submit() {
   >
     <div class="flex h-full w-full flex-col lg:w-[360px]">
       <header class="flex h-12 shrink-0 items-center gap-2 border-b border-divider px-3 dark:border-divider-dark">
-        <span class="flex size-6 shrink-0 items-center justify-center rounded bg-indigo-600 text-xs text-white">✨</span>
+        <span class="flex size-6 shrink-0 items-center justify-center rounded-md bg-ai-600 text-xs text-white">✨</span>
         <div class="min-w-0 flex-1">
           <h2 class="text-sm font-semibold text-zinc-900 dark:text-white">AI Assistant</h2>
         </div>
@@ -59,7 +59,7 @@ async function submit() {
 
       <div ref="scrollEl" class="scrollbar-thin flex-1 space-y-3 overflow-y-auto px-3 py-3">
         <!-- Friendly welcome state -->
-        <div v-if="exchanges.length === 0" class="rounded border border-divider p-3 text-sm dark:border-divider-dark">
+        <div v-if="exchanges.length === 0" class="rounded-md border border-divider p-3 text-sm dark:border-divider-dark">
           <p class="font-medium text-zinc-800 dark:text-zinc-100">👋 Hey, I'm your AI tutor.</p>
           <p class="mt-1.5 text-zinc-500 dark:text-zinc-400">
             Ask me anything about the lessons — I'll answer grounded in the actual course content,
@@ -68,16 +68,16 @@ async function submit() {
         </div>
 
         <div v-for="ex in exchanges" :key="ex.id" class="space-y-1.5">
-          <div class="ml-auto max-w-[85%] rounded-md bg-indigo-600 px-3 py-2 text-sm text-white">
+          <div class="ml-auto max-w-[85%] rounded-md bg-ai-600 px-3 py-2 text-sm text-white">
             {{ ex.question }}
           </div>
 
           <div class="max-w-[92%] rounded-md border border-divider px-3 py-2 text-sm text-zinc-800 dark:border-divider-dark dark:text-zinc-100">
             <!-- Skeleton loading state while waiting for the AI response -->
             <div v-if="ex.pending" class="space-y-2 py-0.5" aria-label="Waiting for answer">
-              <div class="h-3 w-4/5 animate-pulse rounded bg-zinc-200 dark:bg-white/10" />
-              <div class="h-3 w-3/5 animate-pulse rounded bg-zinc-200 dark:bg-white/10" style="animation-delay: 100ms" />
-              <div class="h-3 w-2/5 animate-pulse rounded bg-zinc-200 dark:bg-white/10" style="animation-delay: 200ms" />
+              <div class="h-3 w-4/5 animate-pulse rounded-md bg-zinc-200 dark:bg-white/10" />
+              <div class="h-3 w-3/5 animate-pulse rounded-md bg-zinc-200 dark:bg-white/10" style="animation-delay: 100ms" />
+              <div class="h-3 w-2/5 animate-pulse rounded-md bg-zinc-200 dark:bg-white/10" style="animation-delay: 200ms" />
             </div>
             <p v-else-if="ex.error" class="text-red-600 dark:text-red-400">{{ ex.error }}</p>
             <template v-else>
@@ -90,7 +90,7 @@ async function submit() {
                   <li v-for="ref in ex.references" :key="ref.lessonId">
                     <NuxtLink
                       :to="`/courses/${ref.lessonId}`"
-                      class="text-xs text-indigo-600 underline decoration-dotted hover:text-indigo-500 dark:text-indigo-400"
+                      class="text-xs text-ai-600 underline decoration-dotted hover:text-ai-500 dark:text-ai-400"
                     >
                       {{ ref.courseTitle }} — {{ ref.lessonTitle }}
                     </NuxtLink>
@@ -107,12 +107,12 @@ async function submit() {
           v-model="question"
           rows="1"
           placeholder="Ask about this course…"
-          class="flex-1 resize-none rounded border border-divider bg-white px-2.5 py-1.5 text-sm focus:border-indigo-500 focus:outline-none dark:border-divider-dark dark:bg-white/[0.04] dark:text-white"
+          class="flex-1 resize-none rounded-md border border-divider bg-white px-2.5 py-1.5 text-sm focus:border-ai-500 focus:outline-none dark:border-divider-dark dark:bg-white/[0.04] dark:text-white"
           @keydown.enter.exact.prevent="submit"
         />
         <button
           type="submit"
-          class="shrink-0 rounded bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+          class="shrink-0 rounded-md bg-ai-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-ai-700 disabled:opacity-50"
           :disabled="!question.trim()"
         >
           Send
