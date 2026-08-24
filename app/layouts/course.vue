@@ -1,4 +1,22 @@
 <script setup lang="ts">
+import {
+  Check,
+  ChevronDown,
+  ChevronRight,
+  FileText,
+  Folder,
+  Maximize2,
+  Menu,
+  Minimize2,
+  RefreshCw,
+  Search,
+  Sparkles,
+  Sun,
+  Moon,
+  User,
+  X
+} from '@lucide/vue'
+
 const { data: courses, status, error, refresh, pending } = useCourses()
 const route = useRoute()
 const progress = useProgressStore()
@@ -9,6 +27,14 @@ const { theme, toggle: toggleTheme } = useTheme()
 
 const sidebarOpen = ref(false)
 const profileOpen = ref(false)
+const collapsedCourses = ref(new Set<string>())
+
+function toggleCourse(courseId: string) {
+  const next = new Set(collapsedCourses.value)
+  if (next.has(courseId)) next.delete(courseId)
+  else next.add(courseId)
+  collapsedCourses.value = next
+}
 
 // Avoid a hydration mismatch: the server never knows localStorage progress,
 // so only render checkmarks/stats once mounted on the client.
@@ -61,7 +87,7 @@ function resetProgress() {
         aria-label="Open sidebar"
         @click="sidebarOpen = true"
       >
-        ☰
+        <Menu :size="18" :stroke-width="1.75" />
       </button>
 
       <NuxtLink to="/" class="shrink-0 text-sm font-semibold tracking-tight">Mindspace</NuxtLink>
@@ -86,7 +112,7 @@ function resetProgress() {
           class="flex w-full max-w-md items-center gap-2 rounded-md border border-divider bg-zinc-50 px-3 py-1.5 text-left text-sm text-zinc-500 transition-colors hover:border-zinc-300 hover:bg-white dark:border-divider-dark dark:bg-white/[0.04] dark:text-zinc-400 dark:hover:bg-white/[0.07]"
           @click="paletteOpen = true"
         >
-          <span aria-hidden="true">🔎</span>
+          <Search :size="16" :stroke-width="1.75" class="shrink-0" />
           <span class="flex-1 truncate">Search lessons, or ask the AI…</span>
           <kbd class="hidden shrink-0 rounded-md border border-zinc-300 px-1.5 py-0.5 font-mono text-[10px] dark:border-zinc-600 sm:inline">⌘K</kbd>
         </button>
@@ -102,21 +128,21 @@ function resetProgress() {
         :title="focusMode ? 'Exit focus mode' : 'Hide sidebar to focus on reading'"
         @click="focusMode = !focusMode"
       >
-        <span aria-hidden="true">{{ focusMode ? '⤢' : '⤡' }}</span>
+        <component :is="focusMode ? Minimize2 : Maximize2" :size="14" :stroke-width="1.75" />
         Focus
       </button>
 
       <!-- AI Assistant toggle (tool-window style, docks on desktop) -->
       <button
         type="button"
-        class="shrink-0 rounded-md border px-2.5 py-1 text-xs font-medium transition-colors"
+        class="shrink-0 inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium transition-colors"
         :class="chatOpen
           ? 'border-ai-500 text-ai-700 dark:text-ai-400'
           : 'border-divider text-zinc-600 hover:border-zinc-300 dark:border-divider-dark dark:text-zinc-300 dark:hover:border-white/20'"
         :title="chatOpen ? 'Close AI Assistant' : 'Open AI Assistant'"
         @click="chatOpen = !chatOpen"
       >
-        <span aria-hidden="true">✨</span>
+        <Sparkles :size="16" :stroke-width="1.75" />
         <span class="hidden sm:inline">Assistant</span>
       </button>
 
@@ -127,18 +153,18 @@ function resetProgress() {
         :aria-label="theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
         @click="toggleTheme"
       >
-        <span aria-hidden="true">{{ theme === 'dark' ? '☀️' : '🌙' }}</span>
+        <component :is="theme === 'dark' ? Sun : Moon" :size="16" :stroke-width="1.75" />
       </button>
 
       <!-- Profile / progress popover -->
       <div class="relative shrink-0">
         <button
           type="button"
-          class="flex size-7 items-center justify-center rounded-full bg-accent-600 text-xs font-semibold text-white"
+          class="flex size-7 items-center justify-center rounded-full bg-accent-600 text-white"
           aria-label="Your progress"
           @click="profileOpen = !profileOpen"
         >
-          🧑‍💻
+          <User :size="16" :stroke-width="1.75" />
         </button>
 
         <div v-if="profileOpen" class="fixed inset-0 z-40" @click="profileOpen = false" />
@@ -192,7 +218,7 @@ function resetProgress() {
             aria-label="Close sidebar"
             @click="sidebarOpen = false"
           >
-            ✕
+            <X :size="16" :stroke-width="1.75" />
           </button>
         </div>
 
@@ -217,17 +243,28 @@ function resetProgress() {
             :disabled="pending"
             @click="refresh()"
           >
-            <span aria-hidden="true">↻</span>
+            <RefreshCw :size="14" :stroke-width="1.75" />
             {{ pending ? 'Reconnecting…' : 'Reconnect API' }}
           </button>
         </div>
 
         <nav v-else class="px-1.5 py-2">
           <div v-for="course in courses" :key="course.id" class="mb-3">
-            <p class="px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-              {{ course.title }}
-            </p>
-            <ul>
+            <button
+              type="button"
+              class="flex w-full items-center gap-1 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400"
+              @click="toggleCourse(course.id)"
+            >
+              <component
+                :is="collapsedCourses.has(course.id) ? ChevronRight : ChevronDown"
+                :size="14"
+                :stroke-width="1.75"
+                class="shrink-0"
+              />
+              <Folder :size="14" :stroke-width="1.75" class="shrink-0" />
+              <span class="truncate">{{ course.title }}</span>
+            </button>
+            <ul v-if="!collapsedCourses.has(course.id)">
               <li v-for="lesson in course.lessons" :key="lesson.id">
                 <NuxtLink
                   :to="`/courses/${lesson.id}`"
@@ -236,15 +273,16 @@ function resetProgress() {
                     ? 'border-accent-500 bg-zinc-100 font-medium text-zinc-900 dark:bg-white/[0.06] dark:text-white'
                     : 'border-transparent text-zinc-600 hover:bg-zinc-50 dark:text-zinc-400 dark:hover:bg-white/[0.04]'"
                 >
+                  <FileText :size="14" :stroke-width="1.75" class="shrink-0 text-zinc-400 dark:text-zinc-500" />
                   <span class="flex-1 truncate">{{ lesson.order }}. {{ lesson.title }}</span>
-                  <span
+                  <Check
                     v-if="mounted && progress.isCompleted(lesson.id)"
+                    :size="14"
+                    :stroke-width="1.75"
                     class="shrink-0 text-accent-600 dark:text-accent-500"
                     title="Completed"
                     aria-label="Completed"
-                  >
-                    ✓
-                  </span>
+                  />
                 </NuxtLink>
               </li>
             </ul>

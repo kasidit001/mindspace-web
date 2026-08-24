@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { Bot, MessageSquare, Send, X } from '@lucide/vue'
+
 const { exchanges, ask } = useChatAsk()
 const open = useChatDrawerOpen()
 
@@ -43,7 +45,9 @@ async function submit() {
   >
     <div class="flex h-full w-full flex-col lg:w-[360px]">
       <header class="flex h-12 shrink-0 items-center gap-2 border-b border-divider px-3 dark:border-divider-dark">
-        <span class="flex size-6 shrink-0 items-center justify-center rounded-md bg-ai-600 text-xs text-white">✨</span>
+        <span class="flex size-6 shrink-0 items-center justify-center rounded-md bg-ai-600 text-white">
+          <Bot :size="15" :stroke-width="1.75" />
+        </span>
         <div class="min-w-0 flex-1">
           <h2 class="text-sm font-semibold text-zinc-900 dark:text-white">AI Assistant</h2>
         </div>
@@ -53,14 +57,17 @@ async function submit() {
           aria-label="Close AI Assistant"
           @click="open = false"
         >
-          ✕
+          <X :size="16" :stroke-width="1.75" />
         </button>
       </header>
 
       <div ref="scrollEl" class="scrollbar-thin flex-1 space-y-3 overflow-y-auto px-3 py-3">
         <!-- Friendly welcome state -->
         <div v-if="exchanges.length === 0" class="rounded-md border border-divider p-3 text-sm dark:border-divider-dark">
-          <p class="font-medium text-zinc-800 dark:text-zinc-100">👋 Hey, I'm your AI tutor.</p>
+          <p class="flex items-center gap-1.5 font-medium text-zinc-800 dark:text-zinc-100">
+            <MessageSquare :size="16" :stroke-width="1.75" class="shrink-0 text-ai-600 dark:text-ai-400" />
+            Hey, I'm your AI tutor.
+          </p>
           <p class="mt-1.5 text-zinc-500 dark:text-zinc-400">
             Ask me anything about the lessons — I'll answer grounded in the actual course content,
             with citations back to where it came from.
@@ -112,10 +119,11 @@ async function submit() {
         />
         <button
           type="submit"
-          class="shrink-0 rounded-md bg-ai-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-ai-700 disabled:opacity-50"
+          class="shrink-0 inline-flex items-center gap-1.5 rounded-md bg-ai-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-ai-700 disabled:opacity-50"
           :disabled="!question.trim()"
         >
           Send
+          <Send :size="14" :stroke-width="1.75" />
         </button>
       </form>
     </div>

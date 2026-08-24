@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ArrowLeft, ArrowRight, BookOpen, Unplug } from '@lucide/vue'
+
 definePageMeta({ layout: 'course' })
 
 const route = useRoute()
@@ -70,7 +72,7 @@ watch(lessonId, () => {
     </div>
 
     <div v-else-if="error" class="rounded-md border border-red-200 bg-red-50 p-6 text-center dark:border-red-900/50 dark:bg-red-950/30">
-      <p class="text-3xl" aria-hidden="true">🔌</p>
+      <Unplug :size="28" :stroke-width="1.75" class="mx-auto text-red-400 dark:text-red-500" aria-hidden="true" />
       <p class="mt-2 font-medium text-red-700 dark:text-red-400">Couldn't load this lesson</p>
       <p class="mt-1 text-sm text-red-600/80 dark:text-red-400/70">
         It may not exist, or mindspace-api isn't running on port 8080.
@@ -81,7 +83,10 @@ watch(lessonId, () => {
       <div class="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-zinc-500 dark:text-zinc-400">
         <span class="sm:hidden">{{ lesson.course.title }}</span>
         <span class="hidden sm:inline" aria-hidden="true">·</span>
-        <span>{{ readingMinutes }} min read</span>
+        <span class="inline-flex items-center gap-1.5">
+          <BookOpen :size="14" :stroke-width="1.75" />
+          {{ readingMinutes }} min read
+        </span>
       </div>
       <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">{{ lesson.title }}</h1>
 
@@ -97,7 +102,10 @@ watch(lessonId, () => {
           :to="`/courses/${previousLesson.id}`"
           class="group flex-1 rounded-md border border-divider p-3 text-left transition-colors hover:border-accent-400 dark:border-divider-dark dark:hover:border-accent-600"
         >
-          <span class="block text-xs text-zinc-500 dark:text-zinc-400">← Previous</span>
+          <span class="flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400">
+            <ArrowLeft :size="12" :stroke-width="1.75" />
+            Previous
+          </span>
           <span class="mt-0.5 block truncate font-medium text-zinc-800 group-hover:text-accent-700 dark:text-zinc-200 dark:group-hover:text-accent-400">
             {{ previousLesson.title }}
           </span>
@@ -109,7 +117,10 @@ watch(lessonId, () => {
           :to="`/courses/${nextLesson.id}`"
           class="group flex-1 rounded-md border border-divider p-3 text-right transition-colors hover:border-accent-400 dark:border-divider-dark dark:hover:border-accent-600"
         >
-          <span class="block text-xs text-zinc-500 dark:text-zinc-400">Next →</span>
+          <span class="flex items-center justify-end gap-1 text-xs text-zinc-500 dark:text-zinc-400">
+            Next
+            <ArrowRight :size="12" :stroke-width="1.75" />
+          </span>
           <span class="mt-0.5 block truncate font-medium text-zinc-800 group-hover:text-accent-700 dark:text-zinc-200 dark:group-hover:text-accent-400">
             {{ nextLesson.title }}
           </span>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { RefreshCw, Rocket, Sprout, Unplug, Zap } from '@lucide/vue'
 import type { Course } from '~/types/course'
 
 definePageMeta({ layout: 'course' })
@@ -29,11 +30,11 @@ function lessonCountLabel(course: Course): string {
   return done > 0 ? `${done}/${total} ${noun}` : `${total} ${noun}`
 }
 
-const levelIcon: Record<string, string> = {
-  Beginner: '🌱',
-  Intermediate: '⚡',
-  Advanced: '🚀'
-}
+const levelIcon = {
+  Beginner: Sprout,
+  Intermediate: Zap,
+  Advanced: Rocket
+} as const
 </script>
 
 <template>
@@ -58,7 +59,7 @@ const levelIcon: Record<string, string> = {
 
     <!-- Error / reconnect state -->
     <div v-else-if="error" class="mt-10 flex flex-col items-center rounded-md border border-dashed border-red-200 p-12 text-center dark:border-red-900/50">
-      <p class="text-4xl" aria-hidden="true">🔌</p>
+      <Unplug :size="36" :stroke-width="1.75" class="text-red-400 dark:text-red-500" aria-hidden="true" />
       <p class="mt-3 font-medium text-zinc-800 dark:text-zinc-100">Can't reach mindspace-api</p>
       <p class="mt-1 max-w-sm text-sm text-zinc-500 dark:text-zinc-400">
         The course list couldn't load. Make sure mindspace-api is running on port 8080, then try again.
@@ -69,7 +70,7 @@ const levelIcon: Record<string, string> = {
         :disabled="pending"
         @click="refresh()"
       >
-        <span aria-hidden="true">↻</span>
+        <RefreshCw :size="14" :stroke-width="1.75" />
         {{ pending ? 'Reconnecting…' : 'Reconnect API' }}
       </button>
     </div>
@@ -85,8 +86,8 @@ const levelIcon: Record<string, string> = {
           ? 'hover:border-accent-400 dark:hover:border-accent-600'
           : 'pointer-events-none opacity-60'"
       >
-        <span class="flex size-10 shrink-0 items-center justify-center rounded-md bg-zinc-100 text-xl dark:bg-white/[0.06]">
-          {{ levelIcon[getCourseLevel(course)] }}
+        <span class="flex size-10 shrink-0 items-center justify-center rounded-md bg-zinc-100 dark:bg-white/[0.06]">
+          <component :is="levelIcon[getCourseLevel(course)]" :size="18" :stroke-width="1.75" />
         </span>
         <div class="min-w-0 flex-1">
           <h2 class="truncate font-semibold">{{ course.title }}</h2>

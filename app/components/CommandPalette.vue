@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { FileText, Search, Sparkles } from '@lucide/vue'
+
 const { data: courses } = useCourses()
 const { ask } = useChatAsk()
 
@@ -112,7 +114,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydownGlobal))
   >
     <div class="reveal h-fit w-full max-w-lg overflow-hidden rounded-md border border-divider bg-canvas shadow-md dark:border-divider-dark dark:bg-canvas-dark">
       <div class="flex items-center gap-2 border-b border-divider px-4 py-3 dark:border-divider-dark">
-        <span class="text-zinc-400" aria-hidden="true">🔎</span>
+        <Search :size="16" :stroke-width="1.75" class="shrink-0 text-zinc-400" />
         <input
           ref="inputEl"
           v-model="query"
@@ -140,14 +142,14 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydownGlobal))
             @click="selectItem(item)"
           >
             <template v-if="item.type === 'lesson'">
-              <span aria-hidden="true">📄</span>
+              <FileText :size="16" :stroke-width="1.75" class="shrink-0 text-zinc-400" />
               <span class="flex-1 truncate">
                 <span class="text-zinc-900 dark:text-white">{{ item.title }}</span>
                 <span class="ml-2 text-xs text-zinc-500 dark:text-zinc-400">{{ item.courseTitle }}</span>
               </span>
             </template>
             <template v-else>
-              <span aria-hidden="true">✨</span>
+              <Sparkles :size="16" :stroke-width="1.75" class="shrink-0 text-ai-600 dark:text-ai-400" />
               <span class="flex-1 truncate text-zinc-900 dark:text-white">
                 Ask AI Tutor: <span class="italic text-zinc-600 dark:text-zinc-300">“{{ item.query }}”</span>
               </span>
