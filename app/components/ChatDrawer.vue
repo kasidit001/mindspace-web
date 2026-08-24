@@ -41,17 +41,22 @@ async function submit() {
   <!-- Panel: fixed overlay on mobile, a real (width-animated) flex column
        on desktop — this is what keeps it from ever obstructing content. -->
   <aside
-    class="fixed inset-y-0 right-0 z-40 flex w-full max-w-sm shrink-0 translate-x-0 flex-col border-l border-divider bg-canvas transition-[width,transform] duration-200 dark:border-divider-dark dark:bg-canvas-dark lg:static lg:z-auto lg:max-w-none lg:translate-x-0 lg:overflow-hidden lg:border-l"
-    :class="open ? 'translate-x-0 lg:w-[360px]' : 'translate-x-full lg:w-0 lg:border-l-0'"
+    class="fixed inset-y-0 right-0 z-40 flex w-full max-w-sm shrink-0 translate-x-0 flex-col border-l-2 bg-canvas transition-[width,transform,box-shadow] duration-200 dark:bg-canvas-dark lg:static lg:z-auto lg:max-w-none lg:translate-x-0 lg:overflow-hidden lg:border-l-2"
+    :class="open ? 'translate-x-0 border-ai-500 shadow-[-16px_0_40px_-24px_rgb(0,255,102,0.5)] lg:w-[360px]' : 'translate-x-full border-transparent lg:w-0'"
   >
     <div class="flex h-full w-full flex-col lg:w-[360px]">
       <header class="flex min-h-12 shrink-0 items-center gap-2 border-b border-divider px-3 py-2 dark:border-divider-dark">
-        <span class="flex size-6 shrink-0 items-center justify-center rounded-md bg-ai-600 text-white">
+        <span class="flex size-6 shrink-0 items-center justify-center rounded-md bg-ai-700 text-white">
           <Bot :size="15" :stroke-width="1.75" />
         </span>
         <div class="min-w-0 flex-1">
           <h2 class="text-sm font-semibold text-zinc-900 dark:text-white">{{ t('aiAssistant.title') }}</h2>
-          <p class="text-[10px] font-medium leading-tight text-ai-600 dark:text-ai-400">{{ t('aiAssistant.groundedBadge') }}</p>
+          <!-- Terminal badge: translucent green fill, solid green text —
+               the same recipe used for every AI/code status pill. -->
+          <span class="mt-1 inline-flex items-center gap-1 rounded-full bg-ai-400/10 px-2 py-0.5 text-[10px] font-medium text-ai-700 dark:text-ai-400">
+            <span class="size-1 rounded-full bg-ai-500" aria-hidden="true" />
+            {{ t('aiAssistant.groundedBadge') }}
+          </span>
         </div>
         <button
           type="button"
@@ -76,7 +81,7 @@ async function submit() {
         </div>
 
         <div v-for="ex in exchanges" :key="ex.id" class="space-y-1.5">
-          <div class="ml-auto max-w-[85%] rounded-md bg-ai-600 px-3 py-2 text-sm text-white">
+          <div class="ml-auto max-w-[85%] rounded-md bg-ai-700 px-3 py-2 text-sm text-white">
             {{ ex.question }}
           </div>
 
@@ -98,7 +103,7 @@ async function submit() {
                   <li v-for="ref in ex.references" :key="ref.lessonId">
                     <NuxtLink
                       :to="`/courses/${ref.lessonId}`"
-                      class="text-xs text-ai-600 underline decoration-dotted hover:text-ai-500 dark:text-ai-400"
+                      class="text-xs text-ai-700 underline decoration-dotted hover:text-ai-500 dark:text-ai-400"
                     >
                       {{ ref.courseTitle }} — {{ ref.lessonTitle }}
                     </NuxtLink>
@@ -120,7 +125,7 @@ async function submit() {
         />
         <button
           type="submit"
-          class="shrink-0 inline-flex items-center gap-1.5 rounded-md bg-ai-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-ai-700 disabled:opacity-50"
+          class="shrink-0 inline-flex items-center gap-1.5 rounded-md bg-ai-700 px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-ai-600 disabled:opacity-50"
           :disabled="!question.trim()"
         >
           {{ t('aiAssistant.send') }}
