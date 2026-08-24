@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { CheckCircle2, Copy } from '@lucide/vue'
+
 // Overrides @nuxtjs/mdc's default <ProsePre> to add a copy-to-clipboard
 // button, a filename/language chip, and line numbers (via the `line`
 // attribute shiki already stamps on each line span — see tailwind.css).
@@ -66,7 +68,7 @@ async function copy() {
       ]"
       @click="copy"
     >
-      <span aria-hidden="true">{{ copied ? '✓' : '⧉' }}</span>
+      <component :is="copied ? CheckCircle2 : Copy" :size="13" :stroke-width="1.75" />
       {{ copied ? 'Copied' : 'Copy' }}
     </button>
   </div>

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ArrowRight, Bot, Check, Code2, Command, Moon, Rocket, Sprout, Sun, Zap } from '@lucide/vue'
+
 // Landing page has no shared layout (no sidebar/chat chrome) — it's the
 // public entry point; /courses is where the actual app lives.
 const { theme, toggle: toggleTheme } = useTheme()
@@ -10,30 +12,30 @@ function firstLessonId(course: { lessons: { id: string; order: number }[] }): st
   return [...course.lessons].sort((a, b) => a.order - b.order)[0]?.id ?? null
 }
 
-const levelIcon: Record<string, string> = {
-  Beginner: '🌱',
-  Intermediate: '⚡',
-  Advanced: '🚀'
-}
+const levelIcon = {
+  Beginner: Sprout,
+  Intermediate: Zap,
+  Advanced: Rocket
+} as const
 
 const features = [
   {
-    icon: '🤖',
+    icon: Bot,
     title: 'AI tutor, grounded in the material',
     body: 'Ask anything about a lesson. Answers cite the exact lessons they came from — no hallucinated APIs.'
   },
   {
-    icon: '💡',
+    icon: Code2,
     title: 'Real, highlighted TypeScript',
     body: 'Every code block is syntax-highlighted, copy-ready, and numbered — rendered straight from lesson Markdown.'
   },
   {
-    icon: '✓',
+    icon: Check,
     title: 'Progress that sticks',
     body: 'Lessons you finish are checked off automatically, so you always know exactly where you left off.'
   },
   {
-    icon: '⌘',
+    icon: Command,
     title: 'Find anything instantly',
     body: 'A Cmd+K spotlight search jumps straight to any lesson, or hands your question to the AI tutor.'
   }
@@ -52,13 +54,14 @@ const features = [
           :aria-label="theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
           @click="toggleTheme"
         >
-          <span aria-hidden="true">{{ theme === 'dark' ? '☀️' : '🌙' }}</span>
+          <component :is="theme === 'dark' ? Sun : Moon" :size="16" :stroke-width="1.75" />
         </button>
         <NuxtLink
           to="/courses"
-          class="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white"
+          class="inline-flex items-center gap-1 text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white"
         >
-          Explore Courses →
+          Explore Courses
+          <ArrowRight :size="14" :stroke-width="1.75" />
         </NuxtLink>
       </div>
     </header>
@@ -132,8 +135,9 @@ const features = [
             </p>
           </div>
 
-          <div class="border-t border-divider-dark px-4 py-2.5 text-center text-xs font-medium text-ai-400 group-hover:underline">
-            Try it yourself →
+          <div class="flex items-center justify-center gap-1 border-t border-divider-dark px-4 py-2.5 text-center text-xs font-medium text-ai-400 group-hover:underline">
+            Try it yourself
+            <ArrowRight :size="12" :stroke-width="1.75" />
           </div>
         </NuxtLink>
       </div>
@@ -143,8 +147,9 @@ const features = [
     <section v-if="previewCourses.length" class="mx-auto max-w-6xl px-6 pb-24">
       <div class="mb-6 flex items-end justify-between">
         <h2 class="text-2xl font-bold tracking-tight">Start with a course</h2>
-        <NuxtLink to="/courses" class="text-sm font-medium text-accent-600 hover:underline dark:text-accent-400">
-          View all →
+        <NuxtLink to="/courses" class="inline-flex items-center gap-1 text-sm font-medium text-accent-600 hover:underline dark:text-accent-400">
+          View all
+          <ArrowRight :size="14" :stroke-width="1.75" />
         </NuxtLink>
       </div>
 
@@ -155,8 +160,8 @@ const features = [
           :to="firstLessonId(course) ? `/courses/${firstLessonId(course)}` : '/courses'"
           class="flex items-center gap-4 rounded-md border border-divider p-5 transition-colors hover:border-accent-400 dark:border-divider-dark dark:hover:border-accent-600"
         >
-          <span class="flex size-10 shrink-0 items-center justify-center rounded-md bg-zinc-100 text-xl dark:bg-white/[0.06]">
-            {{ levelIcon[getCourseLevel(course)] }}
+          <span class="flex size-10 shrink-0 items-center justify-center rounded-md bg-zinc-100 dark:bg-white/[0.06]">
+            <component :is="levelIcon[getCourseLevel(course)]" :size="18" :stroke-width="1.75" />
           </span>
           <div class="min-w-0 flex-1">
             <h3 class="truncate font-semibold">{{ course.title }}</h3>
@@ -176,8 +181,8 @@ const features = [
           :key="feature.title"
           class="rounded-md border border-divider p-5 transition-colors hover:border-accent-400 dark:border-divider-dark dark:hover:border-accent-600"
         >
-          <div class="flex size-10 items-center justify-center rounded-md bg-accent-50 text-lg dark:bg-accent-500/10">
-            {{ feature.icon }}
+          <div class="flex size-10 items-center justify-center rounded-md bg-accent-50 text-accent-600 dark:bg-accent-500/10 dark:text-accent-400">
+            <component :is="feature.icon" :size="18" :stroke-width="1.75" />
           </div>
           <h2 class="mt-3.5 font-semibold">{{ feature.title }}</h2>
           <p class="mt-1.5 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">{{ feature.body }}</p>
@@ -189,8 +194,9 @@ const features = [
     <footer class="border-t border-divider px-6 py-10 text-center dark:border-divider-dark">
       <p class="text-sm text-zinc-500 dark:text-zinc-400">
         Ready to dive in?
-        <NuxtLink to="/courses" class="font-semibold text-accent-600 hover:underline dark:text-accent-400">
-          Open the courses →
+        <NuxtLink to="/courses" class="inline-flex items-center gap-1 font-semibold text-accent-600 hover:underline dark:text-accent-400">
+          Open the courses
+          <ArrowRight :size="14" :stroke-width="1.75" />
         </NuxtLink>
       </p>
     </footer>

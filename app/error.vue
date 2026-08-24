@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Compass, Unplug } from '@lucide/vue'
 import type { NuxtError } from '#app'
 
 const props = defineProps<{ error: NuxtError }>()
@@ -12,7 +13,7 @@ function retry() {
 
 <template>
   <div class="flex min-h-screen flex-col items-center justify-center bg-canvas px-6 text-center text-zinc-900 dark:bg-canvas-dark dark:text-zinc-100">
-    <p class="text-5xl" aria-hidden="true">{{ isNotFound ? '🧭' : '🔌' }}</p>
+    <component :is="isNotFound ? Compass : Unplug" :size="40" :stroke-width="1.5" class="text-zinc-400 dark:text-zinc-500" aria-hidden="true" />
 
     <p class="mt-6 font-mono text-xs uppercase tracking-[0.2em] text-zinc-400">
       Error {{ error.statusCode }}
