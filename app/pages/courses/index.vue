@@ -6,6 +6,7 @@ definePageMeta({ layout: 'course' })
 
 const { data: courses, status, error, refresh, pending } = useCourses()
 const progress = useProgressStore()
+const { t } = useLanguage()
 
 // Avoid a hydration mismatch: progress is localStorage-backed and only
 // known once mounted on the client.
@@ -26,7 +27,7 @@ function completedCount(course: Course): number {
 function lessonCountLabel(course: Course): string {
   const total = course.lessons.length
   const done = completedCount(course)
-  const noun = `lesson${total === 1 ? '' : 's'}`
+  const noun = t(total === 1 ? 'common.lesson' : 'common.lessons')
   return done > 0 ? `${done}/${total} ${noun}` : `${total} ${noun}`
 }
 
@@ -39,11 +40,11 @@ const levelIcon = {
 
 <template>
   <div class="mx-auto max-w-5xl px-6 py-14 sm:px-10">
-    <h1 class="text-3xl font-bold tracking-tight">Explore Courses</h1>
+    <h1 class="text-3xl font-bold tracking-tight">{{ t('courses.title') }}</h1>
     <p class="mt-2 text-zinc-600 dark:text-zinc-400">
-      Pick up where you left off, or start something new. Press
+      {{ t('courses.subtitlePrefix') }}
       <kbd class="rounded-md border border-divider px-1 font-mono text-xs dark:border-divider-dark">⌘K</kbd>
-      to jump straight to a lesson.
+      {{ t('courses.subtitleSuffix') }}
     </p>
 
     <!-- Loading skeleton -->
@@ -60,9 +61,9 @@ const levelIcon = {
     <!-- Error / reconnect state -->
     <div v-else-if="error" class="mt-10 flex flex-col items-center rounded-md border border-dashed border-red-200 p-12 text-center dark:border-red-900/50">
       <Unplug :size="36" :stroke-width="1.75" class="text-red-400 dark:text-red-500" aria-hidden="true" />
-      <p class="mt-3 font-medium text-zinc-800 dark:text-zinc-100">Can't reach mindspace-api</p>
+      <p class="mt-3 font-medium text-zinc-800 dark:text-zinc-100">{{ t('courses.cantReach') }}</p>
       <p class="mt-1 max-w-sm text-sm text-zinc-500 dark:text-zinc-400">
-        The course list couldn't load. Make sure mindspace-api is running on port 8080, then try again.
+        {{ t('courses.loadError') }}
       </p>
       <button
         type="button"
@@ -71,7 +72,7 @@ const levelIcon = {
         @click="refresh()"
       >
         <RefreshCw :size="14" :stroke-width="1.75" />
-        {{ pending ? 'Reconnecting…' : 'Reconnect API' }}
+        {{ pending ? t('sidebar.reconnecting') : t('sidebar.reconnect') }}
       </button>
     </div>
 
@@ -96,6 +97,6 @@ const levelIcon = {
       </NuxtLink>
     </div>
 
-    <p v-else class="mt-10 text-sm text-zinc-500">No courses yet.</p>
+    <p v-else class="mt-10 text-sm text-zinc-500">{{ t('courses.noCourses') }}</p>
   </div>
 </template>

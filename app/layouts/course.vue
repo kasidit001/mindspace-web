@@ -24,6 +24,7 @@ const paletteOpen = useCommandPaletteOpen()
 const focusMode = useFocusMode()
 const chatOpen = useChatDrawerOpen()
 const { theme, toggle: toggleTheme } = useTheme()
+const { t } = useLanguage()
 
 const sidebarOpen = ref(false)
 const profileOpen = ref(false)
@@ -84,13 +85,13 @@ function resetProgress() {
       <button
         type="button"
         class="text-lg leading-none text-zinc-600 dark:text-zinc-300 lg:hidden"
-        aria-label="Open sidebar"
+        :aria-label="t('nav.openSidebar')"
         @click="sidebarOpen = true"
       >
         <Menu :size="18" :stroke-width="1.75" />
       </button>
 
-      <NuxtLink to="/" class="shrink-0 text-sm font-semibold tracking-tight">Mindspace</NuxtLink>
+      <NuxtLink to="/" class="shrink-0 text-sm font-semibold tracking-tight">{{ t('common.brand') }}</NuxtLink>
 
       <!-- Breadcrumbs -->
       <nav
@@ -99,7 +100,7 @@ function resetProgress() {
         aria-label="Breadcrumb"
       >
         <span aria-hidden="true">/</span>
-        <NuxtLink to="/courses" class="shrink-0 hover:text-zinc-800 dark:hover:text-zinc-200">Courses</NuxtLink>
+        <NuxtLink to="/courses" class="shrink-0 hover:text-zinc-800 dark:hover:text-zinc-200">{{ t('sidebar.coursesHeading') }}</NuxtLink>
         <span aria-hidden="true">/</span>
         <span class="shrink-0">{{ currentLesson.course.title }}</span>
         <span aria-hidden="true">/</span>
@@ -113,7 +114,7 @@ function resetProgress() {
           @click="paletteOpen = true"
         >
           <Search :size="16" :stroke-width="1.75" class="shrink-0" />
-          <span class="flex-1 truncate">Search lessons, or ask the AI…</span>
+          <span class="flex-1 truncate">{{ t('nav.searchPlaceholder') }}</span>
           <kbd class="hidden shrink-0 rounded-md border border-zinc-300 px-1.5 py-0.5 font-mono text-[10px] dark:border-zinc-600 sm:inline">⌘K</kbd>
         </button>
       </div>
@@ -125,11 +126,11 @@ function resetProgress() {
         :class="focusMode
           ? 'border-accent-500 text-accent-700 dark:text-accent-400'
           : 'border-divider text-zinc-600 hover:border-zinc-300 dark:border-divider-dark dark:text-zinc-300 dark:hover:border-white/20'"
-        :title="focusMode ? 'Exit focus mode' : 'Hide sidebar to focus on reading'"
+        :title="focusMode ? t('nav.exitFocusMode') : t('nav.hideSidebar')"
         @click="focusMode = !focusMode"
       >
         <component :is="focusMode ? Minimize2 : Maximize2" :size="14" :stroke-width="1.75" />
-        Focus
+        {{ t('nav.focus') }}
       </button>
 
       <!-- AI Assistant toggle (tool-window style, docks on desktop) -->
@@ -139,18 +140,21 @@ function resetProgress() {
         :class="chatOpen
           ? 'border-ai-500 text-ai-700 dark:text-ai-400'
           : 'border-divider text-zinc-600 hover:border-zinc-300 dark:border-divider-dark dark:text-zinc-300 dark:hover:border-white/20'"
-        :title="chatOpen ? 'Close AI Assistant' : 'Open AI Assistant'"
+        :title="chatOpen ? t('nav.closeAssistant') : t('nav.openAssistant')"
         @click="chatOpen = !chatOpen"
       >
         <Sparkles :size="16" :stroke-width="1.75" />
-        <span class="hidden sm:inline">Assistant</span>
+        <span class="hidden sm:inline">{{ t('nav.assistant') }}</span>
       </button>
+
+      <!-- Language switcher -->
+      <LanguageSwitcher />
 
       <!-- Theme toggle -->
       <button
         type="button"
         class="shrink-0 rounded-md border border-divider p-1.5 text-sm text-zinc-600 transition-colors hover:border-zinc-300 dark:border-divider-dark dark:text-zinc-300 dark:hover:border-white/20"
-        :aria-label="theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+        :aria-label="theme === 'dark' ? t('nav.switchToLight') : t('nav.switchToDark')"
         @click="toggleTheme"
       >
         <component :is="theme === 'dark' ? Sun : Moon" :size="16" :stroke-width="1.75" />
@@ -161,7 +165,7 @@ function resetProgress() {
         <button
           type="button"
           class="flex size-7 items-center justify-center rounded-full bg-accent-600 text-white"
-          aria-label="Your progress"
+          :aria-label="t('nav.yourProgress')"
           @click="profileOpen = !profileOpen"
         >
           <User :size="16" :stroke-width="1.75" />
@@ -173,9 +177,9 @@ function resetProgress() {
           v-if="profileOpen"
           class="absolute right-0 z-50 mt-2 w-56 rounded-md border border-divider bg-canvas p-4 text-sm shadow-md dark:border-divider-dark dark:bg-canvas-dark"
         >
-          <p class="font-semibold text-zinc-900 dark:text-white">Your progress</p>
+          <p class="font-semibold text-zinc-900 dark:text-white">{{ t('nav.yourProgress') }}</p>
           <p class="mt-1 text-zinc-500 dark:text-zinc-400">
-            {{ completedTotal }}/{{ totalLessons }} lessons completed
+            {{ t('progress.lessonsCompleted', { done: completedTotal, total: totalLessons }) }}
           </p>
           <div class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-white/10">
             <div
@@ -188,7 +192,7 @@ function resetProgress() {
             class="mt-3 w-full rounded-md border border-divider py-1.5 text-xs text-zinc-500 hover:border-red-300 hover:text-red-600 dark:border-divider-dark dark:text-zinc-400 dark:hover:border-red-800 dark:hover:text-red-400"
             @click="resetProgress"
           >
-            Reset progress
+            {{ t('progress.resetProgress') }}
           </button>
         </div>
       </div>
@@ -211,11 +215,11 @@ function resetProgress() {
         ]"
       >
         <div class="flex items-center justify-between border-b border-divider px-4 py-3 dark:border-divider-dark lg:hidden">
-          <span class="text-sm font-semibold text-zinc-500 dark:text-zinc-400">Courses</span>
+          <span class="text-sm font-semibold text-zinc-500 dark:text-zinc-400">{{ t('sidebar.coursesHeading') }}</span>
           <button
             type="button"
             class="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
-            aria-label="Close sidebar"
+            :aria-label="t('nav.closeSidebar')"
             @click="sidebarOpen = false"
           >
             <X :size="16" :stroke-width="1.75" />
@@ -236,7 +240,7 @@ function resetProgress() {
         </div>
 
         <div v-else-if="error" class="px-4 py-4 text-sm">
-          <p class="text-red-600 dark:text-red-400">Couldn't load courses — mindspace-api may be offline.</p>
+          <p class="text-red-600 dark:text-red-400">{{ t('sidebar.loadError') }}</p>
           <button
             type="button"
             class="mt-3 flex items-center gap-1.5 rounded-md border border-divider px-2.5 py-1.5 text-xs font-medium text-zinc-600 hover:border-accent-400 hover:text-accent-700 disabled:opacity-50 dark:border-divider-dark dark:text-zinc-300 dark:hover:border-accent-600 dark:hover:text-accent-400"
@@ -244,7 +248,7 @@ function resetProgress() {
             @click="refresh()"
           >
             <RefreshCw :size="14" :stroke-width="1.75" />
-            {{ pending ? 'Reconnecting…' : 'Reconnect API' }}
+            {{ pending ? t('sidebar.reconnecting') : t('sidebar.reconnect') }}
           </button>
         </div>
 
@@ -280,8 +284,8 @@ function resetProgress() {
                     :size="14"
                     :stroke-width="1.75"
                     class="shrink-0 text-accent-600 dark:text-accent-500"
-                    title="Completed"
-                    aria-label="Completed"
+                    :title="t('sidebar.completed')"
+                    :aria-label="t('sidebar.completed')"
                   />
                 </NuxtLink>
               </li>
@@ -289,7 +293,7 @@ function resetProgress() {
           </div>
 
           <p v-if="courses && courses.length === 0" class="px-2.5 py-1 text-sm text-zinc-500">
-            No courses yet.
+            {{ t('sidebar.noCourses') }}
           </p>
         </nav>
       </aside>

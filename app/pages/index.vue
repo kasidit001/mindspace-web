@@ -5,6 +5,7 @@ import { ArrowRight, Bot, Check, Code2, Command, Moon, Rocket, Sprout, Sun, Zap 
 // public entry point; /courses is where the actual app lives.
 const { theme, toggle: toggleTheme } = useTheme()
 const { data: courses } = useCourses()
+const { t } = useLanguage()
 
 const previewCourses = computed(() => (courses.value ?? []).slice(0, 2))
 
@@ -18,40 +19,27 @@ const levelIcon = {
   Advanced: Rocket
 } as const
 
-const features = [
-  {
-    icon: Bot,
-    title: 'AI tutor, grounded in the material',
-    body: 'Ask anything about a lesson. Answers cite the exact lessons they came from — no hallucinated APIs.'
-  },
-  {
-    icon: Code2,
-    title: 'Real, highlighted TypeScript',
-    body: 'Every code block is syntax-highlighted, copy-ready, and numbered — rendered straight from lesson Markdown.'
-  },
-  {
-    icon: Check,
-    title: 'Progress that sticks',
-    body: 'Lessons you finish are checked off automatically, so you always know exactly where you left off.'
-  },
-  {
-    icon: Command,
-    title: 'Find anything instantly',
-    body: 'A Cmd+K spotlight search jumps straight to any lesson, or hands your question to the AI tutor.'
-  }
-]
+// Computed (not a plain array) so titles/bodies re-translate when the
+// language switches.
+const features = computed(() => [
+  { icon: Bot, title: t('features.aiTutor.title'), body: t('features.aiTutor.body') },
+  { icon: Code2, title: t('features.highlightedCode.title'), body: t('features.highlightedCode.body') },
+  { icon: Check, title: t('features.progress.title'), body: t('features.progress.body') },
+  { icon: Command, title: t('features.search.title'), body: t('features.search.body') }
+])
 </script>
 
 <template>
   <div class="min-h-screen bg-canvas text-zinc-900 dark:bg-canvas-dark dark:text-zinc-100">
     <!-- Nav -->
     <header class="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
-      <span class="font-semibold tracking-tight">Mindspace</span>
-      <div class="flex items-center gap-4">
+      <span class="font-semibold tracking-tight">{{ t('common.brand') }}</span>
+      <div class="flex items-center gap-3">
+        <LanguageSwitcher />
         <button
           type="button"
           class="rounded-md border border-divider p-1.5 text-sm transition-colors hover:border-zinc-300 dark:border-divider-dark dark:hover:border-white/20"
-          :aria-label="theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+          :aria-label="theme === 'dark' ? t('nav.switchToLight') : t('nav.switchToDark')"
           @click="toggleTheme"
         >
           <component :is="theme === 'dark' ? Sun : Moon" :size="16" :stroke-width="1.75" />
@@ -60,7 +48,7 @@ const features = [
           to="/courses"
           class="inline-flex items-center gap-1 text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white"
         >
-          Explore Courses
+          {{ t('nav.exploreCourses') }}
           <ArrowRight :size="14" :stroke-width="1.75" />
         </NuxtLink>
       </div>
@@ -71,14 +59,13 @@ const features = [
       <div class="mx-auto grid max-w-6xl items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">
         <div class="reveal text-center lg:text-left" style="--delay: 0s">
           <p class="font-mono text-xs font-medium uppercase tracking-[0.2em] text-accent-600 dark:text-accent-400">
-            TypeScript · AI-Powered
+            {{ t('landing.kicker') }}
           </p>
           <h1 class="text-balance mt-4 text-5xl font-bold leading-[1.1] tracking-tight sm:text-6xl">
-            Master TypeScript with an AI Tutor by your side.
+            {{ t('landing.heroTitle') }}
           </h1>
           <p class="mx-auto mt-6 max-w-xl text-lg text-zinc-600 dark:text-zinc-400 lg:mx-0">
-            Structured lessons, syntax-highlighted code, and an AI that actually knows the material —
-            answers come with citations back to the lesson they're grounded in.
+            {{ t('landing.heroBody') }}
           </p>
 
           <div class="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
@@ -86,13 +73,13 @@ const features = [
               to="/courses"
               class="w-full rounded-md bg-accent-600 px-6 py-2.5 text-base font-semibold text-white transition-colors hover:bg-accent-700 sm:w-auto"
             >
-              Start Learning Free
+              {{ t('landing.startLearningFree') }}
             </NuxtLink>
             <NuxtLink
               to="/courses"
               class="w-full rounded-md border border-divider px-6 py-2.5 text-base font-semibold text-zinc-800 transition-colors hover:border-zinc-400 hover:bg-zinc-50 dark:border-divider-dark dark:text-zinc-100 dark:hover:bg-white/5 sm:w-auto"
             >
-              Explore Courses
+              {{ t('landing.exploreCourses') }}
             </NuxtLink>
           </div>
         </div>
@@ -114,7 +101,7 @@ const features = [
               <span class="size-2.5 rounded-full bg-[#28C840]" />
             </span>
             <span class="ml-1.5 text-xs text-zinc-400">ai-assistant.ts</span>
-            <span class="ml-auto rounded-md bg-white/10 px-2 py-0.5 text-[10px] text-zinc-400">preview</span>
+            <span class="ml-auto rounded-md bg-white/10 px-2 py-0.5 text-[10px] text-zinc-400">{{ t('landing.preview') }}</span>
           </div>
 
           <div class="space-y-3 p-4 text-[13px] leading-relaxed">
@@ -136,7 +123,7 @@ const features = [
           </div>
 
           <div class="flex items-center justify-center gap-1 border-t border-divider-dark px-4 py-2.5 text-center text-xs font-medium text-ai-400 group-hover:underline">
-            Try it yourself
+            {{ t('landing.tryItYourself') }}
             <ArrowRight :size="12" :stroke-width="1.75" />
           </div>
         </NuxtLink>
@@ -146,9 +133,9 @@ const features = [
     <!-- Course grid showcase -->
     <section v-if="previewCourses.length" class="mx-auto max-w-6xl px-6 pb-24">
       <div class="mb-6 flex items-end justify-between">
-        <h2 class="text-2xl font-bold tracking-tight">Start with a course</h2>
+        <h2 class="text-2xl font-bold tracking-tight">{{ t('landing.startWithACourse') }}</h2>
         <NuxtLink to="/courses" class="inline-flex items-center gap-1 text-sm font-medium text-accent-600 hover:underline dark:text-accent-400">
-          View all
+          {{ t('landing.viewAll') }}
           <ArrowRight :size="14" :stroke-width="1.75" />
         </NuxtLink>
       </div>
@@ -166,7 +153,7 @@ const features = [
           <div class="min-w-0 flex-1">
             <h3 class="truncate font-semibold">{{ course.title }}</h3>
             <p class="text-sm text-zinc-500 dark:text-zinc-400">
-              {{ course.lessons.length }} lesson{{ course.lessons.length === 1 ? '' : 's' }}
+              {{ course.lessons.length }} {{ t(course.lessons.length === 1 ? 'common.lesson' : 'common.lessons') }}
             </p>
           </div>
         </NuxtLink>
@@ -193,9 +180,9 @@ const features = [
     <!-- Footer CTA -->
     <footer class="border-t border-divider px-6 py-10 text-center dark:border-divider-dark">
       <p class="text-sm text-zinc-500 dark:text-zinc-400">
-        Ready to dive in?
+        {{ t('landing.readyToDiveIn') }}
         <NuxtLink to="/courses" class="inline-flex items-center gap-1 font-semibold text-accent-600 hover:underline dark:text-accent-400">
-          Open the courses
+          {{ t('landing.openTheCourses') }}
           <ArrowRight :size="14" :stroke-width="1.75" />
         </NuxtLink>
       </p>

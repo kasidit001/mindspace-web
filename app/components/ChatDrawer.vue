@@ -3,6 +3,7 @@ import { Bot, MessageSquare, Send, X } from '@lucide/vue'
 
 const { exchanges, ask } = useChatAsk()
 const open = useChatDrawerOpen()
+const { t } = useLanguage()
 
 const question = ref('')
 const scrollEl = ref<HTMLElement | null>(null)
@@ -44,17 +45,18 @@ async function submit() {
     :class="open ? 'translate-x-0 lg:w-[360px]' : 'translate-x-full lg:w-0 lg:border-l-0'"
   >
     <div class="flex h-full w-full flex-col lg:w-[360px]">
-      <header class="flex h-12 shrink-0 items-center gap-2 border-b border-divider px-3 dark:border-divider-dark">
+      <header class="flex min-h-12 shrink-0 items-center gap-2 border-b border-divider px-3 py-2 dark:border-divider-dark">
         <span class="flex size-6 shrink-0 items-center justify-center rounded-md bg-ai-600 text-white">
           <Bot :size="15" :stroke-width="1.75" />
         </span>
         <div class="min-w-0 flex-1">
-          <h2 class="text-sm font-semibold text-zinc-900 dark:text-white">AI Assistant</h2>
+          <h2 class="text-sm font-semibold text-zinc-900 dark:text-white">{{ t('aiAssistant.title') }}</h2>
+          <p class="text-[10px] font-medium leading-tight text-ai-600 dark:text-ai-400">{{ t('aiAssistant.groundedBadge') }}</p>
         </div>
         <button
           type="button"
           class="shrink-0 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
-          aria-label="Close AI Assistant"
+          :aria-label="t('nav.closeAssistant')"
           @click="open = false"
         >
           <X :size="16" :stroke-width="1.75" />
@@ -66,11 +68,10 @@ async function submit() {
         <div v-if="exchanges.length === 0" class="rounded-md border border-divider p-3 text-sm dark:border-divider-dark">
           <p class="flex items-center gap-1.5 font-medium text-zinc-800 dark:text-zinc-100">
             <MessageSquare :size="16" :stroke-width="1.75" class="shrink-0 text-ai-600 dark:text-ai-400" />
-            Hey, I'm your AI tutor.
+            {{ t('aiAssistant.welcomeTitle') }}
           </p>
           <p class="mt-1.5 text-zinc-500 dark:text-zinc-400">
-            Ask me anything about the lessons — I'll answer grounded in the actual course content,
-            with citations back to where it came from.
+            {{ t('aiAssistant.welcomeBody') }}
           </p>
         </div>
 
@@ -81,7 +82,7 @@ async function submit() {
 
           <div class="max-w-[92%] rounded-md border border-divider px-3 py-2 text-sm text-zinc-800 dark:border-divider-dark dark:text-zinc-100">
             <!-- Skeleton loading state while waiting for the AI response -->
-            <div v-if="ex.pending" class="space-y-2 py-0.5" aria-label="Waiting for answer">
+            <div v-if="ex.pending" class="space-y-2 py-0.5" :aria-label="t('aiAssistant.waitingForAnswer')">
               <div class="h-3 w-4/5 animate-pulse rounded-md bg-zinc-200 dark:bg-white/10" />
               <div class="h-3 w-3/5 animate-pulse rounded-md bg-zinc-200 dark:bg-white/10" style="animation-delay: 100ms" />
               <div class="h-3 w-2/5 animate-pulse rounded-md bg-zinc-200 dark:bg-white/10" style="animation-delay: 200ms" />
@@ -91,7 +92,7 @@ async function submit() {
               <p class="whitespace-pre-wrap">{{ ex.answer }}</p>
               <div v-if="ex.references.length" class="mt-2 border-t border-divider pt-2 dark:border-divider-dark">
                 <p class="mb-1 text-[11px] font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                  References
+                  {{ t('aiAssistant.referencesLabel') }}
                 </p>
                 <ul class="space-y-1">
                   <li v-for="ref in ex.references" :key="ref.lessonId">
@@ -113,7 +114,7 @@ async function submit() {
         <textarea
           v-model="question"
           rows="1"
-          placeholder="Ask about this course…"
+          :placeholder="t('aiAssistant.placeholder')"
           class="flex-1 resize-none rounded-md border border-divider bg-white px-2.5 py-1.5 text-sm focus:border-ai-500 focus:outline-none dark:border-divider-dark dark:bg-white/[0.04] dark:text-white"
           @keydown.enter.exact.prevent="submit"
         />
@@ -122,7 +123,7 @@ async function submit() {
           class="shrink-0 inline-flex items-center gap-1.5 rounded-md bg-ai-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-ai-700 disabled:opacity-50"
           :disabled="!question.trim()"
         >
-          Send
+          {{ t('aiAssistant.send') }}
           <Send :size="14" :stroke-width="1.75" />
         </button>
       </form>

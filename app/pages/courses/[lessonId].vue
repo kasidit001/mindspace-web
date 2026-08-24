@@ -10,6 +10,7 @@ const { data: lesson, status, error } = useLesson(lessonId)
 const { data: courses } = useCourses()
 const progress = useProgressStore()
 const focusMode = useFocusMode()
+const { t } = useLanguage()
 
 watch(
   lesson,
@@ -73,9 +74,9 @@ watch(lessonId, () => {
 
     <div v-else-if="error" class="rounded-md border border-red-200 bg-red-50 p-6 text-center dark:border-red-900/50 dark:bg-red-950/30">
       <Unplug :size="28" :stroke-width="1.75" class="mx-auto text-red-400 dark:text-red-500" aria-hidden="true" />
-      <p class="mt-2 font-medium text-red-700 dark:text-red-400">Couldn't load this lesson</p>
+      <p class="mt-2 font-medium text-red-700 dark:text-red-400">{{ t('lesson.loadError') }}</p>
       <p class="mt-1 text-sm text-red-600/80 dark:text-red-400/70">
-        It may not exist, or mindspace-api isn't running on port 8080.
+        {{ t('lesson.loadErrorBody') }}
       </p>
     </div>
 
@@ -85,7 +86,7 @@ watch(lessonId, () => {
         <span class="hidden sm:inline" aria-hidden="true">·</span>
         <span class="inline-flex items-center gap-1.5">
           <BookOpen :size="14" :stroke-width="1.75" />
-          {{ readingMinutes }} min read
+          {{ t('lesson.minRead', { count: readingMinutes }) }}
         </span>
       </div>
       <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">{{ lesson.title }}</h1>
@@ -104,7 +105,7 @@ watch(lessonId, () => {
         >
           <span class="flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400">
             <ArrowLeft :size="12" :stroke-width="1.75" />
-            Previous
+            {{ t('lesson.previous') }}
           </span>
           <span class="mt-0.5 block truncate font-medium text-zinc-800 group-hover:text-accent-700 dark:text-zinc-200 dark:group-hover:text-accent-400">
             {{ previousLesson.title }}
@@ -118,7 +119,7 @@ watch(lessonId, () => {
           class="group flex-1 rounded-md border border-divider p-3 text-right transition-colors hover:border-accent-400 dark:border-divider-dark dark:hover:border-accent-600"
         >
           <span class="flex items-center justify-end gap-1 text-xs text-zinc-500 dark:text-zinc-400">
-            Next
+            {{ t('lesson.next') }}
             <ArrowRight :size="12" :stroke-width="1.75" />
           </span>
           <span class="mt-0.5 block truncate font-medium text-zinc-800 group-hover:text-accent-700 dark:text-zinc-200 dark:group-hover:text-accent-400">
