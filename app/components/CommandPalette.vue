@@ -3,6 +3,7 @@ import { FileText, Search, Sparkles } from '@lucide/vue'
 
 const { data: courses } = useCourses()
 const { ask } = useChatAsk()
+const { t } = useLanguage()
 
 const open = useCommandPaletteOpen()
 const chatOpen = useChatDrawerOpen()
@@ -119,7 +120,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydownGlobal))
           ref="inputEl"
           v-model="query"
           type="text"
-          placeholder="Search lessons, or ask the AI tutor…"
+          :placeholder="t('commandPalette.placeholder')"
           class="flex-1 bg-transparent text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none dark:text-white"
           @keydown="onKeydownInput"
         >
@@ -128,7 +129,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydownGlobal))
 
       <ul class="scrollbar-thin max-h-80 overflow-y-auto py-2" role="listbox">
         <li v-if="filteredLessons.length === 0 && !query.trim()" class="px-4 py-6 text-center text-sm text-zinc-500">
-          No lessons available yet.
+          {{ t('commandPalette.noLessons') }}
         </li>
 
         <li v-for="(item, i) in items" :key="item.type === 'lesson' ? item.id : 'ask'">
@@ -151,7 +152,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydownGlobal))
             <template v-else>
               <Sparkles :size="16" :stroke-width="1.75" class="shrink-0 text-ai-600 dark:text-ai-400" />
               <span class="flex-1 truncate text-zinc-900 dark:text-white">
-                Ask AI Tutor: <span class="italic text-zinc-600 dark:text-zinc-300">“{{ item.query }}”</span>
+                {{ t('commandPalette.askAiTutor') }} <span class="italic text-zinc-600 dark:text-zinc-300">“{{ item.query }}”</span>
               </span>
             </template>
             <kbd
@@ -168,9 +169,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydownGlobal))
       </ul>
 
       <div class="border-t border-divider px-4 py-2 font-mono text-[11px] text-zinc-400 dark:border-divider-dark">
-        <kbd class="rounded-md border border-zinc-300 px-1 dark:border-zinc-600">↑↓</kbd> navigate ·
-        <kbd class="rounded-md border border-zinc-300 px-1 dark:border-zinc-600">↵</kbd> select ·
-        <kbd class="rounded-md border border-zinc-300 px-1 dark:border-zinc-600">esc</kbd> close
+        <kbd class="rounded-md border border-zinc-300 px-1 dark:border-zinc-600">↑↓</kbd> {{ t('commandPalette.navigate') }} ·
+        <kbd class="rounded-md border border-zinc-300 px-1 dark:border-zinc-600">↵</kbd> {{ t('commandPalette.select') }} ·
+        <kbd class="rounded-md border border-zinc-300 px-1 dark:border-zinc-600">esc</kbd> {{ t('commandPalette.close') }}
       </div>
     </div>
   </div>

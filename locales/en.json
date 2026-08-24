@@ -1,0 +1,110 @@
+{
+  "common": {
+    "brand": "Mindspace",
+    "lesson": "lesson",
+    "lessons": "lessons"
+  },
+  "nav": {
+    "exploreCourses": "Explore Courses",
+    "searchPlaceholder": "Search lessons, or ask the AI…",
+    "focus": "Focus",
+    "exitFocusMode": "Exit focus mode",
+    "hideSidebar": "Hide sidebar to focus on reading",
+    "assistant": "Assistant",
+    "openAssistant": "Open AI Assistant",
+    "closeAssistant": "Close AI Assistant",
+    "switchToLight": "Switch to light mode",
+    "switchToDark": "Switch to dark mode",
+    "yourProgress": "Your progress",
+    "openSidebar": "Open sidebar",
+    "closeSidebar": "Close sidebar",
+    "language": "Language"
+  },
+  "sidebar": {
+    "coursesHeading": "Courses",
+    "noCourses": "No courses yet.",
+    "reconnect": "Reconnect API",
+    "reconnecting": "Reconnecting…",
+    "loadError": "Couldn't load courses — mindspace-api may be offline.",
+    "completed": "Completed"
+  },
+  "progress": {
+    "lessonsCompleted": "{done}/{total} lessons completed",
+    "resetProgress": "Reset progress"
+  },
+  "aiAssistant": {
+    "title": "AI Assistant",
+    "groundedBadge": "Grounded in your lessons",
+    "welcomeTitle": "Hey, I'm your AI tutor.",
+    "welcomeBody": "Ask me anything about the lessons — I'll answer grounded in the actual course content, with citations back to where it came from.",
+    "placeholder": "Ask about this course…",
+    "send": "Send",
+    "referencesLabel": "References",
+    "waitingForAnswer": "Waiting for answer",
+    "fallbackError": "Failed to reach the AI tutor."
+  },
+  "commandPalette": {
+    "placeholder": "Search lessons, or ask the AI tutor…",
+    "noLessons": "No lessons available yet.",
+    "askAiTutor": "Ask AI Tutor:",
+    "navigate": "navigate",
+    "select": "select",
+    "close": "close"
+  },
+  "landing": {
+    "kicker": "TypeScript · AI-Powered",
+    "heroTitle": "Master TypeScript with an AI Tutor by your side.",
+    "heroBody": "Structured lessons, syntax-highlighted code, and an AI that actually knows the material — answers come with citations back to the lesson they're grounded in.",
+    "startLearningFree": "Start Learning Free",
+    "exploreCourses": "Explore Courses",
+    "preview": "preview",
+    "tryItYourself": "Try it yourself",
+    "startWithACourse": "Start with a course",
+    "viewAll": "View all",
+    "readyToDiveIn": "Ready to dive in?",
+    "openTheCourses": "Open the courses"
+  },
+  "features": {
+    "aiTutor": {
+      "title": "AI tutor, grounded in the material",
+      "body": "Ask anything about a lesson. Answers cite the exact lessons they came from — no hallucinated APIs."
+    },
+    "highlightedCode": {
+      "title": "Real, highlighted TypeScript",
+      "body": "Every code block is syntax-highlighted, copy-ready, and numbered — rendered straight from lesson Markdown."
+    },
+    "progress": {
+      "title": "Progress that sticks",
+      "body": "Lessons you finish are checked off automatically, so you always know exactly where you left off."
+    },
+    "search": {
+      "title": "Find anything instantly",
+      "body": "A Cmd+K spotlight search jumps straight to any lesson, or hands your question to the AI tutor."
+    }
+  },
+  "courses": {
+    "title": "Explore Courses",
+    "subtitlePrefix": "Pick up where you left off, or start something new. Press",
+    "subtitleSuffix": "to jump straight to a lesson.",
+    "noCourses": "No courses yet.",
+    "cantReach": "Can't reach mindspace-api",
+    "loadError": "The course list couldn't load. Make sure mindspace-api is running on port 8080, then try again."
+  },
+  "lesson": {
+    "minRead": "{count} min read",
+    "previous": "Previous",
+    "next": "Next",
+    "loadError": "Couldn't load this lesson",
+    "loadErrorBody": "It may not exist, or mindspace-api isn't running on port 8080."
+  },
+  "error": {
+    "errorCode": "Error {code}",
+    "notFoundTitle": "This page doesn't exist",
+    "notFoundBody": "The lesson or page you're looking for may have moved.",
+    "genericTitle": "Something went wrong",
+    "genericBody": "That's on us — the app hit an unexpected error. It might also mean mindspace-api is offline.",
+    "goToCourses": "Go to courses",
+    "reconnect": "Reconnect",
+    "home": "Home"
+  }
+}

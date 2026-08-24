@@ -7,6 +7,7 @@ import type { ChatAskResult, ChatExchange } from '~/types/course'
 export function useChatAsk() {
   const config = useRuntimeConfig()
   const exchanges = useState<ChatExchange[]>('chat-exchanges', () => [])
+  const { t } = useLanguage()
 
   async function ask(question: string) {
     const trimmed = question.trim()
@@ -31,7 +32,7 @@ export function useChatAsk() {
       exchange.answer = result.answer
       exchange.references = result.references
     } catch (err: any) {
-      exchange.error = err?.data?.error || err?.message || 'Failed to reach the AI tutor.'
+      exchange.error = err?.data?.error || err?.message || t('aiAssistant.fallbackError')
     } finally {
       exchange.pending = false
     }
