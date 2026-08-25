@@ -4,8 +4,27 @@
     "lesson": "lesson",
     "lessons": "lessons"
   },
+  "auth": {
+    "logIn": "Log In",
+    "signUp": "Sign Up",
+    "logOut": "Log Out",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "fullName": "Full name",
+    "loginTitle": "Welcome back",
+    "loginSubtitle": "Log in to pick up where you left off.",
+    "signupTitle": "Create your account",
+    "signupSubtitle": "Start learning TypeScript with your AI tutor.",
+    "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?",
+    "demoNotice": "Demo mode — no account is created on a server, this just remembers your name in this browser.",
+    "greeting": "Hi, {name}",
+    "notLoggedIn": "You're not signed in",
+    "notLoggedInBody": "Log in or create a free account to save your progress across visits.",
+    "passwordMismatch": "Passwords don't match"
+  },
   "nav": {
-    "exploreCourses": "Explore Courses",
     "searchPlaceholder": "Search lessons, or ask the AI…",
     "focus": "Focus",
     "exitFocusMode": "Exit focus mode",

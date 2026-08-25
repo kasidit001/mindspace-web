@@ -13,7 +13,11 @@ useHead({
 })
 
 const { syncFromDom } = useTheme()
-onMounted(syncFromDom)
+const { syncFromStorage } = useAuth()
+onMounted(() => {
+  syncFromDom()
+  syncFromStorage()
+})
 </script>
 
 <template>

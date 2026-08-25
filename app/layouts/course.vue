@@ -24,6 +24,7 @@ const focusMode = useFocusMode()
 const chatOpen = useChatDrawerOpen()
 const { theme, toggle: toggleTheme } = useTheme()
 const { t } = useLanguage()
+const { user, logout } = useAuth()
 
 const sidebarOpen = ref(false)
 const profileOpen = ref(false)
@@ -163,19 +164,45 @@ function resetProgress() {
       <div class="relative shrink-0">
         <button
           type="button"
-          class="flex size-7 items-center justify-center rounded-full border border-ai-500/60 bg-canvas-dark text-ai-400"
+          class="flex size-7 items-center justify-center rounded-full"
+          :class="user
+            ? 'bg-accent-400 text-[10px] font-bold text-[#241F00]'
+            : 'border border-ai-500/60 bg-canvas-dark text-ai-400'"
           :aria-label="t('nav.yourProgress')"
           @click="profileOpen = !profileOpen"
         >
-          <User :size="16" :stroke-width="1.75" />
+          <template v-if="user">{{ user.name.charAt(0).toUpperCase() }}</template>
+          <User v-else :size="16" :stroke-width="1.75" />
         </button>
 
         <div v-if="profileOpen" class="fixed inset-0 z-40" @click="profileOpen = false" />
 
         <div
           v-if="profileOpen"
-          class="absolute right-0 z-50 mt-2 w-56 rounded-md border border-divider bg-canvas p-4 text-sm shadow-md dark:border-divider-dark dark:bg-canvas-dark"
+          class="absolute right-0 z-50 mt-2 w-64 rounded-md border border-divider bg-canvas p-4 text-sm shadow-md dark:border-divider-dark dark:bg-canvas-dark"
         >
+          <template v-if="user">
+            <p class="truncate font-semibold text-zinc-900 dark:text-white">{{ user.name }}</p>
+            <p class="truncate text-xs text-zinc-500 dark:text-zinc-400">{{ user.email }}</p>
+          </template>
+          <template v-else>
+            <p class="font-semibold text-zinc-900 dark:text-white">{{ t('auth.notLoggedIn') }}</p>
+            <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{{ t('auth.notLoggedInBody') }}</p>
+            <div class="mt-3 flex gap-2">
+              <NuxtLink
+                to="/login"
+                class="flex-1 rounded-md border border-divider py-1.5 text-center text-xs font-medium text-zinc-600 hover:border-zinc-300 dark:border-divider-dark dark:text-zinc-300 dark:hover:border-white/20"
+              >
+                {{ t('auth.logIn') }}
+              </NuxtLink>
+              <NuxtLink to="/signup" class="btn-neon flex-1 rounded-md py-1.5 text-center text-xs font-semibold">
+                {{ t('auth.signUp') }}
+              </NuxtLink>
+            </div>
+          </template>
+
+          <hr class="my-3 border-divider dark:border-divider-dark">
+
           <p class="font-semibold text-zinc-900 dark:text-white">{{ t('nav.yourProgress') }}</p>
           <p class="mt-1 text-zinc-500 dark:text-zinc-400">
             {{ t('progress.lessonsCompleted', { done: completedTotal, total: totalLessons }) }}
@@ -192,6 +219,14 @@ function resetProgress() {
             @click="resetProgress"
           >
             {{ t('progress.resetProgress') }}
+          </button>
+          <button
+            v-if="user"
+            type="button"
+            class="mt-2 w-full rounded-md border border-divider py-1.5 text-xs text-zinc-500 hover:border-red-300 hover:text-red-600 dark:border-divider-dark dark:text-zinc-400 dark:hover:border-red-800 dark:hover:text-red-400"
+            @click="logout"
+          >
+            {{ t('auth.logOut') }}
           </button>
         </div>
       </div>

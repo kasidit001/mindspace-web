@@ -6,6 +6,7 @@ import { ArrowRight, Bot, Check, Code2, Command, Moon, Rocket, Sprout, Sun, Zap 
 const { theme, toggle: toggleTheme } = useTheme()
 const { data: courses } = useCourses()
 const { t } = useLanguage()
+const { user, logout } = useAuth()
 
 const previewCourses = computed(() => (courses.value ?? []).slice(0, 2))
 
@@ -48,13 +49,28 @@ const ecosystem = ['TypeScript', 'JavaScript', 'React', 'Node.js', 'Next.js', 'V
         >
           <component :is="theme === 'dark' ? Sun : Moon" :size="16" :stroke-width="1.75" />
         </button>
-        <NuxtLink
-          to="/courses"
-          class="inline-flex items-center gap-1 text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white"
-        >
-          {{ t('nav.exploreCourses') }}
-          <ArrowRight :size="14" :stroke-width="1.75" />
-        </NuxtLink>
+
+        <template v-if="user">
+          <span class="hidden text-sm text-zinc-500 dark:text-zinc-400 sm:inline">{{ t('auth.greeting', { name: user.name }) }}</span>
+          <button
+            type="button"
+            class="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white"
+            @click="logout"
+          >
+            {{ t('auth.logOut') }}
+          </button>
+        </template>
+        <template v-else>
+          <NuxtLink
+            to="/login"
+            class="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white"
+          >
+            {{ t('auth.logIn') }}
+          </NuxtLink>
+          <NuxtLink to="/signup" class="btn-neon rounded-md px-4 py-1.5 text-sm font-semibold">
+            {{ t('auth.signUp') }}
+          </NuxtLink>
+        </template>
       </div>
     </header>
 
