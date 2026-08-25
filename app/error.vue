@@ -13,13 +13,15 @@ function retry() {
 </script>
 
 <template>
-  <div class="flex min-h-screen flex-col items-center justify-center bg-canvas px-6 text-center text-zinc-900 dark:bg-canvas-dark dark:text-zinc-100">
-    <component :is="isNotFound ? Compass : Unplug" :size="40" :stroke-width="1.5" class="text-zinc-400 dark:text-zinc-500" aria-hidden="true" />
+  <div class="bg-dots flex min-h-screen flex-col items-center justify-center bg-canvas px-6 text-center text-zinc-900 dark:bg-canvas-dark dark:text-zinc-100">
+    <span class="flex size-16 items-center justify-center rounded-2xl border border-ai-500/50 bg-canvas-dark text-ai-400">
+      <component :is="isNotFound ? Compass : Unplug" :size="28" :stroke-width="1.5" aria-hidden="true" />
+    </span>
 
     <p class="mt-6 font-mono text-xs uppercase tracking-[0.2em] text-zinc-400">
       {{ t('error.errorCode', { code: error.statusCode }) }}
     </p>
-    <h1 class="mt-2 text-2xl font-bold tracking-tight">
+    <h1 class="font-display mt-2 text-2xl font-bold tracking-tight">
       {{ isNotFound ? t('error.notFoundTitle') : t('error.genericTitle') }}
     </h1>
     <p class="mt-2 max-w-sm text-sm text-zinc-500 dark:text-zinc-400">
@@ -29,7 +31,7 @@ function retry() {
     <div class="mt-8 flex gap-3">
       <button
         type="button"
-        class="rounded-md bg-accent-600 px-4 py-2 text-sm font-semibold text-white hover:bg-accent-700"
+        class="btn-neon rounded-md px-4 py-2 text-sm font-semibold"
         @click="retry"
       >
         {{ isNotFound ? t('error.goToCourses') : t('error.reconnect') }}

@@ -3,7 +3,6 @@ import {
   Check,
   ChevronDown,
   ChevronRight,
-  FileText,
   Folder,
   Maximize2,
   Menu,
@@ -25,6 +24,7 @@ const focusMode = useFocusMode()
 const chatOpen = useChatDrawerOpen()
 const { theme, toggle: toggleTheme } = useTheme()
 const { t } = useLanguage()
+const { user, logout } = useAuth()
 
 const sidebarOpen = ref(false)
 const profileOpen = ref(false)
@@ -91,7 +91,7 @@ function resetProgress() {
         <Menu :size="18" :stroke-width="1.75" />
       </button>
 
-      <NuxtLink to="/" class="shrink-0 text-sm font-semibold tracking-tight">{{ t('common.brand') }}</NuxtLink>
+      <NuxtLink to="/" class="font-display shrink-0 text-sm font-bold tracking-tight">{{ t('common.brand') }}</NuxtLink>
 
       <!-- Breadcrumbs -->
       <nav
@@ -136,9 +136,9 @@ function resetProgress() {
       <!-- AI Assistant toggle (tool-window style, docks on desktop) -->
       <button
         type="button"
-        class="shrink-0 inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium transition-colors"
+        class="shrink-0 inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium transition-all"
         :class="chatOpen
-          ? 'border-ai-500 text-ai-700 dark:text-ai-400'
+          ? 'glow-ai border-ai-500 text-ai-700 dark:text-ai-400'
           : 'border-divider text-zinc-600 hover:border-zinc-300 dark:border-divider-dark dark:text-zinc-300 dark:hover:border-white/20'"
         :title="chatOpen ? t('nav.closeAssistant') : t('nav.openAssistant')"
         @click="chatOpen = !chatOpen"
@@ -164,26 +164,52 @@ function resetProgress() {
       <div class="relative shrink-0">
         <button
           type="button"
-          class="flex size-7 items-center justify-center rounded-full bg-accent-600 text-white"
+          class="flex size-7 items-center justify-center rounded-full"
+          :class="user
+            ? 'bg-accent-400 text-[10px] font-bold text-[#241F00]'
+            : 'border border-ai-500/60 bg-canvas-dark text-ai-400'"
           :aria-label="t('nav.yourProgress')"
           @click="profileOpen = !profileOpen"
         >
-          <User :size="16" :stroke-width="1.75" />
+          <template v-if="user">{{ user.name.charAt(0).toUpperCase() }}</template>
+          <User v-else :size="16" :stroke-width="1.75" />
         </button>
 
         <div v-if="profileOpen" class="fixed inset-0 z-40" @click="profileOpen = false" />
 
         <div
           v-if="profileOpen"
-          class="absolute right-0 z-50 mt-2 w-56 rounded-md border border-divider bg-canvas p-4 text-sm shadow-md dark:border-divider-dark dark:bg-canvas-dark"
+          class="absolute right-0 z-50 mt-2 w-64 rounded-md border border-divider bg-canvas p-4 text-sm shadow-md dark:border-divider-dark dark:bg-canvas-dark"
         >
+          <template v-if="user">
+            <p class="truncate font-semibold text-zinc-900 dark:text-white">{{ user.name }}</p>
+            <p class="truncate text-xs text-zinc-500 dark:text-zinc-400">{{ user.email }}</p>
+          </template>
+          <template v-else>
+            <p class="font-semibold text-zinc-900 dark:text-white">{{ t('auth.notLoggedIn') }}</p>
+            <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{{ t('auth.notLoggedInBody') }}</p>
+            <div class="mt-3 flex gap-2">
+              <NuxtLink
+                to="/login"
+                class="flex-1 rounded-md border border-divider py-1.5 text-center text-xs font-medium text-zinc-600 hover:border-zinc-300 dark:border-divider-dark dark:text-zinc-300 dark:hover:border-white/20"
+              >
+                {{ t('auth.logIn') }}
+              </NuxtLink>
+              <NuxtLink to="/signup" class="btn-neon flex-1 rounded-md py-1.5 text-center text-xs font-semibold">
+                {{ t('auth.signUp') }}
+              </NuxtLink>
+            </div>
+          </template>
+
+          <hr class="my-3 border-divider dark:border-divider-dark">
+
           <p class="font-semibold text-zinc-900 dark:text-white">{{ t('nav.yourProgress') }}</p>
           <p class="mt-1 text-zinc-500 dark:text-zinc-400">
             {{ t('progress.lessonsCompleted', { done: completedTotal, total: totalLessons }) }}
           </p>
           <div class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-white/10">
             <div
-              class="h-full rounded-full bg-accent-600 transition-all duration-500"
+              class="h-full rounded-full bg-ai-500 transition-all duration-500"
               :style="{ width: totalLessons ? `${Math.round((completedTotal / totalLessons) * 100)}%` : '0%' }"
             />
           </div>
@@ -193,6 +219,14 @@ function resetProgress() {
             @click="resetProgress"
           >
             {{ t('progress.resetProgress') }}
+          </button>
+          <button
+            v-if="user"
+            type="button"
+            class="mt-2 w-full rounded-md border border-divider py-1.5 text-xs text-zinc-500 hover:border-red-300 hover:text-red-600 dark:border-divider-dark dark:text-zinc-400 dark:hover:border-red-800 dark:hover:text-red-400"
+            @click="logout"
+          >
+            {{ t('auth.logOut') }}
           </button>
         </div>
       </div>
@@ -243,7 +277,7 @@ function resetProgress() {
           <p class="text-red-600 dark:text-red-400">{{ t('sidebar.loadError') }}</p>
           <button
             type="button"
-            class="mt-3 flex items-center gap-1.5 rounded-md border border-divider px-2.5 py-1.5 text-xs font-medium text-zinc-600 hover:border-accent-400 hover:text-accent-700 disabled:opacity-50 dark:border-divider-dark dark:text-zinc-300 dark:hover:border-accent-600 dark:hover:text-accent-400"
+            class="mt-3 flex items-center gap-1.5 rounded-md border border-divider px-2.5 py-1.5 text-xs font-medium text-zinc-600 hover:border-accent-600 hover:text-accent-700 disabled:opacity-50 dark:border-divider-dark dark:text-zinc-300 dark:hover:border-accent-400 dark:hover:text-accent-400"
             :disabled="pending"
             @click="refresh()"
           >
@@ -256,7 +290,7 @@ function resetProgress() {
           <div v-for="course in courses" :key="course.id" class="mb-3">
             <button
               type="button"
-              class="flex w-full items-center gap-1 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400"
+              class="flex w-full items-center gap-1 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-zinc-500 transition-colors hover:text-ai-700 dark:text-zinc-400 dark:hover:text-ai-400"
               @click="toggleCourse(course.id)"
             >
               <component
@@ -268,25 +302,40 @@ function resetProgress() {
               <Folder :size="14" :stroke-width="1.75" class="shrink-0" />
               <span class="truncate">{{ course.title }}</span>
             </button>
-            <ul v-if="!collapsedCourses.has(course.id)">
-              <li v-for="lesson in course.lessons" :key="lesson.id">
+            <ul v-if="!collapsedCourses.has(course.id)" class="relative">
+              <li v-for="lesson in course.lessons" :key="lesson.id" class="relative">
                 <NuxtLink
                   :to="`/courses/${lesson.id}`"
-                  class="flex items-center gap-2 border-l-2 px-2.5 py-1 text-[13px] leading-5 transition-colors duration-100"
+                  class="group relative flex items-center gap-2.5 py-1.5 pl-4 pr-2.5 text-[13px] leading-5 transition-colors duration-100"
                   :class="route.params.lessonId === lesson.id
-                    ? 'border-accent-500 bg-zinc-100 font-medium text-zinc-900 dark:bg-white/[0.06] dark:text-white'
-                    : 'border-transparent text-zinc-600 hover:bg-zinc-50 dark:text-zinc-400 dark:hover:bg-white/[0.04]'"
+                    ? 'bg-zinc-100 font-medium text-zinc-900 dark:bg-white/[0.06] dark:text-white'
+                    : 'text-zinc-600 hover:bg-zinc-50 dark:text-zinc-400 dark:hover:bg-white/[0.04]'"
                 >
-                  <FileText :size="14" :stroke-width="1.75" class="shrink-0 text-zinc-400 dark:text-zinc-500" />
-                  <span class="flex-1 truncate">{{ lesson.order }}. {{ lesson.title }}</span>
-                  <Check
-                    v-if="mounted && progress.isCompleted(lesson.id)"
-                    :size="14"
-                    :stroke-width="1.75"
-                    class="shrink-0 text-accent-600 dark:text-accent-500"
-                    :title="t('sidebar.completed')"
-                    :aria-label="t('sidebar.completed')"
+                  <!-- Terminal accent rail: a continuous progress line down the
+                       lesson list — green where completed, yellow at the
+                       current lesson, dim elsewhere. -->
+                  <span
+                    class="absolute inset-y-0 left-0 w-0.5"
+                    :class="mounted && progress.isCompleted(lesson.id)
+                      ? 'bg-ai-500'
+                      : route.params.lessonId === lesson.id
+                        ? 'bg-accent-400'
+                        : 'bg-divider dark:bg-divider-dark'"
+                    aria-hidden="true"
                   />
+                  <!-- Step-number badge, swaps to a check once completed -->
+                  <span
+                    class="flex size-5 shrink-0 items-center justify-center rounded font-mono text-[10px] font-semibold"
+                    :class="mounted && progress.isCompleted(lesson.id)
+                      ? 'bg-ai-500 text-[#04140C]'
+                      : route.params.lessonId === lesson.id
+                        ? 'bg-accent-400 text-[#241F00]'
+                        : 'bg-zinc-100 text-zinc-500 dark:bg-white/[0.06] dark:text-zinc-400'"
+                  >
+                    <Check v-if="mounted && progress.isCompleted(lesson.id)" :size="12" :stroke-width="2.25" :aria-label="t('sidebar.completed')" />
+                    <template v-else>{{ lesson.order }}</template>
+                  </span>
+                  <span class="flex-1 truncate">{{ lesson.title }}</span>
                 </NuxtLink>
               </li>
             </ul>
@@ -298,8 +347,8 @@ function resetProgress() {
         </nav>
       </aside>
 
-      <!-- Main content -->
-      <main class="scrollbar-thin min-w-0 flex-1 overflow-y-auto">
+      <!-- Main content — dot-grid workbench texture behind the reader card -->
+      <main class="scrollbar-thin bg-dots min-w-0 flex-1 overflow-y-auto bg-canvas dark:bg-canvas-dark">
         <slot />
       </main>
 

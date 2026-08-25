@@ -58,76 +58,79 @@ watch(lessonId, () => {
 <template>
   <div
     ref="rootEl"
-    class="mx-auto px-8 py-10 transition-[max-width] duration-200"
-    :class="focusMode ? 'max-w-[880px]' : 'max-w-[720px]'"
+    class="mx-auto px-4 py-10 transition-[max-width] duration-200 sm:px-6"
+    :class="focusMode ? 'max-w-[960px]' : 'max-w-[820px]'"
   >
-    <!-- Loading skeleton -->
-    <div v-if="status === 'pending'" class="animate-pulse space-y-4">
-      <div class="h-3 w-32 rounded-md bg-zinc-200 dark:bg-white/10" />
-      <div class="h-8 w-2/3 rounded-md bg-zinc-200 dark:bg-white/10" />
-      <div class="mt-8 space-y-3">
-        <div class="h-4 w-full rounded-md bg-zinc-100 dark:bg-white/[0.06]" />
-        <div class="h-4 w-full rounded-md bg-zinc-100 dark:bg-white/[0.06]" />
-        <div class="h-4 w-5/6 rounded-md bg-zinc-100 dark:bg-white/[0.06]" />
+    <!-- Minimal reader card, floating over the workspace's dot-grid backdrop -->
+    <div class="rounded-2xl border border-divider bg-surface p-6 dark:bg-surface-dark sm:p-10">
+      <!-- Loading skeleton -->
+      <div v-if="status === 'pending'" class="animate-pulse space-y-4">
+        <div class="h-3 w-32 rounded-md bg-zinc-200 dark:bg-white/10" />
+        <div class="h-8 w-2/3 rounded-md bg-zinc-200 dark:bg-white/10" />
+        <div class="mt-8 space-y-3">
+          <div class="h-4 w-full rounded-md bg-zinc-100 dark:bg-white/[0.06]" />
+          <div class="h-4 w-full rounded-md bg-zinc-100 dark:bg-white/[0.06]" />
+          <div class="h-4 w-5/6 rounded-md bg-zinc-100 dark:bg-white/[0.06]" />
+        </div>
       </div>
+
+      <div v-else-if="error" class="rounded-md border border-red-200 bg-red-50 p-6 text-center dark:border-red-900/50 dark:bg-red-950/30">
+        <Unplug :size="28" :stroke-width="1.75" class="mx-auto text-red-400 dark:text-red-500" aria-hidden="true" />
+        <p class="mt-2 font-medium text-red-700 dark:text-red-400">{{ t('lesson.loadError') }}</p>
+        <p class="mt-1 text-sm text-red-600/80 dark:text-red-400/70">
+          {{ t('lesson.loadErrorBody') }}
+        </p>
+      </div>
+
+      <template v-else-if="lesson">
+        <div class="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-zinc-500 dark:text-zinc-400">
+          <span class="sm:hidden">{{ lesson.course.title }}</span>
+          <span class="hidden sm:inline" aria-hidden="true">·</span>
+          <span class="inline-flex items-center gap-1.5">
+            <BookOpen :size="14" :stroke-width="1.75" />
+            {{ t('lesson.minRead', { count: readingMinutes }) }}
+          </span>
+        </div>
+        <h1 class="font-display text-2xl font-bold tracking-tight sm:text-3xl">{{ lesson.title }}</h1>
+
+        <!-- Markdown content, with syntax-highlighted TypeScript code blocks -->
+        <div class="prose prose-zinc mt-6 max-w-none dark:prose-invert">
+          <MDC :value="lesson.content" tag="div" />
+        </div>
+
+        <!-- Previous / next lesson navigation -->
+        <nav class="mt-10 flex items-stretch gap-4 border-t border-divider pt-6 dark:border-divider-dark">
+          <NuxtLink
+            v-if="previousLesson"
+            :to="`/courses/${previousLesson.id}`"
+            class="group flex-1 rounded-md border border-divider p-3 text-left transition-colors hover:border-accent-600 dark:border-divider-dark dark:hover:border-accent-400"
+          >
+            <span class="flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400">
+              <ArrowLeft :size="12" :stroke-width="1.75" />
+              {{ t('lesson.previous') }}
+            </span>
+            <span class="mt-0.5 block truncate font-medium text-zinc-800 group-hover:text-accent-700 dark:text-zinc-200 dark:group-hover:text-accent-400">
+              {{ previousLesson.title }}
+            </span>
+          </NuxtLink>
+          <div v-else class="flex-1" />
+
+          <NuxtLink
+            v-if="nextLesson"
+            :to="`/courses/${nextLesson.id}`"
+            class="group flex-1 rounded-md border border-divider p-3 text-right transition-colors hover:border-accent-600 dark:border-divider-dark dark:hover:border-accent-400"
+          >
+            <span class="flex items-center justify-end gap-1 text-xs text-zinc-500 dark:text-zinc-400">
+              {{ t('lesson.next') }}
+              <ArrowRight :size="12" :stroke-width="1.75" />
+            </span>
+            <span class="mt-0.5 block truncate font-medium text-zinc-800 group-hover:text-accent-700 dark:text-zinc-200 dark:group-hover:text-accent-400">
+              {{ nextLesson.title }}
+            </span>
+          </NuxtLink>
+          <div v-else class="flex-1" />
+        </nav>
+      </template>
     </div>
-
-    <div v-else-if="error" class="rounded-md border border-red-200 bg-red-50 p-6 text-center dark:border-red-900/50 dark:bg-red-950/30">
-      <Unplug :size="28" :stroke-width="1.75" class="mx-auto text-red-400 dark:text-red-500" aria-hidden="true" />
-      <p class="mt-2 font-medium text-red-700 dark:text-red-400">{{ t('lesson.loadError') }}</p>
-      <p class="mt-1 text-sm text-red-600/80 dark:text-red-400/70">
-        {{ t('lesson.loadErrorBody') }}
-      </p>
-    </div>
-
-    <template v-else-if="lesson">
-      <div class="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-zinc-500 dark:text-zinc-400">
-        <span class="sm:hidden">{{ lesson.course.title }}</span>
-        <span class="hidden sm:inline" aria-hidden="true">·</span>
-        <span class="inline-flex items-center gap-1.5">
-          <BookOpen :size="14" :stroke-width="1.75" />
-          {{ t('lesson.minRead', { count: readingMinutes }) }}
-        </span>
-      </div>
-      <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">{{ lesson.title }}</h1>
-
-      <!-- Markdown content, with syntax-highlighted TypeScript code blocks -->
-      <div class="prose prose-zinc mt-6 max-w-none dark:prose-invert">
-        <MDC :value="lesson.content" tag="div" />
-      </div>
-
-      <!-- Previous / next lesson navigation -->
-      <nav class="mt-10 flex items-stretch gap-4 border-t border-divider pt-6 dark:border-divider-dark">
-        <NuxtLink
-          v-if="previousLesson"
-          :to="`/courses/${previousLesson.id}`"
-          class="group flex-1 rounded-md border border-divider p-3 text-left transition-colors hover:border-accent-400 dark:border-divider-dark dark:hover:border-accent-600"
-        >
-          <span class="flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400">
-            <ArrowLeft :size="12" :stroke-width="1.75" />
-            {{ t('lesson.previous') }}
-          </span>
-          <span class="mt-0.5 block truncate font-medium text-zinc-800 group-hover:text-accent-700 dark:text-zinc-200 dark:group-hover:text-accent-400">
-            {{ previousLesson.title }}
-          </span>
-        </NuxtLink>
-        <div v-else class="flex-1" />
-
-        <NuxtLink
-          v-if="nextLesson"
-          :to="`/courses/${nextLesson.id}`"
-          class="group flex-1 rounded-md border border-divider p-3 text-right transition-colors hover:border-accent-400 dark:border-divider-dark dark:hover:border-accent-600"
-        >
-          <span class="flex items-center justify-end gap-1 text-xs text-zinc-500 dark:text-zinc-400">
-            {{ t('lesson.next') }}
-            <ArrowRight :size="12" :stroke-width="1.75" />
-          </span>
-          <span class="mt-0.5 block truncate font-medium text-zinc-800 group-hover:text-accent-700 dark:text-zinc-200 dark:group-hover:text-accent-400">
-            {{ nextLesson.title }}
-          </span>
-        </NuxtLink>
-        <div v-else class="flex-1" />
-      </nav>
-    </template>
   </div>
 </template>

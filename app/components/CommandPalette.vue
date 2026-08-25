@@ -137,7 +137,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydownGlobal))
             type="button"
             class="flex w-full items-center gap-3 px-4 py-2 text-left text-sm"
             :class="i === activeIndex
-              ? (item.type === 'ask' ? 'bg-ai-50 dark:bg-ai-500/10' : 'bg-accent-50 dark:bg-accent-500/10')
+              ? (item.type === 'ask' ? 'bg-ai-50 dark:bg-ai-400/10' : 'bg-accent-50 dark:bg-accent-400/10')
               : 'hover:bg-zinc-50 dark:hover:bg-white/[0.05]'"
             @mouseenter="activeIndex = i"
             @click="selectItem(item)"
@@ -159,7 +159,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydownGlobal))
               v-if="i === activeIndex"
               class="rounded-md border px-1.5 py-0.5 font-mono text-[10px]"
               :class="item.type === 'ask'
-                ? 'border-ai-300 text-ai-600 dark:border-ai-700 dark:text-ai-400'
+                ? 'border-ai-300 text-ai-700 dark:border-ai-700 dark:text-ai-400'
                 : 'border-accent-300 text-accent-700 dark:border-accent-700 dark:text-accent-400'"
             >
               ↵

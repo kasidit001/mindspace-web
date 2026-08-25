@@ -6,46 +6,53 @@ export default <Partial<Config>>{
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"IBM Plex Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        // Three-tier hierarchy — see nuxt.config.ts for the full rationale.
+        sans: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['"Syne"', '"Plus Jakarta Sans"', 'ui-sans-serif', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace']
       },
       colors: {
-        // Exact JetBrains-style neutrals: clean white / dark gray canvas,
-        // contrasted with subtle divider lines. Used instead of the zinc
-        // scale wherever the spec calls for a precise tone.
+        // "Codecademy Terminal": a warm cream workbench by day, pure dark
+        // slate by night — dot-grid textured either way. `surface` sits one
+        // step up from `canvas` for cards floating on that grid (hero media,
+        // CTA overlay, reader card).
         canvas: {
+          DEFAULT: '#FAF7EE',
+          dark: '#0A0B0E'
+        },
+        surface: {
           DEFAULT: '#FFFFFF',
-          dark: '#1E1F22'
+          dark: '#13151C'
         },
         divider: {
-          DEFAULT: '#E6E6E6',
-          dark: '#2B2D30'
+          DEFAULT: '#E7E1CD',
+          dark: '#232733'
         },
-        // JetBrains-authentic brand accents, replacing the old emerald/indigo
-        // pair. `accent` (Kotlin/JetBrains purple) is primary — learning,
-        // progress, links. `ai` (JetBrains cyan) marks anything AI-Assistant
-        // related, keeping the same two-accent semantic split as before.
-        // 600 is the exact requested hex in both scales; the rest are a
-        // hand-tuned scale around it.
+        // Neon Yellow (`accent`) is the primary action color — buttons,
+        // links, progress. Terminal Green (`ai`) marks anything AI/code
+        // related — badges, highlights, the AI Tutor chrome. 400/500 hold
+        // the exact brief hexes (bright, theme-agnostic — used on filled
+        // chips/buttons with black text); 700 is a hand-tuned dark shade for
+        // legible text/links on a light background.
         accent: {
-          50: '#F3EFFF',
-          100: '#E7DFFF',
-          300: '#B49AFF',
-          400: '#9B7BFF',
-          500: '#8B65FF',
-          600: '#7F52FF',
-          700: '#6B3FE0',
-          900: '#3D2280'
+          50: '#FFFDEF',
+          100: '#FFF7C2',
+          300: '#FFEB70',
+          400: '#FFF066',
+          500: '#F5DE2E',
+          600: '#E0C300',
+          700: '#8A6D00',
+          900: '#3D2F00'
         },
         ai: {
-          50: '#E6FBFB',
-          100: '#CCF7F8',
-          300: '#66E3E5',
-          400: '#33D9DC',
-          500: '#1AD1D5',
-          600: '#00CDD1',
-          700: '#00A5A8',
-          900: '#005557'
+          50: '#E9FFF3',
+          100: '#BFFFDC',
+          300: '#4DFFA0',
+          400: '#00FF66',
+          500: '#00E676',
+          600: '#00C25F',
+          700: '#00814A',
+          900: '#00341F'
         }
       },
       typography: ({ theme }: { theme: (path: string) => string }) => ({
