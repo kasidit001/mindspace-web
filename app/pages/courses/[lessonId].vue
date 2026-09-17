@@ -10,7 +10,16 @@ const { data: lesson, status, error } = useLesson(lessonId)
 const { data: courses } = useCourses()
 const progress = useProgressStore()
 const focusMode = useFocusMode()
-const { t } = useLanguage()
+const { t, lang } = useLanguage()
+
+// Thai is a partial translation layered on English — fall back whenever a
+// lesson has no Thai copy yet (see ~/utils/localizedLesson).
+const lessonTitle = computed(() =>
+  lesson.value ? pickLocalized(lesson.value.titleEn, lesson.value.titleTh, lang.value) : ''
+)
+const lessonContent = computed(() =>
+  lesson.value ? pickLocalized(lesson.value.contentEn, lesson.value.contentTh, lang.value) : ''
+)
 
 watch(
   lesson,
@@ -43,7 +52,7 @@ const nextLesson = computed(() => {
 // Rough estimate — word count over a 200wpm reading pace, matching the
 // convention on most docs/blog sites. Not meant to be precise.
 const readingMinutes = computed(() => {
-  const words = lesson.value?.content.trim().split(/\s+/).filter(Boolean).length ?? 0
+  const words = lessonContent.value.trim().split(/\s+/).filter(Boolean).length
   return Math.max(1, Math.round(words / 200))
 })
 
@@ -91,11 +100,11 @@ watch(lessonId, () => {
             {{ t('lesson.minRead', { count: readingMinutes }) }}
           </span>
         </div>
-        <h1 class="font-display text-2xl font-bold tracking-tight sm:text-3xl">{{ lesson.title }}</h1>
+        <h1 class="font-display text-2xl font-bold tracking-tight sm:text-3xl">{{ lessonTitle }}</h1>
 
         <!-- Markdown content, with syntax-highlighted TypeScript code blocks -->
         <div class="prose prose-zinc mt-6 max-w-none dark:prose-invert">
-          <MDC :value="lesson.content" tag="div" />
+          <MDC :value="lessonContent" tag="div" />
         </div>
 
         <!-- Previous / next lesson navigation -->
@@ -110,7 +119,7 @@ watch(lessonId, () => {
               {{ t('lesson.previous') }}
             </span>
             <span class="mt-0.5 block truncate font-medium text-zinc-800 group-hover:text-accent-700 dark:text-zinc-200 dark:group-hover:text-accent-400">
-              {{ previousLesson.title }}
+              {{ pickLocalized(previousLesson.titleEn, previousLesson.titleTh, lang) }}
             </span>
           </NuxtLink>
           <div v-else class="flex-1" />
@@ -125,7 +134,7 @@ watch(lessonId, () => {
               <ArrowRight :size="12" :stroke-width="1.75" />
             </span>
             <span class="mt-0.5 block truncate font-medium text-zinc-800 group-hover:text-accent-700 dark:text-zinc-200 dark:group-hover:text-accent-400">
-              {{ nextLesson.title }}
+              {{ pickLocalized(nextLesson.titleEn, nextLesson.titleTh, lang) }}
             </span>
           </NuxtLink>
           <div v-else class="flex-1" />

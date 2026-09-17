@@ -3,7 +3,7 @@ import { FileText, Search, Sparkles } from '@lucide/vue'
 
 const { data: courses } = useCourses()
 const { ask } = useChatAsk()
-const { t } = useLanguage()
+const { t, lang } = useLanguage()
 
 const open = useCommandPaletteOpen()
 const chatOpen = useChatDrawerOpen()
@@ -29,7 +29,7 @@ const allLessons = computed<LessonItem[]>(() =>
     course.lessons.map((lesson) => ({
       type: 'lesson' as const,
       id: lesson.id,
-      title: lesson.title,
+      title: pickLocalized(lesson.titleEn, lesson.titleTh, lang.value),
       courseTitle: course.title
     }))
   )

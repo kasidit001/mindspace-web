@@ -6,9 +6,9 @@ export default <Partial<Config>>{
   theme: {
     extend: {
       fontFamily: {
-        // Three-tier hierarchy — see nuxt.config.ts for the full rationale.
-        sans: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        display: ['"Syne"', '"Plus Jakarta Sans"', 'ui-sans-serif', 'sans-serif'],
+        // Single-family site — see nuxt.config.ts for the full rationale.
+        sans: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+        display: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
         mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace']
       },
       colors: {
@@ -77,9 +77,11 @@ export default <Partial<Config>>{
               color: 'inherit',
               opacity: '0.85'
             },
-            // The shiki-highlighted <pre> is handled by our custom ProsePre
-            // component (padding, border, copy button, line numbers) — reset
-            // typography's own pre/code chrome so the two don't double up.
+            /**
+             * The shiki-highlighted <pre> is handled by our custom ProsePre
+             * component (padding, border, copy button, line numbers) — reset
+             * typography's own pre/code chrome so the two don't double up.
+             */
             pre: {
               marginTop: '1.5em',
               marginBottom: '1.5em',

@@ -67,7 +67,7 @@ const levelIcon = {
       </p>
       <button
         type="button"
-        class="btn-neon mt-5 flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-semibold disabled:opacity-50"
+        class="mt-5 flex items-center gap-1.5 rounded-md border border-divider px-4 py-2 text-sm font-medium text-zinc-600 hover:border-accent-600 hover:text-accent-700 disabled:opacity-50 dark:border-divider-dark dark:text-zinc-300 dark:hover:border-accent-400 dark:hover:text-accent-400"
         :disabled="pending"
         @click="refresh()"
       >

@@ -13,12 +13,12 @@ function retry() {
 </script>
 
 <template>
-  <div class="bg-dots flex min-h-screen flex-col items-center justify-center bg-canvas px-6 text-center text-zinc-900 dark:bg-canvas-dark dark:text-zinc-100">
+  <div class="flex min-h-screen flex-col items-center justify-center bg-canvas px-6 text-center text-zinc-900 dark:bg-canvas-dark dark:text-zinc-100">
     <span class="flex size-16 items-center justify-center rounded-2xl border border-ai-500/50 bg-canvas-dark text-ai-400">
       <component :is="isNotFound ? Compass : Unplug" :size="28" :stroke-width="1.5" aria-hidden="true" />
     </span>
 
-    <p class="mt-6 font-mono text-xs uppercase tracking-[0.2em] text-zinc-400">
+    <p class="mt-6 text-xs uppercase tracking-[0.2em] text-zinc-400">
       {{ t('error.errorCode', { code: error.statusCode }) }}
     </p>
     <h1 class="font-display mt-2 text-2xl font-bold tracking-tight">

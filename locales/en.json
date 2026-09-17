@@ -22,7 +22,10 @@
     "greeting": "Hi, {name}",
     "notLoggedIn": "You're not signed in",
     "notLoggedInBody": "Log in or create a free account to save your progress across visits.",
-    "passwordMismatch": "Passwords don't match"
+    "passwordMismatch": "Passwords don't match",
+    "roleAdmin": "Admin",
+    "roleUser": "User",
+    "demoRoleToggle": "Simulate admin (demo)"
   },
   "nav": {
     "searchPlaceholder": "Search lessons, or ask the AI…",
@@ -37,7 +40,8 @@
     "yourProgress": "Your progress",
     "openSidebar": "Open sidebar",
     "closeSidebar": "Close sidebar",
-    "language": "Language"
+    "language": "Language",
+    "skillMap": "Skill Map"
   },
   "sidebar": {
     "coursesHeading": "Courses",
@@ -131,5 +135,23 @@
     "goToCourses": "Go to courses",
     "reconnect": "Reconnect",
     "home": "Home"
+  },
+  "map": {
+    "title": "Skill Map",
+    "subtitle": "Every lesson across every course, laid out as one path. Drag to rotate, scroll to zoom, click a node to jump straight to that lesson.",
+    "legendDone": "Completed",
+    "legendNext": "Up next",
+    "legendUpcoming": "Upcoming",
+    "listViewLink": "Prefer a plain list?",
+    "loadError": "Couldn't load the skill map — mindspace-api may be offline.",
+    "noCourses": "No courses to map yet."
+  },
+  "admin": {
+    "title": "User management",
+    "subtitle": "SYSTEM_ADMIN only. Backed by the API's User table once it ships — this is a preview of the UI.",
+    "colName": "Name",
+    "colEmail": "Email",
+    "colRole": "Role",
+    "pendingApiNotice": "Not wired to mindspace-api yet — showing your local demo session only."
   }
 }

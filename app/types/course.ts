@@ -1,6 +1,12 @@
+// Lesson title/content and Course description are stored bilingually on the
+// API (title_en/title_th, content_en/content_th, description_en/description_th
+// — Thai optional, English required/primary) — see ~/utils/localizedLesson
+// for how the UI picks between them. Course `title` itself is still a single
+// (English-only) field; the API hasn't added a per-course title translation.
 export interface LessonSummary {
   id: string
-  title: string
+  titleEn: string
+  titleTh: string | null
   slug: string
   order: number
 }
@@ -9,16 +15,19 @@ export interface Course {
   id: string
   title: string
   slug: string
-  description: string | null
+  descriptionEn: string | null
+  descriptionTh: string | null
   lessons: LessonSummary[]
 }
 
 export interface LessonDetail {
   id: string
   courseId: string
-  title: string
+  titleEn: string
+  titleTh: string | null
   slug: string
-  content: string
+  contentEn: string
+  contentTh: string | null
   order: number
   course: {
     id: string
