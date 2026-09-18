@@ -27,9 +27,9 @@ let dispose: (() => void) | null = null
 
 const ROW_SPACING = 2.3
 const NODE_SPACING = 1.05
-const COLOR_DONE = 0x00ff66 // ai-400
-const COLOR_NEXT = 0xfff066 // accent-400
-const COLOR_UPCOMING = 0x6b6f76
+const COLOR_DONE = 0x10b981 // success-500
+const COLOR_NEXT = 0x6366f1 // accent-500
+const COLOR_UPCOMING = 0x9ca3af
 
 interface NodeEntry {
   mesh: THREE.Mesh
@@ -198,11 +198,11 @@ onBeforeUnmount(() => dispose?.())
            what's otherwise a purely visual color code. -->
       <div class="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs text-zinc-500 dark:text-zinc-400">
         <span class="inline-flex items-center gap-1.5">
-          <span class="size-2.5 rounded-full bg-ai-500" aria-hidden="true" />
+          <span class="size-2.5 rounded-full bg-success-500" aria-hidden="true" />
           {{ t('map.legendDone') }}
         </span>
         <span class="inline-flex items-center gap-1.5">
-          <span class="size-2.5 rounded-full bg-accent-400" aria-hidden="true" />
+          <span class="size-2.5 rounded-full bg-accent-500" aria-hidden="true" />
           {{ t('map.legendNext') }}
         </span>
         <span class="inline-flex items-center gap-1.5">
@@ -217,11 +217,11 @@ onBeforeUnmount(() => dispose?.())
 
     <!-- Loading skeleton -->
     <div v-if="status === 'pending'" class="flex flex-1 items-center justify-center">
-      <div class="size-8 animate-pulse rounded-full bg-ai-500/30" />
+      <div class="size-8 animate-pulse rounded-full bg-accent-500/30" />
     </div>
 
     <div v-else-if="error" class="flex flex-1 flex-col items-center justify-center px-6 text-center">
-      <Unplug :size="32" :stroke-width="1.75" class="text-red-400 dark:text-red-500" aria-hidden="true" />
+      <Unplug :size="32" :stroke-width="1.75" class="text-critical-500 dark:text-critical-400" aria-hidden="true" />
       <p class="mt-3 font-medium text-zinc-800 dark:text-zinc-100">{{ t('map.loadError') }}</p>
       <button
         type="button"
@@ -248,7 +248,7 @@ onBeforeUnmount(() => dispose?.())
       <div
         v-if="hovered"
         ref="tooltipEl"
-        class="pointer-events-none fixed z-20 max-w-xs -translate-x-1/2 -translate-y-[calc(100%+14px)] rounded-md border border-divider bg-canvas px-3 py-2 text-xs shadow-md dark:border-divider-dark dark:bg-canvas-dark"
+        class="card pointer-events-none fixed z-20 max-w-xs -translate-x-1/2 -translate-y-[calc(100%+14px)] px-3 py-2 text-xs"
         :style="{ left: `${tooltipPos.x}px`, top: `${tooltipPos.y}px` }"
       >
         <p class="font-medium text-zinc-900 dark:text-white">

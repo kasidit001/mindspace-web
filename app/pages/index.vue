@@ -87,9 +87,8 @@ const ecosystem = ['TypeScript', 'JavaScript', 'React', 'Node.js', 'Next.js', 'V
       </ClientOnly>
       <div class="relative z-10 mx-auto grid max-w-6xl items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">
         <div class="reveal text-center lg:text-left" style="--delay: 0s">
-          <!-- Key-term eyebrow: a small-caps label over a rule line — a
-               quieter kicker than a filled terminal chip. -->
-          <span class="inline-flex items-center gap-2 border-b-2 border-ai-500 pb-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-ai-700 dark:text-ai-400">
+          <!-- Key-term eyebrow: a small-caps label over a rule line. -->
+          <span class="inline-flex items-center gap-2 border-b-2 border-accent-500 pb-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-accent-700 dark:text-accent-400">
             {{ t('landing.badgeVerb') }} <span class="text-zinc-900 dark:text-white">{{ t('landing.badgeTerm') }}</span>
           </span>
           <h1 class="font-display text-balance mt-5 text-5xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl">
@@ -102,13 +101,13 @@ const ecosystem = ['TypeScript', 'JavaScript', 'React', 'Node.js', 'Next.js', 'V
           <div class="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
             <NuxtLink
               to="/courses"
-              class="btn-neon w-full rounded-md px-6 py-2.5 text-base font-semibold sm:w-auto"
+              class="btn-primary w-full rounded-md px-6 py-2.5 text-base font-semibold sm:w-auto"
             >
               {{ t('landing.startLearningFree') }}
             </NuxtLink>
             <NuxtLink
               to="/courses"
-              class="w-full rounded-md border border-divider px-6 py-2.5 text-base font-semibold text-zinc-800 transition-colors hover:border-ai-500 hover:text-ai-700 dark:border-divider-dark dark:text-zinc-100 dark:hover:border-ai-400 dark:hover:text-ai-400 sm:w-auto"
+              class="w-full rounded-md border border-divider px-6 py-2.5 text-base font-semibold text-zinc-800 transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-divider-dark dark:text-zinc-100 dark:hover:border-white/20 dark:hover:bg-white/5 sm:w-auto"
             >
               {{ t('landing.exploreCourses') }}
             </NuxtLink>
@@ -159,15 +158,15 @@ const ecosystem = ['TypeScript', 'JavaScript', 'React', 'Node.js', 'Next.js', 'V
     <!-- Floating CTA card — overlaps the hero/next-section boundary via a
          negative top margin, Codecademy's classic "quick start" overlay. -->
     <div class="reveal relative z-10 mx-auto -mt-28 max-w-3xl px-6 sm:-mt-32" style="--delay: 0.2s">
-      <div class="flex flex-col items-center gap-5 rounded-2xl border border-divider bg-surface p-6 text-center shadow-sm dark:border-divider-dark dark:bg-surface-dark sm:flex-row sm:justify-between sm:p-8 sm:text-left">
+      <div class="card flex flex-col items-center gap-5 p-6 text-center sm:flex-row sm:justify-between sm:p-8 sm:text-left">
         <div>
-          <p class="text-[11px] font-semibold uppercase tracking-[0.15em] text-ai-700 dark:text-ai-400">
+          <p class="text-[11px] font-semibold uppercase tracking-[0.15em] text-accent-700 dark:text-accent-400">
             {{ t('landing.ctaEyebrow') }}
           </p>
           <p class="font-display mt-1.5 text-lg font-bold tracking-tight">{{ t('landing.ctaTitle') }}</p>
           <p class="mt-1 max-w-sm text-sm text-zinc-500 dark:text-zinc-400">{{ t('landing.ctaBody') }}</p>
         </div>
-        <NuxtLink to="/courses" class="btn-neon w-full shrink-0 rounded-md px-6 py-2.5 text-base font-semibold sm:w-auto">
+        <NuxtLink to="/courses" class="btn-primary w-full shrink-0 rounded-md px-6 py-2.5 text-base font-semibold sm:w-auto">
           {{ t('landing.ctaButton') }}
         </NuxtLink>
       </div>
@@ -205,9 +204,9 @@ const ecosystem = ['TypeScript', 'JavaScript', 'React', 'Node.js', 'Next.js', 'V
           v-for="course in previewCourses"
           :key="course.id"
           :to="firstLessonId(course) ? `/courses/${firstLessonId(course)}` : '/courses'"
-          class="flex items-center gap-4 rounded-md border border-divider bg-surface p-5 transition-colors hover:border-accent-600 dark:border-divider-dark dark:bg-surface-dark dark:hover:border-accent-400"
+          class="card flex items-center gap-4 p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
         >
-          <span class="flex size-10 shrink-0 items-center justify-center rounded-md bg-zinc-100 dark:bg-white/[0.06]">
+          <span class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-accent-50 text-accent-600 dark:bg-accent-400/10 dark:text-accent-400">
             <component :is="levelIcon[getCourseLevel(course)]" :size="18" :stroke-width="1.75" />
           </span>
           <div class="min-w-0 flex-1">
@@ -226,9 +225,9 @@ const ecosystem = ['TypeScript', 'JavaScript', 'React', 'Node.js', 'Next.js', 'V
         <article
           v-for="feature in features"
           :key="feature.title"
-          class="rounded-md border border-divider bg-surface p-5 transition-colors hover:border-accent-600 dark:border-divider-dark dark:bg-surface-dark dark:hover:border-accent-400"
+          class="card p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
         >
-          <div class="flex size-10 items-center justify-center rounded-md bg-accent-50 text-accent-700 dark:bg-accent-400/10 dark:text-accent-400">
+          <div class="flex size-10 items-center justify-center rounded-lg bg-accent-50 text-accent-600 dark:bg-accent-400/10 dark:text-accent-400">
             <component :is="feature.icon" :size="18" :stroke-width="1.75" />
           </div>
           <h2 class="mt-3.5 font-semibold">{{ feature.title }}</h2>

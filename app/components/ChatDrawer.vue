@@ -41,8 +41,8 @@ async function submit() {
   <!-- Panel: fixed overlay on mobile, a real (width-animated) flex column
        on desktop — this is what keeps it from ever obstructing content. -->
   <aside
-    class="fixed inset-y-0 right-0 z-40 flex w-full max-w-sm shrink-0 translate-x-0 flex-col border-l-2 bg-canvas transition-[width,transform,box-shadow] duration-200 dark:bg-canvas-dark lg:static lg:z-auto lg:max-w-none lg:translate-x-0 lg:overflow-hidden lg:border-l-2"
-    :class="open ? 'translate-x-0 border-ai-500 shadow-[-16px_0_40px_-24px_rgb(0,255,102,0.5)] lg:w-[360px]' : 'translate-x-full border-transparent lg:w-0'"
+    class="fixed inset-y-0 right-0 z-40 flex w-full max-w-sm shrink-0 translate-x-0 flex-col border-l border-divider bg-canvas transition-[width,transform,box-shadow] duration-200 dark:border-divider-dark dark:bg-canvas-dark lg:static lg:z-auto lg:max-w-none lg:translate-x-0 lg:overflow-hidden"
+    :class="open ? 'translate-x-0 shadow-[-16px_0_40px_-24px_rgb(15,23,42,0.25)] lg:w-[360px]' : 'translate-x-full lg:w-0'"
   >
     <div class="flex h-full w-full flex-col lg:w-[360px]">
       <header class="flex min-h-12 shrink-0 items-center gap-2 border-b border-divider px-3 py-2 dark:border-divider-dark">
@@ -51,8 +51,8 @@ async function submit() {
         </span>
         <div class="min-w-0 flex-1">
           <h2 class="text-sm font-semibold text-zinc-900 dark:text-white">{{ t('aiAssistant.title') }}</h2>
-          <!-- Terminal badge: translucent green fill, solid green text —
-               the same recipe used for every AI/code status pill. -->
+          <!-- Translucent violet fill, solid violet text — the same recipe
+               used for every AI-attributed status pill. -->
           <span class="mt-1 inline-flex items-center gap-1 rounded-full bg-ai-400/10 px-2 py-0.5 text-[10px] font-medium text-ai-700 dark:text-ai-400">
             <span class="size-1 rounded-full bg-ai-500" aria-hidden="true" />
             {{ t('aiAssistant.groundedBadge') }}
@@ -92,7 +92,7 @@ async function submit() {
               <div class="h-3 w-3/5 animate-pulse rounded-md bg-zinc-200 dark:bg-white/10" style="animation-delay: 100ms" />
               <div class="h-3 w-2/5 animate-pulse rounded-md bg-zinc-200 dark:bg-white/10" style="animation-delay: 200ms" />
             </div>
-            <p v-else-if="ex.error" class="text-red-600 dark:text-red-400">{{ ex.error }}</p>
+            <p v-else-if="ex.error" class="text-critical-600 dark:text-critical-400">{{ ex.error }}</p>
             <template v-else>
               <p class="whitespace-pre-wrap">{{ ex.answer }}</p>
               <div v-if="ex.references.length" class="mt-2 border-t border-divider pt-2 dark:border-divider-dark">

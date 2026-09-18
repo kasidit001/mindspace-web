@@ -5,55 +5,90 @@ export default <Partial<Config>>{
   darkMode: 'class',
   theme: {
     extend: {
+      /**
+       * "Studio Dashboard": the site's third identity this project — moving
+       * off the JetBrains Mono / neon-terminal look entirely in favor of a
+       * clean SaaS-product look (white cards, soft shadows, rounded
+       * corners, one clean grotesk typeface). Plus Jakarta Sans covers both
+       * UI text and headlines (weight does the differentiation, not a
+       * second typeface — a dashboard reads as a tool, not an editorial
+       * piece). JetBrains Mono is kept, but demoted to actual code only.
+       */
       fontFamily: {
-        // Single-family site — see nuxt.config.ts for the full rationale.
-        sans: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
-        display: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+        sans: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace']
       },
       colors: {
-        // "Codecademy Terminal": a warm cream workbench by day, pure dark
-        // slate by night — dot-grid textured either way. `surface` sits one
-        // step up from `canvas` for cards floating on that grid (hero media,
-        // CTA overlay, reader card).
+        // Near-white canvas / pure-white surface by day, deep slate-navy by
+        // night — cards are separated from the page mostly by shadow, not a
+        // strong border, so `divider` stays a faint hairline.
         canvas: {
-          DEFAULT: '#FAF7EE',
-          dark: '#0A0B0E'
+          DEFAULT: '#F6F7FB',
+          dark: '#0B0E16'
         },
         surface: {
           DEFAULT: '#FFFFFF',
-          dark: '#13151C'
+          dark: '#12151F'
         },
         divider: {
-          DEFAULT: '#E7E1CD',
-          dark: '#232733'
+          DEFAULT: '#E7E9F0',
+          dark: '#232838'
         },
-        // Neon Yellow (`accent`) is the primary action color — buttons,
-        // links, progress. Terminal Green (`ai`) marks anything AI/code
-        // related — badges, highlights, the AI Tutor chrome. 400/500 hold
-        // the exact brief hexes (bright, theme-agnostic — used on filled
-        // chips/buttons with black text); 700 is a hand-tuned dark shade for
-        // legible text/links on a light background.
+        // Indigo (`accent`) is the primary brand/action color — buttons,
+        // links, focus rings, primary nav state. Replaces the old neon
+        // yellow; needs WHITE text on filled chips/buttons now (400/500/600
+        // are all mid-saturation, unlike the old bright-yellow chip that
+        // needed black text).
         accent: {
-          50: '#FFFDEF',
-          100: '#FFF7C2',
-          300: '#FFEB70',
-          400: '#FFF066',
-          500: '#F5DE2E',
-          600: '#E0C300',
-          700: '#8A6D00',
-          900: '#3D2F00'
+          50: '#EEF2FF',
+          100: '#E0E7FF',
+          300: '#A5B4FC',
+          400: '#818CF8',
+          500: '#6366F1',
+          600: '#4F46E5',
+          700: '#4338CA',
+          900: '#312E81'
         },
+        // Violet (`ai`) marks anything AI/tutor-related — badges, the chat
+        // chrome, the "AI Brain" mark — kept a distinct hue from the
+        // primary indigo so AI-attributed UI still reads as its own thing.
         ai: {
-          50: '#E9FFF3',
-          100: '#BFFFDC',
-          300: '#4DFFA0',
-          400: '#00FF66',
-          500: '#00E676',
-          600: '#00C25F',
-          700: '#00814A',
-          900: '#00341F'
-        }
+          50: '#FAF5FF',
+          100: '#F3E8FF',
+          300: '#D8B4FE',
+          400: '#C084FC',
+          500: '#A855F7',
+          600: '#9333EA',
+          700: '#7E22CE',
+          900: '#4C1D95'
+        },
+        // Semantic status colors — new in this pass, for alert/health-style
+        // badges (risk levels, form states) the old 2-color terminal
+        // palette had no vocabulary for. `400` is the dark-mode text/icon
+        // shade, matching the accent/ai convention (bright enough to read
+        // on a near-black surface; 500+ are for light-mode text and fills).
+        critical: {
+          50: '#FEF2F2',
+          100: '#FEE2E2',
+          200: '#FECACA',
+          300: '#FCA5A5',
+          400: '#F87171',
+          500: '#EF4444',
+          600: '#DC2626',
+          700: '#B91C1C',
+          800: '#991B1B',
+          900: '#7F1D1D'
+        },
+        warning: { 50: '#FFFBEB', 400: '#FBBF24', 500: '#F59E0B', 600: '#D97706', 700: '#B45309' },
+        info: { 50: '#EFF6FF', 400: '#60A5FA', 500: '#3B82F6', 600: '#2563EB', 700: '#1D4ED8' },
+        success: { 50: '#ECFDF5', 400: '#34D399', 500: '#10B981', 600: '#059669', 700: '#047857' }
+      },
+      boxShadow: {
+        // A soft, diffuse card shadow — the "this floats" signal now,
+        // replacing the old terminal's glow rings and hard offset shadows.
+        card: '0 1px 2px 0 rgb(15 23 42 / 0.04), 0 8px 24px -8px rgb(15 23 42 / 0.10)',
+        'card-dark': '0 1px 2px 0 rgb(0 0 0 / 0.2), 0 8px 24px -8px rgb(0 0 0 / 0.45)'
       },
       typography: ({ theme }: { theme: (path: string) => string }) => ({
         DEFAULT: {
@@ -66,7 +101,7 @@ export default <Partial<Config>>{
             a: { fontWeight: '500', textDecoration: 'none' },
             'a:hover': { textDecoration: 'underline' },
             p: { marginTop: '1.25em', marginBottom: '1.25em' },
-            'h1, h2, h3': { marginTop: '2em', marginBottom: '0.75em', letterSpacing: '-0.005em', fontWeight: '600' },
+            'h1, h2, h3': { marginTop: '2em', marginBottom: '0.75em', letterSpacing: '-0.005em', fontWeight: '700' },
             'ul, ol': { marginTop: '1.25em', marginBottom: '1.25em' },
             li: { marginTop: '0.35em', marginBottom: '0.35em' },
             blockquote: {

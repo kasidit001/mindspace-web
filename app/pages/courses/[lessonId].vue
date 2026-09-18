@@ -70,8 +70,8 @@ watch(lessonId, () => {
     class="mx-auto px-4 py-10 transition-[max-width] duration-200 sm:px-6"
     :class="focusMode ? 'max-w-[960px]' : 'max-w-[820px]'"
   >
-    <!-- Minimal reader card, floating over the workspace's dot-grid backdrop -->
-    <div class="rounded-2xl border border-divider bg-surface p-6 dark:bg-surface-dark sm:p-10">
+    <!-- Reader card, floating over the workspace canvas -->
+    <div class="card p-6 sm:p-10">
       <!-- Loading skeleton -->
       <div v-if="status === 'pending'" class="animate-pulse space-y-4">
         <div class="h-3 w-32 rounded-md bg-zinc-200 dark:bg-white/10" />
@@ -83,10 +83,10 @@ watch(lessonId, () => {
         </div>
       </div>
 
-      <div v-else-if="error" class="rounded-md border border-red-200 bg-red-50 p-6 text-center dark:border-red-900/50 dark:bg-red-950/30">
-        <Unplug :size="28" :stroke-width="1.75" class="mx-auto text-red-400 dark:text-red-500" aria-hidden="true" />
-        <p class="mt-2 font-medium text-red-700 dark:text-red-400">{{ t('lesson.loadError') }}</p>
-        <p class="mt-1 text-sm text-red-600/80 dark:text-red-400/70">
+      <div v-else-if="error" class="rounded-md border border-critical-200 bg-critical-50 p-6 text-center dark:border-critical-900/50 dark:bg-critical-900/20">
+        <Unplug :size="28" :stroke-width="1.75" class="mx-auto text-critical-500 dark:text-critical-400" aria-hidden="true" />
+        <p class="mt-2 font-medium text-critical-700 dark:text-critical-400">{{ t('lesson.loadError') }}</p>
+        <p class="mt-1 text-sm text-critical-600/80 dark:text-critical-400/70">
           {{ t('lesson.loadErrorBody') }}
         </p>
       </div>

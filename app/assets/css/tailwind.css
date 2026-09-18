@@ -3,39 +3,55 @@
 @tailwind utilities;
 
 /* ---------------------------------------------------------------------
-   Design tokens — "Codecademy Terminal, calmed down": still JetBrains
-   Mono + neon-yellow/terminal-green, but the neon is reserved for primary
-   CTAs only. No dot-grid texture, no decorative glow rings around cards —
-   plain borders carry the "this is a container" signal instead.
-   Colors: see tailwind.config.ts (canvas / surface / divider / accent / ai).
+   Design tokens — "Studio Dashboard": white/near-white surfaces, soft
+   diffuse shadows instead of borders or glow as the "this is a card"
+   signal, generously rounded corners, one clean grotesk typeface
+   (Plus Jakarta Sans) instead of all-monospace. Indigo is the one
+   primary-action color; everything else stays quiet neutrals + the
+   semantic status colors (critical/warning/info/success).
+   Colors: see tailwind.config.ts (canvas / surface / divider / accent / ai
+   / critical / warning / info / success).
 --------------------------------------------------------------------- */
 body {
   font-feature-settings: 'ss01' 1, 'cv01' 1;
 }
 
-/* Codecademy-style "pressable" primary button — a bold neon-yellow chip
-   with a solid ink shadow that flattens on click, like a real key. Black
-   text always (the yellow is bright enough that it never needs light
-   text, in either theme). Reserve this class for a page's one primary
-   action — everything else is a plain bordered button. */
-.btn-neon {
+/* Primary button — solid indigo, white text, a soft shadow that lifts on
+   hover rather than a hard "pressable key" offset. Reserve this class for
+   a page's one primary action — everything else is a plain bordered or
+   ghost button. */
+.btn-primary {
+  background-color: theme('colors.accent.600');
+  color: #FFFFFF;
+  box-shadow: 0 1px 2px 0 rgb(15 23 42 / 0.08);
+  transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+}
+.btn-primary:hover {
+  background-color: theme('colors.accent.700');
+  box-shadow: 0 6px 16px -4px rgb(99 102 241 / 0.45);
+}
+.btn-primary:active {
+  transform: scale(0.98);
+}
+.dark .btn-primary {
+  background-color: theme('colors.accent.500');
+}
+.dark .btn-primary:hover {
   background-color: theme('colors.accent.400');
-  color: #14110A;
-  box-shadow: 0 3px 0 0 #00000055;
-  transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.15s ease;
+  box-shadow: 0 6px 20px -4px rgb(99 102 241 / 0.5);
 }
-.btn-neon:hover {
-  background-color: theme('colors.accent.300');
+
+/* Card — the soft-shadow "this floats" signal used across dashboard-style
+   surfaces (alert rows, stat tiles, the admin table) in place of the old
+   terminal's borders/glow. */
+.card {
+  background-color: theme('colors.surface.DEFAULT');
+  border-radius: 1rem;
+  box-shadow: theme('boxShadow.card');
 }
-.btn-neon:active {
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 0 #00000055;
-}
-.dark .btn-neon {
-  box-shadow: 0 3px 0 0 rgb(0 0 0 / 0.7);
-}
-.dark .btn-neon:active {
-  box-shadow: 0 1px 0 0 rgb(0 0 0 / 0.7);
+.dark .card {
+  background-color: theme('colors.surface.dark');
+  box-shadow: theme('boxShadow.card-dark');
 }
 
 /* Thin, unobtrusive scrollbars for the reading pane / sidebar / drawers */

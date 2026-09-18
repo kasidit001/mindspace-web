@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { CheckCircle2, Copy } from '@lucide/vue'
 
-// Overrides @nuxtjs/mdc's default <ProsePre> to render code as an editorial
-// "listing" plate — a thin brass top rule, a small-caps caption bar, then
-// the code itself — instead of a macOS terminal window. Always dark
-// (the literal `dark` class below forces shiki's --shiki-dark variant via
-// the `.dark .shiki` rule in tailwind.css) so a code listing reads as a
-// distinct printed exhibit regardless of the page theme. Auto-picked up
-// because it lives at ~/components/mdc/ProsePre.vue (see @nuxtjs/mdc's
-// component-override convention).
+// Overrides @nuxtjs/mdc's default <ProsePre> to render code as a "listing"
+// plate — a thin violet top rule (the AI accent — this is the material the
+// AI tutor grounds its answers in), a small-caps caption bar, then the code
+// itself — instead of a macOS terminal window. Always dark (the literal
+// `dark` class below forces shiki's --shiki-dark variant via the
+// `.dark .shiki` rule in tailwind.css) so a code listing reads as a
+// distinct exhibit regardless of the page theme. Auto-picked up because it
+// lives at ~/components/mdc/ProsePre.vue (see @nuxtjs/mdc's component-
+// override convention).
 const props = withDefaults(
   defineProps<{
     code?: string

@@ -12,14 +12,15 @@ export default defineNuxtConfig({
    * `font-family` text in compiled CSS — which never reliably sees fonts
    * referenced only via Tailwind's JS config (tailwind.config.ts).
    *
-   * Single-family site: JetBrains Mono covers sans, display, and mono
-   * (tailwind.config.ts) — the previous Plus Jakarta Sans / Syne pairing
-   * read as too generic/AI-generated; going all-monospace leans into the
-   * terminal/code-editor identity instead.
+   * "Studio Dashboard": Plus Jakarta Sans covers sans + display (see
+   * tailwind.config.ts) — a clean, warm grotesk instead of the previous
+   * all-monospace terminal look. JetBrains Mono stays, but only for `mono`
+   * (code blocks, inline code).
    */
   fonts: {
     families: [
-      { name: 'JetBrains Mono', provider: 'google', weights: [400, 500, 600, 700, 800], global: true }
+      { name: 'Plus Jakarta Sans', provider: 'google', weights: [400, 500, 600, 700, 800], global: true },
+      { name: 'JetBrains Mono', provider: 'google', weights: [400, 500, 600, 700], global: true }
     ]
   },
   runtimeConfig: {

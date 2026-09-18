@@ -51,7 +51,7 @@ watch(() => [props.code, theme.value], draw)
   <div class="my-4 overflow-x-auto rounded-xl border border-divider bg-surface p-4 dark:border-divider-dark dark:bg-surface-dark">
     <div ref="containerRef" class="flex justify-center [&_svg]:max-w-full" />
     <div v-if="errorMessage" class="space-y-2">
-      <p class="text-sm text-red-500">Diagram failed to render: {{ errorMessage }}</p>
+      <p class="text-sm text-critical-500">Diagram failed to render: {{ errorMessage }}</p>
       <pre class="overflow-x-auto rounded-md bg-canvas-dark p-3 font-mono text-xs text-white">{{ code }}</pre>
     </div>
   </div>

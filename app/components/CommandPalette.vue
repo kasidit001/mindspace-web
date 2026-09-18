@@ -113,7 +113,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydownGlobal))
     class="fixed inset-0 z-50 flex justify-center bg-black/30 px-4 pt-[12vh]"
     @click.self="close"
   >
-    <div class="reveal h-fit w-full max-w-lg overflow-hidden rounded-md border border-divider bg-canvas shadow-md dark:border-divider-dark dark:bg-canvas-dark">
+    <div class="card reveal h-fit w-full max-w-lg overflow-hidden">
       <div class="flex items-center gap-2 border-b border-divider px-4 py-3 dark:border-divider-dark">
         <Search :size="16" :stroke-width="1.75" class="shrink-0 text-zinc-400" />
         <input

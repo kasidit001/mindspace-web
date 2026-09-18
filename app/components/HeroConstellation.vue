@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // Decorative 3D backdrop for the landing hero: a slowly-turning constellation
 // of points (fibonacci-sphere distribution, nearest-neighbor edges), in the
-// same yellow/green terminal palette as the rest of the site. Purely
+// same indigo/violet brand palette as the rest of the site. Purely
 // atmospheric — aria-hidden, pointer-events-none, no interaction — and it
 // establishes the visual language the /map skill-map later makes literal
 // and functional (real lessons as nodes, real progress as connections).
@@ -11,8 +11,8 @@ const canvasEl = ref<HTMLCanvasElement | null>(null)
 const containerEl = ref<HTMLDivElement | null>(null)
 let dispose: (() => void) | null = null
 
-const ACCENT = 0xfff066 // accent-400
-const AI = 0x00ff66 // ai-400
+const ACCENT = 0x818cf8 // accent-400
+const AI = 0xc084fc // ai-400
 const EDGE_DISTANCE = 1.7
 const POINT_COUNT = 90
 
@@ -41,8 +41,8 @@ onMounted(() => {
 
   const nodePositions = fibonacciSphere(POINT_COUNT, 3.1)
 
-  // Points cloud — most nodes are dim terminal-green, a handful are the
-  // brighter accent yellow, echoing the two brand colors without either
+  // Points cloud — most nodes are the violet AI accent, a handful are the
+  // brighter indigo primary, echoing the two brand colors without either
   // one dominating.
   const pointsGeometry = new THREE.BufferGeometry().setFromPoints(nodePositions)
   const colors = new Float32Array(POINT_COUNT * 3)
