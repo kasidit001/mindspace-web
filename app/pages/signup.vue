@@ -28,13 +28,13 @@ async function submit() {
 </script>
 
 <template>
-  <div class="bg-dots flex min-h-screen items-center justify-center bg-canvas px-6 py-16 text-zinc-900 dark:bg-canvas-dark dark:text-zinc-100">
+  <div class="flex min-h-screen items-center justify-center bg-canvas px-6 py-16 text-zinc-900 dark:bg-canvas-dark dark:text-zinc-100">
     <div class="reveal w-full max-w-md">
-      <NuxtLink to="/" class="font-display mb-8 flex items-center justify-center gap-1 text-lg font-bold tracking-tight">
-        {{ t('common.brand') }}
+      <NuxtLink to="/" class="mb-8 flex items-center justify-center">
+        <AppLogo />
       </NuxtLink>
 
-      <div class="glow-accent rounded-2xl border border-divider bg-surface p-8 dark:border-divider-dark dark:bg-surface-dark">
+      <div class="card p-8">
         <h1 class="font-display text-2xl font-bold tracking-tight">{{ t('auth.signupTitle') }}</h1>
         <p class="mt-1.5 text-sm text-zinc-500 dark:text-zinc-400">{{ t('auth.signupSubtitle') }}</p>
 
@@ -80,24 +80,24 @@ async function submit() {
               minlength="6"
               class="w-full rounded-md border px-3 py-2 text-sm focus:outline-none dark:bg-white/[0.04] dark:text-white"
               :class="mismatch
-                ? 'border-red-400 focus:border-red-500 dark:border-red-800'
+                ? 'border-critical-400 focus:border-critical-500 dark:border-critical-600'
                 : 'border-divider bg-white focus:border-accent-500 dark:border-divider-dark'"
             >
-            <span v-if="mismatch" class="mt-1 block text-xs text-red-600 dark:text-red-400">
+            <span v-if="mismatch" class="mt-1 block text-xs text-critical-600 dark:text-critical-400">
               {{ t('auth.passwordMismatch') }}
             </span>
           </label>
 
           <button
             type="submit"
-            class="btn-neon w-full rounded-md px-4 py-2.5 text-sm font-semibold disabled:opacity-60"
+            class="btn-primary w-full rounded-md px-4 py-2.5 text-sm font-semibold disabled:opacity-60"
             :disabled="submitting || mismatch"
           >
             {{ t('auth.signUp') }}
           </button>
         </form>
 
-        <p class="mt-5 flex items-start gap-1.5 rounded-md bg-ai-400/10 px-3 py-2 font-mono text-[11px] leading-relaxed text-ai-700 dark:text-ai-400">
+        <p class="mt-5 flex items-start gap-1.5 rounded-lg bg-info-50 px-3 py-2 text-[11px] leading-relaxed text-info-700 dark:bg-info-400/10 dark:text-info-400">
           <Lock :size="12" :stroke-width="2" class="mt-0.5 shrink-0" />
           {{ t('auth.demoNotice') }}
         </p>

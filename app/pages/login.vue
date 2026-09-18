@@ -21,13 +21,13 @@ async function submit() {
 </script>
 
 <template>
-  <div class="bg-dots flex min-h-screen items-center justify-center bg-canvas px-6 py-16 text-zinc-900 dark:bg-canvas-dark dark:text-zinc-100">
+  <div class="flex min-h-screen items-center justify-center bg-canvas px-6 py-16 text-zinc-900 dark:bg-canvas-dark dark:text-zinc-100">
     <div class="reveal w-full max-w-md">
-      <NuxtLink to="/" class="font-display mb-8 flex items-center justify-center gap-1 text-lg font-bold tracking-tight">
-        {{ t('common.brand') }}
+      <NuxtLink to="/" class="mb-8 flex items-center justify-center">
+        <AppLogo />
       </NuxtLink>
 
-      <div class="glow-accent rounded-2xl border border-divider bg-surface p-8 dark:border-divider-dark dark:bg-surface-dark">
+      <div class="card p-8">
         <h1 class="font-display text-2xl font-bold tracking-tight">{{ t('auth.loginTitle') }}</h1>
         <p class="mt-1.5 text-sm text-zinc-500 dark:text-zinc-400">{{ t('auth.loginSubtitle') }}</p>
 
@@ -56,14 +56,14 @@ async function submit() {
 
           <button
             type="submit"
-            class="btn-neon w-full rounded-md px-4 py-2.5 text-sm font-semibold disabled:opacity-60"
+            class="btn-primary w-full rounded-md px-4 py-2.5 text-sm font-semibold disabled:opacity-60"
             :disabled="submitting"
           >
             {{ t('auth.logIn') }}
           </button>
         </form>
 
-        <p class="mt-5 flex items-start gap-1.5 rounded-md bg-ai-400/10 px-3 py-2 font-mono text-[11px] leading-relaxed text-ai-700 dark:text-ai-400">
+        <p class="mt-5 flex items-start gap-1.5 rounded-lg bg-info-50 px-3 py-2 text-[11px] leading-relaxed text-info-700 dark:bg-info-400/10 dark:text-info-400">
           <Lock :size="12" :stroke-width="2" class="mt-0.5 shrink-0" />
           {{ t('auth.demoNotice') }}
         </p>

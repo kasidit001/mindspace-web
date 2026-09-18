@@ -9,10 +9,12 @@ const ADVANCED_HINTS = ['advanced', 'tooling', 'internals', 'patterns', 'perform
  * There's no `level` field on the backend Course model yet, so this derives
  * a rough Beginner/Intermediate/Advanced badge from the title + description
  * as a lightweight, purely-cosmetic heuristic. Swap for a real field
- * (`course.level`) once the API supports one.
+ * (`course.level`) once the API supports one. Hints are English words, so
+ * this deliberately reads `descriptionEn` regardless of UI language rather
+ * than the (optional, often-absent) Thai translation.
  */
-export function getCourseLevel(course: Pick<Course, 'title' | 'description'>): CourseLevel {
-  const text = `${course.title} ${course.description ?? ''}`.toLowerCase()
+export function getCourseLevel(course: Pick<Course, 'title' | 'descriptionEn'>): CourseLevel {
+  const text = `${course.title} ${course.descriptionEn ?? ''}`.toLowerCase()
   if (ADVANCED_HINTS.some((hint) => text.includes(hint))) return 'Advanced'
   if (BEGINNER_HINTS.some((hint) => text.includes(hint))) return 'Beginner'
   return 'Intermediate'

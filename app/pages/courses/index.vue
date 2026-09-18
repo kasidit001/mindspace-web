@@ -49,7 +49,7 @@ const levelIcon = {
 
     <!-- Loading skeleton -->
     <div v-if="status === 'pending'" class="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
-      <div v-for="i in 2" :key="i" class="flex animate-pulse items-center gap-4 rounded-md border border-divider bg-surface p-5 dark:border-divider-dark dark:bg-surface-dark">
+      <div v-for="i in 2" :key="i" class="card flex animate-pulse items-center gap-4 p-5">
         <div class="size-10 shrink-0 rounded-md bg-zinc-200 dark:bg-white/10" />
         <div class="flex-1 space-y-2">
           <div class="h-4 w-1/2 rounded-md bg-zinc-200 dark:bg-white/10" />
@@ -59,15 +59,15 @@ const levelIcon = {
     </div>
 
     <!-- Error / reconnect state -->
-    <div v-else-if="error" class="mt-10 flex flex-col items-center rounded-md border border-dashed border-red-200 p-12 text-center dark:border-red-900/50">
-      <Unplug :size="36" :stroke-width="1.75" class="text-red-400 dark:text-red-500" aria-hidden="true" />
+    <div v-else-if="error" class="mt-10 flex flex-col items-center rounded-md border border-dashed border-critical-200 p-12 text-center dark:border-critical-900/50">
+      <Unplug :size="36" :stroke-width="1.75" class="text-critical-500 dark:text-critical-400" aria-hidden="true" />
       <p class="mt-3 font-medium text-zinc-800 dark:text-zinc-100">{{ t('courses.cantReach') }}</p>
       <p class="mt-1 max-w-sm text-sm text-zinc-500 dark:text-zinc-400">
         {{ t('courses.loadError') }}
       </p>
       <button
         type="button"
-        class="btn-neon mt-5 flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-semibold disabled:opacity-50"
+        class="mt-5 flex items-center gap-1.5 rounded-md border border-divider px-4 py-2 text-sm font-medium text-zinc-600 hover:border-accent-600 hover:text-accent-700 disabled:opacity-50 dark:border-divider-dark dark:text-zinc-300 dark:hover:border-accent-400 dark:hover:text-accent-400"
         :disabled="pending"
         @click="refresh()"
       >
@@ -76,18 +76,18 @@ const levelIcon = {
       </button>
     </div>
 
-    <!-- Sharp-edged, bordered cards: icon, name, lesson count. -->
+    <!-- Soft-shadow cards: icon, name, lesson count. -->
     <div v-else-if="courses?.length" class="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
       <NuxtLink
         v-for="course in courses"
         :key="course.id"
         :to="firstLessonId(course) ? `/courses/${firstLessonId(course)}` : '/courses'"
-        class="flex items-center gap-4 rounded-md border border-divider bg-surface p-5 transition-colors dark:bg-surface-dark"
+        class="card flex items-center gap-4 p-5 transition-all duration-200"
         :class="firstLessonId(course)
-          ? 'hover:border-accent-600 dark:hover:border-accent-400'
+          ? 'hover:-translate-y-0.5 hover:shadow-lg'
           : 'pointer-events-none opacity-60'"
       >
-        <span class="flex size-10 shrink-0 items-center justify-center rounded-md bg-zinc-100 dark:bg-white/[0.06]">
+        <span class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-accent-50 text-accent-600 dark:bg-accent-400/10 dark:text-accent-400">
           <component :is="levelIcon[getCourseLevel(course)]" :size="18" :stroke-width="1.75" />
         </span>
         <div class="min-w-0 flex-1">

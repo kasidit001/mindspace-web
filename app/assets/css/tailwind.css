@@ -3,77 +3,55 @@
 @tailwind utilities;
 
 /* ---------------------------------------------------------------------
-   Design tokens — "Codecademy Terminal": warm cream / pure dark-slate
-   canvas, dot-grid texture, neon-yellow + terminal-green neon accents,
-   glow instead of flat borders on anything AI/interactive.
-   Colors: see tailwind.config.ts (canvas / surface / divider / accent / ai).
+   Design tokens — "Studio Dashboard": white/near-white surfaces, soft
+   diffuse shadows instead of borders or glow as the "this is a card"
+   signal, generously rounded corners, one clean grotesk typeface
+   (Plus Jakarta Sans) instead of all-monospace. Indigo is the one
+   primary-action color; everything else stays quiet neutrals + the
+   semantic status colors (critical/warning/info/success).
+   Colors: see tailwind.config.ts (canvas / surface / divider / accent / ai
+   / critical / warning / info / success).
 --------------------------------------------------------------------- */
 body {
   font-feature-settings: 'ss01' 1, 'cv01' 1;
 }
 
-/* Dot-grid page texture — 16px pitch, tuned per theme so the dots read as
-   a faint workbench grid rather than noise. Apply alongside bg-canvas
-   (dark:bg-canvas-dark) on full-bleed page roots. */
-.bg-dots {
-  background-image: radial-gradient(#D9D2B8 1px, transparent 1px);
-  background-size: 16px 16px;
+/* Primary button — solid indigo, white text, a soft shadow that lifts on
+   hover rather than a hard "pressable key" offset. Reserve this class for
+   a page's one primary action — everything else is a plain bordered or
+   ghost button. */
+.btn-primary {
+  background-color: theme('colors.accent.600');
+  color: #FFFFFF;
+  box-shadow: 0 1px 2px 0 rgb(15 23 42 / 0.08);
+  transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
 }
-.dark .bg-dots {
-  background-image: radial-gradient(#232428 1px, transparent 1px);
+.btn-primary:hover {
+  background-color: theme('colors.accent.700');
+  box-shadow: 0 6px 16px -4px rgb(99 102 241 / 0.45);
 }
-
-/* Neon glow ring — a crisp 1px edge plus soft bloom, for anything that
-   should feel "plugged in" (hero media, AI Tutor chrome, floating CTA).
-   Two-tier shadow keeps it a glow rather than a blur — the card itself
-   stays sharp. */
-.glow-ai {
-  box-shadow:
-    0 0 0 1px rgb(0 255 102 / 0.45),
-    0 0 20px 0 rgb(0 255 102 / 0.25),
-    0 0 60px 6px rgb(0 255 102 / 0.12);
+.btn-primary:active {
+  transform: scale(0.98);
 }
-.dark .glow-ai {
-  box-shadow:
-    0 0 0 1px rgb(0 255 102 / 0.55),
-    0 0 24px 0 rgb(0 255 102 / 0.35),
-    0 0 72px 10px rgb(0 255 102 / 0.18);
+.dark .btn-primary {
+  background-color: theme('colors.accent.500');
 }
-.glow-accent {
-  box-shadow:
-    0 0 0 1px rgb(255 240 102 / 0.5),
-    0 0 20px 0 rgb(255 240 102 / 0.3),
-    0 0 60px 6px rgb(255 240 102 / 0.12);
-}
-.dark .glow-accent {
-  box-shadow:
-    0 0 0 1px rgb(255 240 102 / 0.6),
-    0 0 24px 0 rgb(255 240 102 / 0.4),
-    0 0 72px 10px rgb(255 240 102 / 0.16);
-}
-
-/* Codecademy-style "pressable" primary button — a bold neon-yellow chip
-   with a solid ink shadow that flattens on click, like a real key. Black
-   text always (the yellow is bright enough that it never needs light
-   text, in either theme). */
-.btn-neon {
+.dark .btn-primary:hover {
   background-color: theme('colors.accent.400');
-  color: #14110A;
-  box-shadow: 0 4px 0 0 #00000055;
-  transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.15s ease;
+  box-shadow: 0 6px 20px -4px rgb(99 102 241 / 0.5);
 }
-.btn-neon:hover {
-  background-color: theme('colors.accent.300');
+
+/* Card — the soft-shadow "this floats" signal used across dashboard-style
+   surfaces (alert rows, stat tiles, the admin table) in place of the old
+   terminal's borders/glow. */
+.card {
+  background-color: theme('colors.surface.DEFAULT');
+  border-radius: 1rem;
+  box-shadow: theme('boxShadow.card');
 }
-.btn-neon:active {
-  transform: translateY(3px);
-  box-shadow: 0 1px 0 0 #00000055;
-}
-.dark .btn-neon {
-  box-shadow: 0 4px 0 0 rgb(0 0 0 / 0.7);
-}
-.dark .btn-neon:active {
-  box-shadow: 0 1px 0 0 rgb(0 0 0 / 0.7);
+.dark .card {
+  background-color: theme('colors.surface.dark');
+  box-shadow: theme('boxShadow.card-dark');
 }
 
 /* Thin, unobtrusive scrollbars for the reading pane / sidebar / drawers */
