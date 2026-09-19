@@ -15,7 +15,7 @@ import { ArrowRight, BookOpenCheck, Compass, FileText, Flame, GraduationCap, Med
 import type { Course, LessonContentType } from '~/types/course'
 import { pickLocalized } from '~/utils/localizedLesson'
 import { getBadgeDefinition, getBadges, type BadgeMetric } from '~/utils/badges'
-import { getCourseTech } from '~/utils/courseTech'
+import { getCourseTech, type TechId } from '~/utils/courseTech'
 
 definePageMeta({ layout: 'dashboard' })
 
@@ -199,16 +199,35 @@ function continueLessonPosition(course: Course): number {
 }
 
 /** Not-started courses surface first — the clearest invitation to explore —
- * then in-progress, then fully completed ones last. Mirrors the honest
- * "not started / continue" heuristic mindspace-api's dashboard usecase uses. */
+ * then in-progress, then fully completed ones last. Within the not-started
+ * group specifically, diversifies across distinct detected techs before
+ * repeating one, so three not-started TypeScript courses don't crowd out
+ * Docker/React/Go — mirrors mindspace-api's getDashboard.usecase.ts
+ * buildRecommendations exactly (both real, disclosed heuristics, not a
+ * fabricated personalization signal). */
 const exploreCourses = computed(() => {
-  const rank = (c: Course) => {
+  const list = courses.value ?? []
+  const notStarted = list.filter((c) => completedCount(c) === 0)
+  const inProgress = list.filter((c) => {
     const done = completedCount(c)
-    if (done === 0) return 0
-    if (done < c.lessons.length) return 1
-    return 2
+    return done > 0 && done < c.lessons.length
+  })
+  const completed = list.filter((c) => c.lessons.length > 0 && completedCount(c) === c.lessons.length)
+
+  const seenTech = new Set<TechId>()
+  const firstOfEachTech: Course[] = []
+  const remainder: Course[] = []
+  for (const course of notStarted) {
+    const tech = getCourseTech(course)
+    if (seenTech.has(tech)) {
+      remainder.push(course)
+    } else {
+      seenTech.add(tech)
+      firstOfEachTech.push(course)
+    }
   }
-  return [...(courses.value ?? [])].sort((a, b) => rank(a) - rank(b))
+
+  return [...firstOfEachTech, ...remainder, ...inProgress, ...completed]
 })
 </script>
 
@@ -253,7 +272,7 @@ const exploreCourses = computed(() => {
           <NuxtLink
             v-else-if="continueCourse"
             :to="`/courses/${nextLessonId(continueCourse)}`"
-            class="group relative flex flex-col gap-5 overflow-hidden rounded-2xl bg-zinc-900 p-6 text-white shadow-card-dark transition-transform duration-200 hover:-translate-y-0.5 sm:flex-row sm:items-center sm:justify-between sm:p-8"
+            class="group relative flex flex-col gap-5 overflow-hidden rounded-2xl bg-zinc-900 p-6 text-white shadow-card-dark transition-transform duration-200 hover:-translate-y-0.5 sm:flex-row sm:items-end sm:justify-between sm:p-8"
           >
             <!-- Purely decorative "premium SaaS banner" dressing — a two-tone
                  mesh-gradient glow plus a dot-grid texture, both clipped by
@@ -262,6 +281,14 @@ const exploreCourses = computed(() => {
             <div class="pointer-events-none absolute -right-10 -top-16 size-64 rounded-full bg-accent-500/25 blur-3xl" aria-hidden="true" />
             <div class="pointer-events-none absolute -right-6 bottom-0 size-48 rounded-full bg-ai-500/15 blur-3xl" aria-hidden="true" />
             <div class="continue-card-dots pointer-events-none absolute inset-0" aria-hidden="true" />
+            <!-- Premium "stamp": a large tech-logo badge tilted and bled off
+                 the card's top-right corner, clipped by the card's own
+                 overflow-hidden — the hero's signature graphic. -->
+            <TechLogo
+              :tech="getCourseTech(continueCourse)"
+              :size="128"
+              class="pointer-events-none absolute -right-6 -top-6 rotate-[8deg] opacity-95"
+            />
 
             <div class="relative min-w-0">
               <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">{{ t('dashboard.continueLearning') }}</p>
@@ -286,13 +313,10 @@ const exploreCourses = computed(() => {
                 <span class="shrink-0 text-xs font-medium text-zinc-400">{{ progressPercent(continueCourse) }}%</span>
               </div>
             </div>
-            <div class="relative flex shrink-0 flex-row-reverse items-center gap-4 self-start sm:flex-col sm:items-end sm:self-auto">
-              <TechLogo :tech="getCourseTech(continueCourse)" :size="48" />
-              <span class="btn-primary inline-flex items-center gap-1.5 rounded-lg px-5 py-2.5 text-sm font-semibold">
-                {{ actionLabel(continueCourse) }}
-                <ArrowRight :size="14" :stroke-width="2" class="transition-transform duration-200 group-hover:translate-x-0.5" />
-              </span>
-            </div>
+            <span class="btn-primary relative inline-flex shrink-0 items-center gap-1.5 self-start rounded-lg px-5 py-2.5 text-sm font-semibold sm:self-auto">
+              {{ actionLabel(continueCourse) }}
+              <ArrowRight :size="14" :stroke-width="2" class="transition-transform duration-200 group-hover:translate-x-0.5" />
+            </span>
           </NuxtLink>
 
           <div v-else-if="allCaughtUp" class="flex flex-col items-center rounded-2xl bg-zinc-900 p-6 text-center text-white shadow-card-dark sm:p-8">
