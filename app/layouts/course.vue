@@ -15,6 +15,7 @@ import {
   Waypoints,
   X
 } from '@lucide/vue'
+import type { Course } from '~/types/course'
 
 const { data: courses, status, error, refresh, pending } = useCourses()
 const route = useRoute()
@@ -65,6 +66,11 @@ const completedTotal = computed(() => {
 function resetProgress() {
   progress.completed = []
   progress.persist()
+}
+
+function courseCompletedCount(course: Course): number {
+  if (!mounted.value) return 0
+  return course.lessons.filter((l) => progress.isCompleted(l.id)).length
 }
 </script>
 
@@ -221,6 +227,13 @@ function resetProgress() {
               :style="{ width: totalLessons ? `${Math.round((completedTotal / totalLessons) * 100)}%` : '0%' }"
             />
           </div>
+          <NuxtLink
+            v-if="user"
+            to="/dashboard"
+            class="mt-3 block w-full rounded-md border border-divider py-1.5 text-center text-xs font-medium text-accent-700 hover:bg-accent-50 dark:border-divider-dark dark:text-accent-400 dark:hover:bg-accent-400/10"
+          >
+            {{ t('dashboard.navDashboard') }}
+          </NuxtLink>
           <button
             type="button"
             class="mt-3 w-full rounded-md border border-divider py-1.5 text-xs text-zinc-500 hover:border-critical-300 hover:text-critical-600 dark:border-divider-dark dark:text-zinc-400 dark:hover:border-critical-800 dark:hover:text-critical-400"
@@ -317,12 +330,21 @@ function resetProgress() {
           >
             <button
               type="button"
-              class="group flex w-full items-baseline gap-2 px-1 py-1 text-left transition-colors"
+              class="group flex w-full items-center gap-2 px-1 py-1 text-left transition-colors"
               @click="toggleCourse(course.id)"
             >
               <span class="shrink-0 text-[10px] tabular-nums text-zinc-400 dark:text-zinc-600">{{ String(i + 1).padStart(2, '0') }}</span>
               <span class="flex-1 truncate text-[11px] font-semibold uppercase tracking-[0.1em] text-zinc-700 group-hover:text-accent-700 dark:text-zinc-300 dark:group-hover:text-accent-400">
                 {{ course.title }}
+              </span>
+              <span
+                v-if="mounted"
+                class="shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-bold tabular-nums"
+                :class="courseCompletedCount(course) === course.lessons.length && course.lessons.length > 0
+                  ? 'bg-success-50 text-success-700 dark:bg-success-400/10 dark:text-success-400'
+                  : 'bg-zinc-100 text-zinc-500 dark:bg-white/[0.06] dark:text-zinc-500'"
+              >
+                {{ courseCompletedCount(course) }}/{{ course.lessons.length }}
               </span>
               <component
                 :is="collapsedCourses.has(course.id) ? ChevronRight : ChevronDown"

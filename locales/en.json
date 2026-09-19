@@ -169,5 +169,28 @@
     "colEmail": "Email",
     "colRole": "Role",
     "pendingApiNotice": "Not wired to mindspace-api yet — showing your local demo session only."
+  },
+  "dashboard": {
+    "navDashboard": "Dashboard",
+    "title": "Welcome back, {name}",
+    "subtitle": "Here's where you left off across every course.",
+    "statLessonsCompleted": "Lessons completed",
+    "statCoursesInProgress": "Courses in progress",
+    "statCompletion": "Overall completion",
+    "statCoursesAvailable": "Courses available",
+    "overviewHeading": "Course overview",
+    "tableHeading": "All courses",
+    "colCourse": "Course",
+    "colLevel": "Level",
+    "colLessons": "Lessons",
+    "colProgress": "Progress",
+    "colAction": "",
+    "continue": "Continue",
+    "start": "Start",
+    "review": "Review",
+    "notStarted": "Not started",
+    "completeLabel": "complete",
+    "loginPromptTitle": "Sign in to see your dashboard",
+    "loginPromptBody": "Your lesson progress lives in this browser — log in to attach it to an account and see it summarized here."
   }
 }
