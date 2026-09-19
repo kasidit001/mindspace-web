@@ -64,8 +64,7 @@ const completedTotal = computed(() => {
 })
 
 function resetProgress() {
-  progress.completed = []
-  progress.persist()
+  progress.reset()
 }
 
 function courseCompletedCount(course: Course): number {

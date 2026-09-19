@@ -31,7 +31,7 @@ const initials = computed(() => {
 </script>
 
 <template>
-  <div class="flex h-screen overflow-hidden bg-canvas text-zinc-900">
+  <div class="flex h-screen overflow-hidden bg-canvas text-zinc-900 dark:bg-canvas-dark dark:text-zinc-100">
     <aside class="flex w-64 shrink-0 flex-col bg-[#0B0E16] px-4 py-5 text-zinc-100">
       <NuxtLink to="/" class="flex items-center px-2 text-white">
         <AppLogo />
@@ -80,7 +80,7 @@ const initials = computed(() => {
       </div>
     </aside>
 
-    <main class="min-w-0 flex-1 overflow-y-auto bg-canvas">
+    <main class="min-w-0 flex-1 overflow-y-auto bg-canvas dark:bg-canvas-dark">
       <slot />
     </main>
   </div>

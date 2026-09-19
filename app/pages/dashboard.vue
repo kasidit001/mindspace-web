@@ -1,32 +1,39 @@
 <script setup lang="ts">
-// The learner's own dashboard — everything on it is computed from real
-// data (useCourses() + the localStorage-backed progress store already
-// used by layouts/course.vue and courses/index.vue), not mocked. There's
-// no multi-user/"other students" data source anywhere in this app yet
+// The learner's personal "Home" — everything on it is computed from real
+// data (useCourses() + the localStorage-backed progress store already used
+// by layouts/course.vue and courses/index.vue), not mocked. There's no
+// multi-user/"other students" data source anywhere in this app yet
 // (progress isn't even server-side — see stores/progress.ts), so this
 // intentionally shows the current learner's own progress rather than
 // fabricating a roster of students to satisfy a "class of students" look.
-import { ArrowRight, BookOpenCheck, GraduationCap, ListChecks, Rocket, Sparkles, Sprout, Zap } from '@lucide/vue'
+//
+// Framed as a welcoming Home rather than a data-dense Dashboard: one
+// "Continue learning" hero (the single most relevant next step) plus the
+// streak up top, everything else folded into a browsable, invitational
+// course grid below — no raw stat grid, no sortable table.
+import { ArrowRight, Compass, Flame, GraduationCap, PartyPopper, Rocket, Sprout, Zap } from '@lucide/vue'
 import type { Course } from '~/types/course'
+import { pickLocalized } from '~/utils/localizedLesson'
 
 definePageMeta({ layout: 'dashboard' })
 
 const { data: courses, status } = useCourses()
 const progress = useProgressStore()
 const { user } = useAuth()
-const { t } = useLanguage()
+const { t, lang } = useLanguage()
 
 // Same hydration-safety pattern as layouts/course.vue and courses/index.vue:
 // progress is localStorage-only, unknown to the server, so checkmarks/
-// percentages must wait for the client mount to avoid a hydration mismatch.
+// percentages/streak must wait for the client mount to avoid a hydration
+// mismatch.
 const mounted = ref(false)
 onMounted(() => { mounted.value = true })
 
 const levelIcon = { Beginner: Sprout, Intermediate: Zap, Advanced: Rocket } as const
 const levelBadgeClass = {
-  Beginner: 'bg-success-50 text-success-700',
-  Intermediate: 'bg-accent-50 text-accent-700',
-  Advanced: 'bg-ai-50 text-ai-700'
+  Beginner: 'bg-success-50 text-success-700 dark:bg-success-400/10 dark:text-success-400',
+  Intermediate: 'bg-accent-50 text-accent-700 dark:bg-accent-400/10 dark:text-accent-400',
+  Advanced: 'bg-ai-50 text-ai-700 dark:bg-ai-400/10 dark:text-ai-400'
 } as const
 
 function sortedLessons(course: Course) {
@@ -58,6 +65,18 @@ function actionLabel(course: Course): string {
   return t('dashboard.continue')
 }
 
+/** Most recent completion timestamp among a course's lessons, or 0 if none —
+ * used only to rank which in-progress course to feature, never displayed. */
+function lastAccessedAt(course: Course): number {
+  if (!mounted.value) return 0
+  const timestamps = course.lessons
+    .map((l) => progress.completed[l.id])
+    .filter(Boolean)
+    .map((iso) => new Date(iso!).getTime())
+    .filter((n) => !Number.isNaN(n))
+  return timestamps.length ? Math.max(...timestamps) : 0
+}
+
 const totalLessons = computed(() => (courses.value ?? []).reduce((n, c) => n + c.lessons.length, 0))
 const completedLessons = computed(() => {
   if (!mounted.value) return 0
@@ -66,20 +85,55 @@ const completedLessons = computed(() => {
 const overallPercent = computed(() =>
   totalLessons.value ? Math.round((completedLessons.value / totalLessons.value) * 100) : 0
 )
-const coursesInProgress = computed(() => {
-  if (!mounted.value) return 0
-  return (courses.value ?? []).filter((c) => {
+const streakDays = computed(() => (mounted.value ? progress.streakDays : 0))
+
+/** The single course to feature in the "Continue learning" hero: the
+ * in-progress course studied most recently, or — if nothing's in progress
+ * yet — the first course not yet started, so there's always an inviting
+ * next step rather than an empty box. */
+const continueCourse = computed<Course | null>(() => {
+  if (!mounted.value) return null
+  const list = courses.value ?? []
+  const inProgress = list.filter((c) => {
     const done = completedCount(c)
-    return done > 0 && done < c.lessons.length
-  }).length
+    return c.lessons.length > 0 && done > 0 && done < c.lessons.length
+  })
+  if (inProgress.length) {
+    return [...inProgress].sort((a, b) => lastAccessedAt(b) - lastAccessedAt(a))[0] ?? null
+  }
+  return list.find((c) => c.lessons.length > 0 && completedCount(c) === 0) ?? null
 })
 
-const stats = computed(() => [
-  { icon: ListChecks, label: t('dashboard.statLessonsCompleted'), value: `${completedLessons.value}/${totalLessons.value}` },
-  { icon: Sparkles, label: t('dashboard.statCoursesInProgress'), value: String(coursesInProgress.value) },
-  { icon: GraduationCap, label: t('dashboard.statCompletion'), value: `${overallPercent.value}%` },
-  { icon: BookOpenCheck, label: t('dashboard.statCoursesAvailable'), value: String(courses.value?.length ?? 0) }
-])
+const allCaughtUp = computed(() =>
+  mounted.value &&
+  (courses.value?.length ?? 0) > 0 &&
+  !continueCourse.value &&
+  (courses.value ?? []).every((c) => completedCount(c) === c.lessons.length)
+)
+
+function continueLessonTitle(course: Course): string {
+  const lesson = sortedLessons(course).find((l) => l.id === nextLessonId(course))
+  return lesson ? pickLocalized(lesson.titleEn, lesson.titleTh, lang.value) : ''
+}
+
+function continueLessonPosition(course: Course): number {
+  const lessons = sortedLessons(course)
+  const idx = lessons.findIndex((l) => l.id === nextLessonId(course))
+  return idx === -1 ? lessons.length : idx + 1
+}
+
+/** Not-started courses surface first — the clearest invitation to explore —
+ * then in-progress, then fully completed ones last. Mirrors the honest
+ * "not started / continue" heuristic mindspace-api's dashboard usecase uses. */
+const exploreCourses = computed(() => {
+  const rank = (c: Course) => {
+    const done = completedCount(c)
+    if (done === 0) return 0
+    if (done < c.lessons.length) return 1
+    return 2
+  }
+  return [...(courses.value ?? [])].sort((a, b) => rank(a) - rank(b))
+})
 </script>
 
 <template>
@@ -88,11 +142,11 @@ const stats = computed(() => [
          login, but the personalized summary is gated behind an account
          like the rest of the app's per-user surfaces. -->
     <div v-if="!user" class="flex min-h-[70vh] flex-col items-center justify-center text-center">
-      <span class="flex size-12 items-center justify-center rounded-full bg-accent-50 text-accent-600">
+      <span class="flex size-12 items-center justify-center rounded-full bg-accent-50 text-accent-600 dark:bg-accent-400/10 dark:text-accent-400">
         <GraduationCap :size="22" :stroke-width="1.75" />
       </span>
       <h1 class="font-display mt-4 text-xl font-bold tracking-tight">{{ t('dashboard.loginPromptTitle') }}</h1>
-      <p class="mt-2 max-w-sm text-sm text-zinc-500">{{ t('dashboard.loginPromptBody') }}</p>
+      <p class="mt-2 max-w-sm text-sm text-zinc-500 dark:text-zinc-400">{{ t('dashboard.loginPromptBody') }}</p>
       <NuxtLink to="/login" class="btn-primary mt-6 rounded-lg px-5 py-2.5 text-sm font-semibold">
         {{ t('auth.logIn') }}
       </NuxtLink>
@@ -101,36 +155,111 @@ const stats = computed(() => [
     <template v-else>
       <header>
         <h1 class="font-display text-2xl font-bold tracking-tight sm:text-3xl">
-          {{ t('dashboard.title', { name: user.name }) }}
+          {{ t('dashboard.title', { name: user.name.split(' ')[0] ?? user.name }) }}
         </h1>
-        <p class="mt-1.5 text-zinc-500">{{ t('dashboard.subtitle') }}</p>
+        <p class="mt-1.5 text-zinc-500 dark:text-zinc-400">{{ t('dashboard.subtitle') }}</p>
       </header>
 
-      <!-- Stat cards -->
-      <div class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div v-for="stat in stats" :key="stat.label" class="card p-5">
-          <span class="flex size-9 items-center justify-center rounded-lg bg-accent-50 text-accent-600">
-            <component :is="stat.icon" :size="17" :stroke-width="1.9" />
-          </span>
-          <p class="mt-3 text-2xl font-bold tracking-tight">{{ stat.value }}</p>
-          <p class="mt-0.5 text-sm text-zinc-500">{{ stat.label }}</p>
+      <!-- Continue learning + streak: the top of the page is "what should I
+           do right now", not a stat grid. -->
+      <section class="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-[2fr_1fr]">
+        <div v-if="status === 'pending'" class="card animate-pulse p-6 sm:p-8">
+          <div class="h-4 w-1/3 rounded-md bg-zinc-200 dark:bg-white/10" />
+          <div class="mt-4 h-6 w-2/3 rounded-md bg-zinc-200 dark:bg-white/10" />
+          <div class="mt-3 h-2 w-full rounded-full bg-zinc-100 dark:bg-white/[0.06]" />
         </div>
-      </div>
 
-      <!-- Course overview cards -->
+        <NuxtLink
+          v-else-if="continueCourse"
+          :to="`/courses/${nextLessonId(continueCourse)}`"
+          class="card group relative overflow-hidden p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg sm:p-8"
+        >
+          <span class="inline-flex items-center gap-1.5 rounded-full bg-accent-50 px-2.5 py-1 text-xs font-semibold text-accent-700 dark:bg-accent-400/10 dark:text-accent-400">
+            <Compass :size="12" :stroke-width="2" />
+            {{ t('dashboard.continueLearning') }}
+          </span>
+          <h2 class="mt-4 font-display text-xl font-bold tracking-tight sm:text-2xl">{{ continueCourse.title }}</h2>
+          <p class="mt-1.5 text-sm text-zinc-500 dark:text-zinc-400">
+            {{ t('dashboard.lessonPosition', { current: continueLessonPosition(continueCourse), total: continueCourse.lessons.length }) }}
+            &mdash; {{ continueLessonTitle(continueCourse) }}
+          </p>
+          <div class="mt-4 h-1.5 w-full max-w-sm overflow-hidden rounded-full bg-zinc-100 dark:bg-white/10">
+            <div class="h-full rounded-full bg-accent-500 transition-all duration-500" :style="{ width: `${progressPercent(continueCourse)}%` }" />
+          </div>
+          <span class="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-accent-700 dark:text-accent-400">
+            {{ actionLabel(continueCourse) }}
+            <ArrowRight :size="14" :stroke-width="2" class="transition-transform duration-200 group-hover:translate-x-0.5" />
+          </span>
+        </NuxtLink>
+
+        <div v-else-if="allCaughtUp" class="card flex flex-col items-center justify-center p-6 text-center sm:p-8">
+          <span class="flex size-11 items-center justify-center rounded-full bg-success-50 text-success-600 dark:bg-success-400/10 dark:text-success-400">
+            <PartyPopper :size="20" :stroke-width="1.75" />
+          </span>
+          <h2 class="mt-3 font-display text-lg font-bold tracking-tight">{{ t('dashboard.allCaughtUpTitle') }}</h2>
+          <p class="mt-1.5 max-w-sm text-sm text-zinc-500 dark:text-zinc-400">{{ t('dashboard.allCaughtUpBody') }}</p>
+        </div>
+
+        <div v-else class="card flex flex-col items-center justify-center p-6 text-center sm:p-8">
+          <span class="flex size-11 items-center justify-center rounded-full bg-accent-50 text-accent-600 dark:bg-accent-400/10 dark:text-accent-400">
+            <Compass :size="20" :stroke-width="1.75" />
+          </span>
+          <h2 class="mt-3 font-display text-lg font-bold tracking-tight">{{ t('dashboard.emptyStateTitle') }}</h2>
+          <p class="mt-1.5 max-w-sm text-sm text-zinc-500 dark:text-zinc-400">{{ t('dashboard.emptyStateBody') }}</p>
+          <NuxtLink to="/courses" class="btn-primary mt-5 rounded-lg px-5 py-2.5 text-sm font-semibold">
+            {{ t('dashboard.browseCourses') }}
+          </NuxtLink>
+        </div>
+
+        <div class="flex flex-col gap-4">
+          <div class="card flex items-center gap-4 p-5">
+            <span
+              class="flex size-10 shrink-0 items-center justify-center rounded-full"
+              :class="streakDays > 0 ? 'bg-warning-50 text-warning-600 dark:bg-warning-400/10 dark:text-warning-400' : 'bg-zinc-100 text-zinc-400 dark:bg-white/[0.06] dark:text-zinc-500'"
+            >
+              <Flame :size="19" :stroke-width="1.9" />
+            </span>
+            <div>
+              <p class="text-xl font-bold tracking-tight">{{ t('dashboard.streakValue', { days: streakDays }) }}</p>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400">{{ streakDays > 0 ? t('dashboard.streakCaption') : t('dashboard.streakEmptyCaption') }}</p>
+            </div>
+          </div>
+
+          <div class="card p-5">
+            <p class="text-xl font-bold tracking-tight">{{ completedLessons }}<span class="text-sm font-normal text-zinc-400">/{{ totalLessons }}</span></p>
+            <p class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{{ t('dashboard.statLessonsCompleted') }}</p>
+            <div class="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-white/10">
+              <div class="h-full rounded-full bg-accent-500 transition-all duration-500" :style="{ width: `${overallPercent}%` }" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Explore: a browsable, invitational course grid — not-started
+           courses lead, so this reads as "here's what to try next", not a
+           re-listing of the same stats above. -->
       <section class="mt-10">
-        <h2 class="font-display text-lg font-bold tracking-tight">{{ t('dashboard.overviewHeading') }}</h2>
+        <div class="flex items-baseline justify-between gap-4">
+          <div>
+            <h2 class="font-display text-lg font-bold tracking-tight">{{ t('dashboard.exploreHeading') }}</h2>
+            <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{{ t('dashboard.exploreSubtitle') }}</p>
+          </div>
+          <NuxtLink to="/courses" class="hidden shrink-0 items-center gap-1 text-sm font-semibold text-accent-700 hover:underline dark:text-accent-400 sm:inline-flex">
+            {{ t('dashboard.browseCourses') }}
+            <ArrowRight :size="14" :stroke-width="2" />
+          </NuxtLink>
+        </div>
 
         <div v-if="status === 'pending'" class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <div v-for="i in 3" :key="i" class="card animate-pulse p-5">
-            <div class="h-4 w-2/3 rounded-md bg-zinc-200" />
-            <div class="mt-3 h-2 w-full rounded-full bg-zinc-100" />
+            <div class="h-4 w-2/3 rounded-md bg-zinc-200 dark:bg-white/10" />
+            <div class="mt-3 h-2 w-full rounded-full bg-zinc-100 dark:bg-white/[0.06]" />
           </div>
         </div>
 
         <div v-else class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <NuxtLink
-            v-for="course in courses ?? []"
+            v-for="course in exploreCourses"
             :key="course.id"
             :to="nextLessonId(course) ? `/courses/${nextLessonId(course)}` : '/courses'"
             class="card flex flex-col p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
@@ -146,62 +275,16 @@ const stats = computed(() => [
               <span class="text-xs font-medium text-zinc-400">{{ progressPercent(course) }}%</span>
             </div>
             <h3 class="mt-3 font-semibold leading-snug">{{ course.title }}</h3>
-            <div class="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-zinc-100">
+            <div class="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-white/10">
               <div class="h-full rounded-full bg-accent-500" :style="{ width: `${progressPercent(course)}%` }" />
             </div>
-            <span class="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-accent-700">
+            <span class="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-accent-700 dark:text-accent-400">
               {{ actionLabel(course) }}
               <ArrowRight :size="14" :stroke-width="2" />
             </span>
           </NuxtLink>
-        </div>
-      </section>
 
-      <!-- Data table -->
-      <section class="mt-10">
-        <h2 class="font-display text-lg font-bold tracking-tight">{{ t('dashboard.tableHeading') }}</h2>
-        <div class="mt-4 overflow-hidden rounded-xl border border-divider">
-          <table class="w-full text-left text-sm">
-            <thead>
-              <tr class="border-b border-divider bg-zinc-50 text-xs font-medium uppercase tracking-wide text-zinc-500">
-                <th class="px-5 py-3 font-medium">{{ t('dashboard.colCourse') }}</th>
-                <th class="px-5 py-3 font-medium">{{ t('dashboard.colLevel') }}</th>
-                <th class="px-5 py-3 font-medium">{{ t('dashboard.colLessons') }}</th>
-                <th class="px-5 py-3 font-medium">{{ t('dashboard.colProgress') }}</th>
-                <th class="px-5 py-3 font-medium">{{ t('dashboard.colAction') }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="course in courses ?? []"
-                :key="course.id"
-                class="border-b border-divider last:border-b-0"
-              >
-                <td class="px-5 py-3.5 font-medium">{{ course.title }}</td>
-                <td class="px-5 py-3.5 text-zinc-500">{{ getCourseLevel(course) }}</td>
-                <td class="px-5 py-3.5 text-zinc-500">{{ completedCount(course) }}/{{ course.lessons.length }}</td>
-                <td class="px-5 py-3.5">
-                  <div class="flex items-center gap-2">
-                    <div class="h-1.5 w-24 overflow-hidden rounded-full bg-zinc-100">
-                      <div class="h-full rounded-full bg-accent-500" :style="{ width: `${progressPercent(course)}%` }" />
-                    </div>
-                    <span class="text-xs text-zinc-500">{{ progressPercent(course) }}%</span>
-                  </div>
-                </td>
-                <td class="px-5 py-3.5 text-right">
-                  <NuxtLink
-                    :to="nextLessonId(course) ? `/courses/${nextLessonId(course)}` : '/courses'"
-                    class="font-semibold text-accent-700 hover:underline"
-                  >
-                    {{ actionLabel(course) }}
-                  </NuxtLink>
-                </td>
-              </tr>
-              <tr v-if="!courses?.length">
-                <td colspan="5" class="px-5 py-8 text-center text-zinc-500">{{ t('courses.noCourses') }}</td>
-              </tr>
-            </tbody>
-          </table>
+          <p v-if="!courses?.length" class="text-sm text-zinc-500 dark:text-zinc-400">{{ t('courses.noCourses') }}</p>
         </div>
       </section>
     </template>
