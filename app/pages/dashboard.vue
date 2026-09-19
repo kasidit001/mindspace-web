@@ -239,7 +239,15 @@ const exploreCourses = computed(() => {
             :to="`/courses/${nextLessonId(continueCourse)}`"
             class="group relative flex flex-col gap-5 overflow-hidden rounded-2xl bg-zinc-900 p-6 text-white shadow-card-dark transition-transform duration-200 hover:-translate-y-0.5 sm:flex-row sm:items-center sm:justify-between sm:p-8"
           >
-            <div class="min-w-0">
+            <!-- Purely decorative "premium SaaS banner" dressing — a two-tone
+                 mesh-gradient glow plus a dot-grid texture, both clipped by
+                 the card's own overflow-hidden and faded out toward the left
+                 so they never compete with the readable text there. -->
+            <div class="pointer-events-none absolute -right-10 -top-16 size-64 rounded-full bg-accent-500/25 blur-3xl" aria-hidden="true" />
+            <div class="pointer-events-none absolute -right-6 bottom-0 size-48 rounded-full bg-ai-500/15 blur-3xl" aria-hidden="true" />
+            <div class="continue-card-dots pointer-events-none absolute inset-0" aria-hidden="true" />
+
+            <div class="relative min-w-0">
               <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">{{ t('dashboard.continueLearning') }}</p>
               <h2 class="mt-2 truncate font-display text-xl font-bold tracking-tight sm:text-2xl">{{ continueCourse.title }}</h2>
               <p class="mt-1.5 text-sm text-zinc-400">
@@ -253,7 +261,7 @@ const exploreCourses = computed(() => {
                 <span class="shrink-0 text-xs font-medium text-zinc-400">{{ progressPercent(continueCourse) }}%</span>
               </div>
             </div>
-            <span class="btn-primary inline-flex shrink-0 items-center gap-1.5 self-start rounded-lg px-5 py-2.5 text-sm font-semibold sm:self-auto">
+            <span class="btn-primary relative inline-flex shrink-0 items-center gap-1.5 self-start rounded-lg px-5 py-2.5 text-sm font-semibold sm:self-auto">
               {{ actionLabel(continueCourse) }}
               <ArrowRight :size="14" :stroke-width="2" class="transition-transform duration-200 group-hover:translate-x-0.5" />
             </span>
@@ -409,3 +417,15 @@ const exploreCourses = computed(() => {
     </template>
   </div>
 </template>
+
+<style scoped>
+/* Faint dot-grid texture for the Continue Learning card — fades out toward
+   the left (where the readable text sits) so it only shows as a subtle
+   graphic on the right, never competing with content. */
+.continue-card-dots {
+  background-image: radial-gradient(circle, rgb(255 255 255 / 5%) 1px, transparent 1px);
+  background-size: 18px 18px;
+  mask-image: linear-gradient(to left, black, transparent 65%);
+  -webkit-mask-image: linear-gradient(to left, black, transparent 65%);
+}
+</style>
