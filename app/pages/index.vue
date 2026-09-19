@@ -191,8 +191,10 @@ const ecosystem = ['TypeScript', 'JavaScript', 'React', 'Node.js', 'Next.js', 'V
     </section>
 
     <!-- Ecosystem strip — the real tooling learners end up using, rendered
-         as chips instead of a flat text list. -->
-    <section class="mx-auto max-w-4xl px-6 pb-4 pt-14 sm:pt-20">
+         as chips instead of a flat text list. Pulled close to the hero
+         (small top padding, no separating rule/background change) so it
+         reads as the hero's closing line, not a new section starting. -->
+    <section class="mx-auto max-w-4xl px-6 pb-4 pt-5 sm:pt-6">
       <p class="text-center text-[11px] font-medium uppercase tracking-[0.15em] text-zinc-400 dark:text-zinc-600">
         {{ t('landing.ecosystemLabel') }}
       </p>
