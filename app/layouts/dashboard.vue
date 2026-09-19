@@ -11,11 +11,12 @@
 // rather than growing back into the dense, nested-syllabus sidebar
 // course.vue uses while actually reading a lesson (Skill Map etc. stay
 // reachable from there instead).
-import { ChevronDown, Compass, GraduationCap, LayoutDashboard, LogOut } from '@lucide/vue'
+import { ChevronDown, Compass, GraduationCap, LayoutDashboard, LogOut, Moon, Sun } from '@lucide/vue'
 
 const route = useRoute()
 const { t } = useLanguage()
 const { user, logout } = useAuth()
+const { theme, toggle: toggleTheme } = useTheme()
 
 const navItems = computed(() => [
   { to: '/dashboard', label: t('dashboard.navDashboard'), icon: LayoutDashboard },
@@ -62,6 +63,15 @@ watch(() => route.fullPath, () => { profileOpen.value = false })
         </nav>
 
         <div class="ml-auto flex shrink-0 items-center gap-3">
+          <button
+            type="button"
+            class="shrink-0 rounded-lg border border-divider p-1.5 text-sm text-zinc-600 transition-colors hover:border-zinc-300 dark:border-divider-dark dark:text-zinc-300 dark:hover:border-white/20"
+            :aria-label="theme === 'dark' ? t('nav.switchToLight') : t('nav.switchToDark')"
+            @click="toggleTheme"
+          >
+            <component :is="theme === 'dark' ? Sun : Moon" :size="16" :stroke-width="1.75" />
+          </button>
+
           <template v-if="user">
             <div class="relative">
               <button
