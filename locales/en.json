@@ -186,6 +186,12 @@
     "subtitle": "Pick up right where you left off, or find something new to explore.",
     "continueLearning": "Continue learning",
     "lessonPosition": "Lesson {current} of {total}",
+    "contentType": {
+      "article": "Article",
+      "video": "Video",
+      "advlab": "Interactive lab",
+      "ctf": "Challenge"
+    },
     "myActivity": "My Activity",
     "dailyStreak": "Daily streak",
     "totalPoints": "Total points",

@@ -3,12 +3,19 @@
 // — Thai optional, English required/primary) — see ~/utils/localizedLesson
 // for how the UI picks between them. Course `title` itself is still a single
 // (English-only) field; the API hasn't added a per-course title translation.
+// Mirrors mindspace-api's Lesson model — every lesson is 'article' today (the
+// same Markdown reader renders all of them); 'video'/'advlab'/'ctf' are real,
+// DB-enforced values a lesson could be tagged with once those reader
+// experiences exist, but nothing sets them yet.
+export type LessonContentType = 'article' | 'video' | 'advlab' | 'ctf'
+
 export interface LessonSummary {
   id: string
   titleEn: string
   titleTh: string | null
   slug: string
   order: number
+  contentType: LessonContentType
 }
 
 export interface Course {

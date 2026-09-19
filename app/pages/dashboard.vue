@@ -11,8 +11,8 @@
 // layout — left is the main focus ("Continue learning" plus a browsable,
 // invitational course grid), right is compact gamification widgets (streak,
 // points, overall progress) — no raw 4-box stat grid, no sortable table.
-import { ArrowRight, BookOpenCheck, Compass, Flame, GraduationCap, Medal, PartyPopper, Rocket, Sparkles, Sprout, Trophy, Zap } from '@lucide/vue'
-import type { Course } from '~/types/course'
+import { ArrowRight, BookOpenCheck, Compass, FileText, Flame, GraduationCap, Medal, PartyPopper, Play, Rocket, Sparkles, Sprout, Terminal, Trophy, Zap } from '@lucide/vue'
+import type { Course, LessonContentType } from '~/types/course'
 import { pickLocalized } from '~/utils/localizedLesson'
 import { getBadgeDefinition, getBadges, type BadgeMetric } from '~/utils/badges'
 
@@ -147,6 +147,21 @@ const BADGE_ICONS: Record<string, typeof Sparkles> = {
   'week-streak': Zap
 }
 
+// Content Type Indicator: 'article' is the only value any lesson has today
+// (see types/course.ts) — the mapping covers the rest so the icon is already
+// correct once a video/lab reader experience ships and starts setting them.
+const CONTENT_TYPE_ICONS: Record<LessonContentType, typeof Play> = {
+  article: FileText,
+  video: Play,
+  advlab: Terminal,
+  ctf: Terminal
+}
+
+function continueLessonContentType(course: Course): LessonContentType {
+  const lesson = sortedLessons(course).find((l) => l.id === nextLessonId(course))
+  return lesson?.contentType ?? 'article'
+}
+
 /** The single course to feature in the "Continue learning" hero: the
  * in-progress course studied most recently, or — if nothing's in progress
  * yet — the first course not yet started, so there's always an inviting
@@ -250,9 +265,18 @@ const exploreCourses = computed(() => {
             <div class="relative min-w-0">
               <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">{{ t('dashboard.continueLearning') }}</p>
               <h2 class="mt-2 truncate font-display text-xl font-bold tracking-tight sm:text-2xl">{{ continueCourse.title }}</h2>
-              <p class="mt-1.5 text-sm text-zinc-400">
-                {{ t('dashboard.lessonPosition', { current: continueLessonPosition(continueCourse), total: continueCourse.lessons.length }) }}
-                &mdash; {{ continueLessonTitle(continueCourse) }}
+              <p class="mt-1.5 flex items-center gap-1.5 text-sm text-zinc-400">
+                <component
+                  :is="CONTENT_TYPE_ICONS[continueLessonContentType(continueCourse)]"
+                  :size="14"
+                  :stroke-width="2"
+                  class="shrink-0 text-zinc-500"
+                  :aria-label="t(`dashboard.contentType.${continueLessonContentType(continueCourse)}`)"
+                />
+                <span class="min-w-0 truncate">
+                  {{ t('dashboard.lessonPosition', { current: continueLessonPosition(continueCourse), total: continueCourse.lessons.length }) }}
+                  &mdash; {{ continueLessonTitle(continueCourse) }}
+                </span>
               </p>
               <div class="mt-4 flex items-center gap-3">
                 <div class="h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-white/10">

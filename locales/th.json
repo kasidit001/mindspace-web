@@ -186,6 +186,12 @@
     "subtitle": "เรียนต่อจากที่ค้างไว้ หรือค้นหาสิ่งใหม่ที่น่าเรียนรู้",
     "continueLearning": "เรียนต่อ",
     "lessonPosition": "บทที่ {current} จาก {total}",
+    "contentType": {
+      "article": "บทความ",
+      "video": "วิดีโอ",
+      "advlab": "แล็บฝึกปฏิบัติ",
+      "ctf": "ความท้าทาย"
+    },
     "myActivity": "กิจกรรมของฉัน",
     "dailyStreak": "เรียนต่อเนื่อง",
     "totalPoints": "คะแนนสะสม",
