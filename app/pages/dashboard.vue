@@ -16,6 +16,7 @@ import type { Course, LessonContentType } from '~/types/course'
 import { pickLocalized } from '~/utils/localizedLesson'
 import { getBadgeDefinition, getBadges, type BadgeMetric } from '~/utils/badges'
 import { getCourseTech, type TechId } from '~/utils/courseTech'
+import type { RoadmapNode } from '~/components/LearningPathRoadmap.vue'
 
 definePageMeta({ layout: 'dashboard' })
 
@@ -198,6 +199,73 @@ function continueLessonPosition(course: Course): number {
   return idx === -1 ? lessons.length : idx + 1
 }
 
+/** The mini "Learning Path" widget: previous (completed), current, and next
+ * lesson from the featured Continue Learning course — all real lesson rows,
+ * never a fabricated "CTF"/"lab" node with nothing behind it. If finishing
+ * the current lesson would cross the next real badge's threshold, the
+ * upcoming node becomes that badge instead of the next lesson — a genuine
+ * "one step from X" milestone (~/utils/badges), not an invented exam. */
+const pathNodes = computed<RoadmapNode[]>(() => {
+  const course = continueCourse.value
+  if (!course) return []
+
+  const lessons = sortedLessons(course)
+  const currentId = nextLessonId(course)
+  const currentIdx = lessons.findIndex((l) => l.id === currentId)
+  if (currentIdx === -1) return []
+
+  const nodes: RoadmapNode[] = []
+
+  const prevLesson = lessons[currentIdx - 1]
+  if (prevLesson) {
+    nodes.push({
+      id: prevLesson.id,
+      kind: 'lesson',
+      title: pickLocalized(prevLesson.titleEn, prevLesson.titleTh, lang.value),
+      contentType: prevLesson.contentType,
+      state: 'completed',
+      to: `/courses/${prevLesson.id}`
+    })
+  }
+
+  const currentLesson = lessons[currentIdx]!
+  nodes.push({
+    id: currentLesson.id,
+    kind: 'lesson',
+    title: pickLocalized(currentLesson.titleEn, currentLesson.titleTh, lang.value),
+    caption: t('dashboard.pathCurrentCaption'),
+    contentType: currentLesson.contentType,
+    state: 'current',
+    to: `/courses/${currentLesson.id}`
+  })
+
+  const nextBadgeDef = nextBadge.value ? getBadgeDefinition(nextBadge.value.id) : undefined
+  const wouldEarnBadge = nextBadgeDef?.metric === 'lessonsCompleted' && nextBadgeDef.threshold === completedLessons.value + 1
+
+  if (wouldEarnBadge && nextBadge.value) {
+    nodes.push({
+      id: `badge-${nextBadge.value.id}`,
+      kind: 'badge',
+      title: nextBadge.value.title,
+      caption: t('dashboard.pathBadgeCaption'),
+      state: 'locked'
+    })
+  } else {
+    const nextLesson = lessons[currentIdx + 1]
+    if (nextLesson) {
+      nodes.push({
+        id: nextLesson.id,
+        kind: 'lesson',
+        title: pickLocalized(nextLesson.titleEn, nextLesson.titleTh, lang.value),
+        contentType: nextLesson.contentType,
+        state: 'locked'
+      })
+    }
+  }
+
+  return nodes
+})
+
 /** Not-started courses surface first — the clearest invitation to explore —
  * then in-progress, then fully completed ones last. Within the not-started
  * group specifically, diversifies across distinct detected techs before
@@ -336,6 +404,26 @@ const exploreCourses = computed(() => {
             <NuxtLink to="/courses" class="btn-primary mt-5 rounded-lg px-5 py-2.5 text-sm font-semibold">
               {{ t('dashboard.browseCourses') }}
             </NuxtLink>
+          </div>
+
+          <!-- Learning path: a mini node-flow roadmap (previous/current/next),
+               same visual language as the full Skill Map — real lesson data
+               only, plus a real badge-threshold node when finishing the next
+               lesson would actually earn one. -->
+          <div v-if="pathNodes.length" class="card mt-6 p-6">
+            <div class="flex items-baseline justify-between gap-4">
+              <div>
+                <h2 class="font-display text-base font-bold tracking-tight">{{ t('dashboard.pathHeading') }}</h2>
+                <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                  {{ t('dashboard.pathSubtitle', { course: continueCourse!.title }) }}
+                </p>
+              </div>
+              <NuxtLink to="/map" class="hidden shrink-0 items-center gap-1 text-sm font-semibold text-accent-700 hover:underline dark:text-accent-400 sm:inline-flex">
+                {{ t('dashboard.pathViewFull') }}
+                <ArrowRight :size="14" :stroke-width="2" />
+              </NuxtLink>
+            </div>
+            <LearningPathRoadmap class="mt-5" :nodes="pathNodes" />
           </div>
 
           <!-- Explore: a browsable, invitational course grid — not-started

@@ -192,6 +192,12 @@
       "advlab": "แล็บฝึกปฏิบัติ",
       "ctf": "ความท้าทาย"
     },
+    "pathHeading": "เส้นทางการเรียนของคุณ",
+    "pathSubtitle": "สิ่งที่ผ่านมาและก้าวต่อไปในคอร์ส {course}",
+    "pathCurrentCaption": "บทถัดไป",
+    "pathBadgeCaption": "ปลดล็อกได้เมื่อเรียนจบบทด้านบน",
+    "pathBadgeLabel": "เหรียญตรา",
+    "pathViewFull": "ดูแผนที่ทักษะแบบเต็ม",
     "myActivity": "กิจกรรมของฉัน",
     "dailyStreak": "เรียนต่อเนื่อง",
     "totalPoints": "คะแนนสะสม",

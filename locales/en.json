@@ -192,6 +192,12 @@
       "advlab": "Interactive lab",
       "ctf": "Challenge"
     },
+    "pathHeading": "Your learning path",
+    "pathSubtitle": "Where you've been, and what's next in {course}.",
+    "pathCurrentCaption": "Up next",
+    "pathBadgeCaption": "Earn this by finishing the lesson above",
+    "pathBadgeLabel": "Badge",
+    "pathViewFull": "View full skill map",
     "myActivity": "My Activity",
     "dailyStreak": "Daily streak",
     "totalPoints": "Total points",
