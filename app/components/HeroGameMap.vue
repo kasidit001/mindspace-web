@@ -34,11 +34,17 @@ const CLIFF_WEST = ['#b8925f', '#74491f']
 // Simplified/generic brand-color badges, not the detailed official
 // logo artwork — the same "which tech does this course cover" convention
 // already used as plain-text chips further down the landing page (see
-// `ecosystem` in index.vue), just rendered as small map props here.
+// `ecosystem` in index.vue), just rendered as small map props here. Sized
+// generously past the typical number of icon slots on the map (see
+// `ICON_TILE_COUNT` below) so every icon placed is actually unique instead
+// of cycling back through a short list.
 const TECH_ICONS = [
   { id: 'js', bg: '#F0DB4F', mark: '#1B1B1B', label: 'JS' },
   { id: 'ts', bg: '#3178C6', mark: '#FFFFFF', label: 'TS' },
+  { id: 'python', bg: '#3776AB', mark: '#FFE873', label: 'Py' },
   { id: 'node', bg: '#3C873A', mark: '#FFFFFF', label: 'Node' },
+  { id: 'go', bg: '#00ADD8', mark: '#FFFFFF', label: 'Go' },
+  { id: 'docker', bg: '#2496ED', mark: '#FFFFFF', label: 'Docker' },
   { id: 'nuxt', bg: '#00DC82', mark: '#00341F', label: 'Nuxt' },
   { id: 'vue', bg: '#41B883', mark: 'shape' },
   { id: 'react', bg: '#20232A', mark: 'shape' }
@@ -173,6 +179,25 @@ function pickMarkerTiles(total: number): LandTile[] {
 const markerTiles = pickMarkerTiles(props.courses.length)
 const markerTileKeys = new Set(markerTiles.map((t) => `${t.col},${t.row}`))
 
+function seededShuffle<T>(arr: T[], salt: number): T[] {
+  const out = [...arr]
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(hash(i, salt, 41) * (i + 1))
+    ;[out[i], out[j]] = [out[j]!, out[i]!]
+  }
+  return out
+}
+
+// One unique icon per slot, assigned once up front (not per-tile hash) —
+// picking independently per tile risked duplicates whenever two tiles'
+// hashes landed near the same TECH_ICONS index. Shuffle the eligible
+// tiles, then hand out icons 1:1 from the start of TECH_ICONS so no icon
+// repeats unless there are literally more icon slots than icons defined.
+const ICON_TILE_COUNT = Math.min(TECH_ICONS.length, 8)
+const decorableTiles = land.filter((t) => !markerTileKeys.has(`${t.col},${t.row}`))
+const iconTiles = seededShuffle(decorableTiles, 11).slice(0, ICON_TILE_COUNT)
+const iconAssignment = new Map(iconTiles.map((t, i) => [`${t.col},${t.row}`, TECH_ICONS[i]!]))
+
 function firstLessonId(course: Course): string | null {
   return [...course.lessons].sort((a, b) => a.order - b.order)[0]?.id ?? null
 }
@@ -180,6 +205,15 @@ function firstLessonId(course: Course): string | null {
 function goToCourse(course: Course) {
   const lessonId = firstLessonId(course)
   navigateTo(lessonId ? `/courses/${lessonId}` : '/courses')
+}
+
+// Tech icons link to the course browser, not a deep link per technology —
+// every course this platform actually has today is TypeScript content
+// (see the roadmap note in mindspace-web's history), so a Python/Go/Docker
+// icon has no matching course page to send someone to yet. Sending it
+// somewhere real (course list) beats a fabricated per-tech URL that 404s.
+function goToCourses() {
+  navigateTo('/courses')
 }
 
 const items = computed<DrawItem[]>(() => {
@@ -228,17 +262,17 @@ const items = computed<DrawItem[]>(() => {
     const key = `${tile.col},${tile.row}`
     if (markerTileKeys.has(key)) return
     const center = tileCenter(tile)
-    const deco = hash(tile.col, tile.row, 5)
-    if (deco < 0.24) {
+    const assignedIcon = iconAssignment.get(key)
+    if (assignedIcon) {
       list.push({
         kind: 'icon',
         depth: tile.depth + 0.3,
         x: center.x,
         y: center.y,
         scale: 0.85 + hash(tile.col, tile.row, 6) * 0.35,
-        icon: TECH_ICONS[Math.floor(hash(tile.col, tile.row, 8) * TECH_ICONS.length)]!
+        icon: assignedIcon
       })
-    } else if (deco > 0.92) {
+    } else if (hash(tile.col, tile.row, 5) > 0.92) {
       list.push({
         kind: 'rock',
         depth: tile.depth + 0.2,
@@ -456,36 +490,58 @@ const CLOUDS = [
           />
         </template>
 
-        <g v-else-if="item.kind === 'icon'" :transform="`translate(${item.x}, ${item.y}) scale(${item.scale})`">
-          <ellipse cx="0" cy="1" rx="10" ry="3.5" fill="black" opacity="0.18" />
+        <g
+          v-else-if="item.kind === 'icon'"
+          :transform="`translate(${item.x}, ${item.y}) scale(${item.scale})`"
+          role="link"
+          tabindex="0"
+          :aria-label="`Browse ${item.icon.label} courses`"
+          style="cursor: pointer"
+          @click="goToCourses"
+          @keydown.enter="goToCourses"
+        >
+          <ellipse cx="0" cy="1" rx="13" ry="4.5" fill="black" opacity="0.2" />
           <g class="icon-bob">
-            <rect x="-2" y="-11" width="4" height="11" fill="#5b6472" rx="1" />
-            <!-- Badge "sits" on a short post like the course pins — a small
+            <rect x="-2.5" y="-13" width="5" height="13" fill="#5b6472" rx="1.2" />
+            <!-- Badge "sits" on a short post like the course pins — a
                  3D-block plaque (drop shadow + border) rather than a flat
-                 sticker, so it reads as a prop standing on the tile. -->
-            <rect x="-12" y="-30" width="24" height="18" rx="4" fill="black" opacity="0.16" />
-            <rect x="-11" y="-31" width="24" height="18" rx="4" :fill="item.icon.bg" stroke="white" stroke-width="1.4" stroke-opacity="0.5" />
-            <template v-if="item.icon.mark === 'shape'">
-              <template v-if="item.icon.id === 'vue'">
-                <path d="M -6.5 -27 L 1 -14.5 L 8.5 -27 L 5 -27 L 1 -20.3 L -3 -27 Z" fill="white" />
+                 sticker, so it reads as a prop standing on the tile. Sized
+                 well past the label's own footprint (41x31, vs. a ~16pt
+                 label) specifically for legibility at map scale — a
+                 previous, tighter size read as illegible noise. Whole
+                 group is clickable (role="link", not an <a> — SVG <a>
+                 forces a full page reload; a click handler calling
+                 navigateTo() gets the same SPA transition NuxtLink would
+                 give an HTML element). -->
+            <rect x="-20.5" y="-43" width="41" height="31" rx="7" fill="black" opacity="0.18" />
+            <rect x="-19.5" y="-44" width="41" height="31" rx="7" :fill="item.icon.bg" stroke="white" stroke-width="2" stroke-opacity="0.55" />
+            <!-- Marks are authored once at a local origin, then this single
+                 transform both scales and re-centers them on the badge —
+                 changing the badge size only ever means editing these two
+                 numbers, not every path/circle coordinate inside it. -->
+            <g transform="translate(0, -28.5) scale(1.7)">
+              <template v-if="item.icon.mark === 'shape'">
+                <template v-if="item.icon.id === 'vue'">
+                  <path d="M -7.5 -5 L 0 7.5 L 7.5 -5 L 4 -5 L 0 1.7 L -4 -5 Z" fill="white" />
+                </template>
+                <template v-else>
+                  <ellipse cx="0" cy="0" rx="9" ry="3.4" fill="none" stroke="#61DAFB" stroke-width="1.3" />
+                  <ellipse cx="0" cy="0" rx="9" ry="3.4" fill="none" stroke="#61DAFB" stroke-width="1.3" transform="rotate(60)" />
+                  <ellipse cx="0" cy="0" rx="9" ry="3.4" fill="none" stroke="#61DAFB" stroke-width="1.3" transform="rotate(120)" />
+                  <circle cx="0" cy="0" r="1.6" fill="#61DAFB" />
+                </template>
               </template>
-              <template v-else>
-                <ellipse cx="1" cy="-22" rx="9" ry="3.4" fill="none" stroke="#61DAFB" stroke-width="1.3" />
-                <ellipse cx="1" cy="-22" rx="9" ry="3.4" fill="none" stroke="#61DAFB" stroke-width="1.3" transform="rotate(60 1 -22)" />
-                <ellipse cx="1" cy="-22" rx="9" ry="3.4" fill="none" stroke="#61DAFB" stroke-width="1.3" transform="rotate(120 1 -22)" />
-                <circle cx="1" cy="-22" r="1.6" fill="#61DAFB" />
-              </template>
-            </template>
-            <text
-              v-else
-              x="1"
-              y="-20"
-              text-anchor="middle"
-              :fill="item.icon.mark"
-              :font-size="item.icon.label.length > 2 ? 7 : 9"
-              font-weight="800"
-              font-family="ui-sans-serif, system-ui, sans-serif"
-            >{{ item.icon.label }}</text>
+              <text
+                v-else
+                x="0"
+                y="2"
+                text-anchor="middle"
+                :fill="item.icon.mark"
+                :font-size="item.icon.label.length > 4 ? 5.5 : item.icon.label.length > 2 ? 7 : 9"
+                font-weight="800"
+                font-family="ui-sans-serif, system-ui, sans-serif"
+              >{{ item.icon.label }}</text>
+            </g>
           </g>
         </g>
 
