@@ -7,11 +7,11 @@
 // intentionally shows the current learner's own progress rather than
 // fabricating a roster of students to satisfy a "class of students" look.
 //
-// Framed as a welcoming Home rather than a data-dense Dashboard: one
-// "Continue learning" hero (the single most relevant next step) plus the
-// streak up top, everything else folded into a browsable, invitational
-// course grid below — no raw stat grid, no sortable table.
-import { ArrowRight, Compass, Flame, GraduationCap, PartyPopper, Rocket, Sprout, Zap } from '@lucide/vue'
+// Framed as a welcoming Home rather than a data-dense Dashboard: a 2-column
+// layout — left is the main focus ("Continue learning" plus a browsable,
+// invitational course grid), right is compact gamification widgets (streak,
+// points, overall progress) — no raw 4-box stat grid, no sortable table.
+import { ArrowRight, Award, Compass, Flame, GraduationCap, PartyPopper, Rocket, Sprout, Zap } from '@lucide/vue'
 import type { Course } from '~/types/course'
 import { pickLocalized } from '~/utils/localizedLesson'
 
@@ -87,6 +87,13 @@ const overallPercent = computed(() =>
 )
 const streakDays = computed(() => (mounted.value ? progress.streakDays : 0))
 
+// There's no backend "points"/XP concept (or multi-user leaderboard data) to
+// pull from — this is a disclosed, deterministic score derived from real
+// completed-lesson counts, not a fabricated number, so it can't drift from
+// what the learner actually did.
+const POINTS_PER_LESSON = 10
+const totalPoints = computed(() => completedLessons.value * POINTS_PER_LESSON)
+
 /** The single course to feature in the "Continue learning" hero: the
  * in-progress course studied most recently, or — if nothing's in progress
  * yet — the first course not yet started, so there's always an inviting
@@ -160,133 +167,160 @@ const exploreCourses = computed(() => {
         <p class="mt-1.5 text-zinc-500 dark:text-zinc-400">{{ t('dashboard.subtitle') }}</p>
       </header>
 
-      <!-- Continue learning + streak: the top of the page is "what should I
-           do right now", not a stat grid. -->
-      <section class="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-[2fr_1fr]">
-        <div v-if="status === 'pending'" class="card animate-pulse p-6 sm:p-8">
-          <div class="h-4 w-1/3 rounded-md bg-zinc-200 dark:bg-white/10" />
-          <div class="mt-4 h-6 w-2/3 rounded-md bg-zinc-200 dark:bg-white/10" />
-          <div class="mt-3 h-2 w-full rounded-full bg-zinc-100 dark:bg-white/[0.06]" />
-        </div>
-
-        <NuxtLink
-          v-else-if="continueCourse"
-          :to="`/courses/${nextLessonId(continueCourse)}`"
-          class="card group relative overflow-hidden p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg sm:p-8"
-        >
-          <span class="inline-flex items-center gap-1.5 rounded-full bg-accent-50 px-2.5 py-1 text-xs font-semibold text-accent-700 dark:bg-accent-400/10 dark:text-accent-400">
-            <Compass :size="12" :stroke-width="2" />
-            {{ t('dashboard.continueLearning') }}
-          </span>
-          <h2 class="mt-4 font-display text-xl font-bold tracking-tight sm:text-2xl">{{ continueCourse.title }}</h2>
-          <p class="mt-1.5 text-sm text-zinc-500 dark:text-zinc-400">
-            {{ t('dashboard.lessonPosition', { current: continueLessonPosition(continueCourse), total: continueCourse.lessons.length }) }}
-            &mdash; {{ continueLessonTitle(continueCourse) }}
-          </p>
-          <div class="mt-4 h-1.5 w-full max-w-sm overflow-hidden rounded-full bg-zinc-100 dark:bg-white/10">
-            <div class="h-full rounded-full bg-accent-500 transition-all duration-500" :style="{ width: `${progressPercent(continueCourse)}%` }" />
+      <!-- 2-column layout: left is the main focus (what to do right now, plus
+           a browsable course grid), right is compact "gamification" widgets
+           (streak, points, overall progress) — not one flat stat grid. -->
+      <div class="mt-8 grid grid-cols-12 gap-6">
+        <div class="col-span-12 lg:col-span-8">
+          <!-- Continue learning: a deliberately dark, contrasting card (not
+               the site's usual light .card) so it reads as THE thing to do,
+               regardless of the page's own light/dark theme. -->
+          <div v-if="status === 'pending'" class="animate-pulse rounded-2xl bg-zinc-900 p-6 shadow-card-dark sm:p-8">
+            <div class="h-4 w-1/3 rounded-md bg-white/10" />
+            <div class="mt-4 h-6 w-2/3 rounded-md bg-white/10" />
+            <div class="mt-3 h-2 w-full rounded-full bg-white/10" />
           </div>
-          <span class="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-accent-700 dark:text-accent-400">
-            {{ actionLabel(continueCourse) }}
-            <ArrowRight :size="14" :stroke-width="2" class="transition-transform duration-200 group-hover:translate-x-0.5" />
-          </span>
-        </NuxtLink>
 
-        <div v-else-if="allCaughtUp" class="card flex flex-col items-center justify-center p-6 text-center sm:p-8">
-          <span class="flex size-11 items-center justify-center rounded-full bg-success-50 text-success-600 dark:bg-success-400/10 dark:text-success-400">
-            <PartyPopper :size="20" :stroke-width="1.75" />
-          </span>
-          <h2 class="mt-3 font-display text-lg font-bold tracking-tight">{{ t('dashboard.allCaughtUpTitle') }}</h2>
-          <p class="mt-1.5 max-w-sm text-sm text-zinc-500 dark:text-zinc-400">{{ t('dashboard.allCaughtUpBody') }}</p>
-        </div>
-
-        <div v-else class="card flex flex-col items-center justify-center p-6 text-center sm:p-8">
-          <span class="flex size-11 items-center justify-center rounded-full bg-accent-50 text-accent-600 dark:bg-accent-400/10 dark:text-accent-400">
-            <Compass :size="20" :stroke-width="1.75" />
-          </span>
-          <h2 class="mt-3 font-display text-lg font-bold tracking-tight">{{ t('dashboard.emptyStateTitle') }}</h2>
-          <p class="mt-1.5 max-w-sm text-sm text-zinc-500 dark:text-zinc-400">{{ t('dashboard.emptyStateBody') }}</p>
-          <NuxtLink to="/courses" class="btn-primary mt-5 rounded-lg px-5 py-2.5 text-sm font-semibold">
-            {{ t('dashboard.browseCourses') }}
-          </NuxtLink>
-        </div>
-
-        <div class="flex flex-col gap-4">
-          <div class="card flex items-center gap-4 p-5">
-            <span
-              class="flex size-10 shrink-0 items-center justify-center rounded-full"
-              :class="streakDays > 0 ? 'bg-warning-50 text-warning-600 dark:bg-warning-400/10 dark:text-warning-400' : 'bg-zinc-100 text-zinc-400 dark:bg-white/[0.06] dark:text-zinc-500'"
-            >
-              <Flame :size="19" :stroke-width="1.9" />
+          <NuxtLink
+            v-else-if="continueCourse"
+            :to="`/courses/${nextLessonId(continueCourse)}`"
+            class="group relative flex flex-col overflow-hidden rounded-2xl bg-zinc-900 p-6 text-white shadow-card-dark transition-transform duration-200 hover:-translate-y-0.5 sm:p-8"
+          >
+            <span class="inline-flex w-fit items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-xs font-semibold text-zinc-200">
+              <Compass :size="12" :stroke-width="2" />
+              {{ t('dashboard.continueLearning') }}
             </span>
-            <div>
-              <p class="text-xl font-bold tracking-tight">{{ t('dashboard.streakValue', { days: streakDays }) }}</p>
-              <p class="text-xs text-zinc-500 dark:text-zinc-400">{{ streakDays > 0 ? t('dashboard.streakCaption') : t('dashboard.streakEmptyCaption') }}</p>
+            <h2 class="mt-4 font-display text-xl font-bold tracking-tight sm:text-2xl">{{ continueCourse.title }}</h2>
+            <p class="mt-1.5 text-sm text-zinc-400">
+              {{ t('dashboard.lessonPosition', { current: continueLessonPosition(continueCourse), total: continueCourse.lessons.length }) }}
+              &mdash; {{ continueLessonTitle(continueCourse) }}
+            </p>
+            <div class="mt-4 h-1.5 w-full max-w-sm overflow-hidden rounded-full bg-white/10">
+              <div class="h-full rounded-full bg-accent-400 transition-all duration-500" :style="{ width: `${progressPercent(continueCourse)}%` }" />
+            </div>
+            <span class="btn-primary mt-5 inline-flex w-fit items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold">
+              {{ actionLabel(continueCourse) }}
+              <ArrowRight :size="14" :stroke-width="2" class="transition-transform duration-200 group-hover:translate-x-0.5" />
+            </span>
+          </NuxtLink>
+
+          <div v-else-if="allCaughtUp" class="flex flex-col items-center rounded-2xl bg-zinc-900 p-6 text-center text-white shadow-card-dark sm:p-8">
+            <span class="flex size-11 items-center justify-center rounded-full bg-success-400/15 text-success-400">
+              <PartyPopper :size="20" :stroke-width="1.75" />
+            </span>
+            <h2 class="mt-3 font-display text-lg font-bold tracking-tight">{{ t('dashboard.allCaughtUpTitle') }}</h2>
+            <p class="mt-1.5 max-w-sm text-sm text-zinc-400">{{ t('dashboard.allCaughtUpBody') }}</p>
+          </div>
+
+          <div v-else class="flex flex-col items-center rounded-2xl bg-zinc-900 p-6 text-center text-white shadow-card-dark sm:p-8">
+            <span class="flex size-11 items-center justify-center rounded-full bg-accent-400/15 text-accent-400">
+              <Compass :size="20" :stroke-width="1.75" />
+            </span>
+            <h2 class="mt-3 font-display text-lg font-bold tracking-tight">{{ t('dashboard.emptyStateTitle') }}</h2>
+            <p class="mt-1.5 max-w-sm text-sm text-zinc-400">{{ t('dashboard.emptyStateBody') }}</p>
+            <NuxtLink to="/courses" class="btn-primary mt-5 rounded-lg px-5 py-2.5 text-sm font-semibold">
+              {{ t('dashboard.browseCourses') }}
+            </NuxtLink>
+          </div>
+
+          <!-- Explore: a browsable, invitational course grid — not-started
+               courses lead, so this reads as "here's what to try next", not a
+               re-listing of the same stats in the right column. -->
+          <section class="mt-10">
+            <div class="flex items-baseline justify-between gap-4">
+              <div>
+                <h2 class="font-display text-lg font-bold tracking-tight">{{ t('dashboard.exploreHeading') }}</h2>
+                <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{{ t('dashboard.exploreSubtitle') }}</p>
+              </div>
+              <NuxtLink to="/courses" class="hidden shrink-0 items-center gap-1 text-sm font-semibold text-accent-700 hover:underline dark:text-accent-400 sm:inline-flex">
+                {{ t('dashboard.browseCourses') }}
+                <ArrowRight :size="14" :stroke-width="2" />
+              </NuxtLink>
+            </div>
+
+            <div v-if="status === 'pending'" class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div v-for="i in 2" :key="i" class="card animate-pulse p-5">
+                <div class="h-4 w-2/3 rounded-md bg-zinc-200 dark:bg-white/10" />
+                <div class="mt-3 h-2 w-full rounded-full bg-zinc-100 dark:bg-white/[0.06]" />
+              </div>
+            </div>
+
+            <div v-else class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <NuxtLink
+                v-for="course in exploreCourses"
+                :key="course.id"
+                :to="nextLessonId(course) ? `/courses/${nextLessonId(course)}` : '/courses'"
+                class="card flex flex-col p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+              >
+                <div class="flex items-center justify-between gap-2">
+                  <span
+                    class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold"
+                    :class="levelBadgeClass[getCourseLevel(course)]"
+                  >
+                    <component :is="levelIcon[getCourseLevel(course)]" :size="12" :stroke-width="2" />
+                    {{ getCourseLevel(course) }}
+                  </span>
+                  <span class="text-xs font-medium text-zinc-400">{{ progressPercent(course) }}%</span>
+                </div>
+                <h3 class="mt-3 font-semibold leading-snug">{{ course.title }}</h3>
+                <div class="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-white/10">
+                  <div class="h-full rounded-full bg-accent-500" :style="{ width: `${progressPercent(course)}%` }" />
+                </div>
+                <span class="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-accent-700 dark:text-accent-400">
+                  {{ actionLabel(course) }}
+                  <ArrowRight :size="14" :stroke-width="2" />
+                </span>
+              </NuxtLink>
+
+              <p v-if="!courses?.length" class="text-sm text-zinc-500 dark:text-zinc-400">{{ t('courses.noCourses') }}</p>
+            </div>
+          </section>
+        </div>
+
+        <!-- Right column: clean white widget cards for at-a-glance stats. -->
+        <div class="col-span-12 flex flex-col gap-6 lg:col-span-4">
+          <div class="card p-6">
+            <h2 class="font-display text-base font-bold tracking-tight">{{ t('dashboard.myActivity') }}</h2>
+            <div class="mt-4 flex items-center gap-3">
+              <span class="flex size-11 shrink-0 items-center justify-center rounded-full bg-accent-500 text-sm font-bold text-white">
+                {{ user.name.charAt(0).toUpperCase() }}
+              </span>
+              <p class="truncate font-semibold text-zinc-900 dark:text-white">{{ user.name }}</p>
+            </div>
+
+            <div class="mt-5 grid grid-cols-2 gap-3 border-t border-divider pt-5 dark:border-divider-dark">
+              <div>
+                <span
+                  class="flex size-8 items-center justify-center rounded-full"
+                  :class="streakDays > 0 ? 'bg-warning-50 text-warning-600 dark:bg-warning-400/10 dark:text-warning-400' : 'bg-zinc-100 text-zinc-400 dark:bg-white/[0.06] dark:text-zinc-500'"
+                >
+                  <Flame :size="15" :stroke-width="1.9" />
+                </span>
+                <p class="mt-2 text-lg font-bold tracking-tight">{{ streakDays }}</p>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">{{ t('dashboard.dailyStreak') }}</p>
+              </div>
+              <div>
+                <span class="flex size-8 items-center justify-center rounded-full bg-accent-50 text-accent-600 dark:bg-accent-400/10 dark:text-accent-400">
+                  <Award :size="15" :stroke-width="1.9" />
+                </span>
+                <p class="mt-2 text-lg font-bold tracking-tight">{{ totalPoints }}</p>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">{{ t('dashboard.totalPoints') }}</p>
+              </div>
             </div>
           </div>
 
-          <div class="card p-5">
-            <p class="text-xl font-bold tracking-tight">{{ completedLessons }}<span class="text-sm font-normal text-zinc-400">/{{ totalLessons }}</span></p>
+          <div class="card p-6">
+            <h2 class="font-display text-base font-bold tracking-tight">{{ t('dashboard.yourProgress') }}</h2>
+            <p class="mt-3 text-2xl font-bold tracking-tight">
+              {{ completedLessons }}<span class="text-sm font-normal text-zinc-400">/{{ totalLessons }}</span>
+            </p>
             <p class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{{ t('dashboard.statLessonsCompleted') }}</p>
             <div class="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-white/10">
               <div class="h-full rounded-full bg-accent-500 transition-all duration-500" :style="{ width: `${overallPercent}%` }" />
             </div>
           </div>
         </div>
-      </section>
-
-      <!-- Explore: a browsable, invitational course grid — not-started
-           courses lead, so this reads as "here's what to try next", not a
-           re-listing of the same stats above. -->
-      <section class="mt-10">
-        <div class="flex items-baseline justify-between gap-4">
-          <div>
-            <h2 class="font-display text-lg font-bold tracking-tight">{{ t('dashboard.exploreHeading') }}</h2>
-            <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{{ t('dashboard.exploreSubtitle') }}</p>
-          </div>
-          <NuxtLink to="/courses" class="hidden shrink-0 items-center gap-1 text-sm font-semibold text-accent-700 hover:underline dark:text-accent-400 sm:inline-flex">
-            {{ t('dashboard.browseCourses') }}
-            <ArrowRight :size="14" :stroke-width="2" />
-          </NuxtLink>
-        </div>
-
-        <div v-if="status === 'pending'" class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <div v-for="i in 3" :key="i" class="card animate-pulse p-5">
-            <div class="h-4 w-2/3 rounded-md bg-zinc-200 dark:bg-white/10" />
-            <div class="mt-3 h-2 w-full rounded-full bg-zinc-100 dark:bg-white/[0.06]" />
-          </div>
-        </div>
-
-        <div v-else class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <NuxtLink
-            v-for="course in exploreCourses"
-            :key="course.id"
-            :to="nextLessonId(course) ? `/courses/${nextLessonId(course)}` : '/courses'"
-            class="card flex flex-col p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
-          >
-            <div class="flex items-center justify-between gap-2">
-              <span
-                class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold"
-                :class="levelBadgeClass[getCourseLevel(course)]"
-              >
-                <component :is="levelIcon[getCourseLevel(course)]" :size="12" :stroke-width="2" />
-                {{ getCourseLevel(course) }}
-              </span>
-              <span class="text-xs font-medium text-zinc-400">{{ progressPercent(course) }}%</span>
-            </div>
-            <h3 class="mt-3 font-semibold leading-snug">{{ course.title }}</h3>
-            <div class="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-white/10">
-              <div class="h-full rounded-full bg-accent-500" :style="{ width: `${progressPercent(course)}%` }" />
-            </div>
-            <span class="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-accent-700 dark:text-accent-400">
-              {{ actionLabel(course) }}
-              <ArrowRight :size="14" :stroke-width="2" />
-            </span>
-          </NuxtLink>
-
-          <p v-if="!courses?.length" class="text-sm text-zinc-500 dark:text-zinc-400">{{ t('courses.noCourses') }}</p>
-        </div>
-      </section>
+      </div>
     </template>
   </div>
 </template>

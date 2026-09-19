@@ -1,16 +1,17 @@
 <script setup lang="ts">
-// Distinct from layouts/course.vue's sidebar (which follows the site-wide
-// light/dark toggle) — this sidebar is deliberately always-dark, the
-// classic enterprise-SaaS split (dark rail, light workspace), independent
-// of whatever theme the rest of the app is in. Kept as its own layout
-// rather than a course.vue variant since the two serve different jobs:
-// course.vue is the lesson-reading chrome (chat drawer, lesson tree),
-// this is the account-level "your learning" overview.
-// Deliberately just three links — "Learning & Explore" only, not a catch-all
-// site nav — so this stays a quick, low-cognitive-load switcher rather than
-// growing back into the dense, nested-syllabus sidebar course.vue uses while
-// actually reading a lesson (Skill Map etc. stay reachable from there instead).
-import { Compass, GraduationCap, LayoutDashboard, LogOut } from '@lucide/vue'
+// Light, card-based "enterprise SaaS" shell for Home/Explore/My Courses —
+// a horizontal top navbar instead of the old always-dark left rail, so the
+// page itself (not the chrome) carries the visual weight. Kept as its own
+// layout rather than a course.vue variant since the two serve different
+// jobs: course.vue is the lesson-reading chrome (chat drawer, lesson
+// tree), this is the account-level "your learning" overview.
+//
+// Deliberately just three nav links — "Learning & Explore" only, not a
+// catch-all site nav — so this stays a quick, low-cognitive-load switcher
+// rather than growing back into the dense, nested-syllabus sidebar
+// course.vue uses while actually reading a lesson (Skill Map etc. stay
+// reachable from there instead).
+import { ChevronDown, Compass, GraduationCap, LayoutDashboard, LogOut } from '@lucide/vue'
 
 const route = useRoute()
 const { t } = useLanguage()
@@ -32,59 +33,74 @@ const initials = computed(() => {
   const parts = name.split(/\s+/)
   return ((parts[0]?.[0] ?? '') + (parts[1]?.[0] ?? '')).toUpperCase() || name[0]!.toUpperCase()
 })
+
+const profileOpen = ref(false)
+watch(() => route.fullPath, () => { profileOpen.value = false })
 </script>
 
 <template>
-  <div class="flex h-screen overflow-hidden bg-canvas text-zinc-900 dark:bg-canvas-dark dark:text-zinc-100">
-    <aside class="flex w-64 shrink-0 flex-col bg-[#0B0E16] px-4 py-5 text-zinc-100">
-      <NuxtLink to="/" class="flex items-center px-2 text-white">
-        <AppLogo />
-      </NuxtLink>
-
-      <nav class="mt-8 flex-1 space-y-1">
-        <NuxtLink
-          v-for="item in navItems"
-          :key="item.to"
-          :to="item.to"
-          class="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors"
-          :class="isActive(item.to)
-            ? 'bg-white/10 text-white'
-            : 'text-zinc-400 hover:bg-white/[0.06] hover:text-zinc-100'"
-        >
-          <component :is="item.icon" :size="17" :stroke-width="1.9" />
-          {{ item.label }}
+  <div class="min-h-screen bg-canvas text-zinc-900 dark:bg-canvas-dark dark:text-zinc-100">
+    <header class="sticky top-0 z-30 border-b border-divider bg-surface dark:border-divider-dark dark:bg-surface-dark">
+      <div class="mx-auto flex h-16 max-w-6xl items-center gap-1 px-6">
+        <NuxtLink to="/" class="mr-4 flex shrink-0 items-center">
+          <AppLogo />
         </NuxtLink>
-      </nav>
 
-      <div class="mt-auto border-t border-white/10 pt-4">
-        <div v-if="user" class="flex items-center gap-2.5 rounded-lg px-2 py-2">
-          <span class="flex size-8 shrink-0 items-center justify-center rounded-full bg-accent-500 text-xs font-bold text-white">
-            {{ initials }}
-          </span>
-          <div class="min-w-0 flex-1">
-            <p class="truncate text-sm font-medium text-white">{{ user.name }}</p>
-            <p class="truncate text-xs text-zinc-500">{{ user.email }}</p>
-          </div>
-          <button
-            type="button"
-            class="shrink-0 rounded-md p-1.5 text-zinc-500 transition-colors hover:bg-white/[0.06] hover:text-white"
-            :aria-label="t('auth.logOut')"
-            @click="logout"
+        <nav class="flex items-center gap-1">
+          <NuxtLink
+            v-for="item in navItems"
+            :key="item.to"
+            :to="item.to"
+            class="flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-medium transition-colors"
+            :class="isActive(item.to)
+              ? 'bg-accent-50 text-accent-700 dark:bg-accent-400/10 dark:text-accent-400'
+              : 'text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-white/[0.06] dark:hover:text-white'"
           >
-            <LogOut :size="15" :stroke-width="1.9" />
-          </button>
-        </div>
-        <NuxtLink
-          v-else
-          to="/login"
-          class="block rounded-lg bg-white/10 px-3 py-2.5 text-center text-sm font-semibold text-white transition-colors hover:bg-white/[0.15]"
-        >
-          {{ t('auth.logIn') }}
-        </NuxtLink>
-      </div>
-    </aside>
+            <component :is="item.icon" :size="16" :stroke-width="1.9" />
+            <span class="hidden sm:inline">{{ item.label }}</span>
+          </NuxtLink>
+        </nav>
 
-    <main class="min-w-0 flex-1 overflow-y-auto bg-canvas dark:bg-canvas-dark">
+        <div class="ml-auto flex shrink-0 items-center gap-3">
+          <template v-if="user">
+            <div class="relative">
+              <button
+                type="button"
+                class="flex items-center gap-1.5 rounded-full py-1 pl-1 pr-2 transition-colors hover:bg-zinc-100 dark:hover:bg-white/[0.06]"
+                :aria-label="t('nav.yourProgress')"
+                @click="profileOpen = !profileOpen"
+              >
+                <span class="flex size-8 shrink-0 items-center justify-center rounded-full bg-accent-500 text-xs font-bold text-white">
+                  {{ initials }}
+                </span>
+                <ChevronDown :size="14" :stroke-width="2" class="hidden text-zinc-400 sm:block" />
+              </button>
+
+              <div v-if="profileOpen" class="fixed inset-0 z-40" @click="profileOpen = false" />
+
+              <div v-if="profileOpen" class="card absolute right-0 z-50 mt-2 w-60 p-3 text-sm">
+                <p class="truncate font-semibold text-zinc-900 dark:text-white">{{ user.name }}</p>
+                <p class="truncate text-xs text-zinc-500 dark:text-zinc-400">{{ user.email }}</p>
+                <hr class="my-2.5 border-divider dark:border-divider-dark">
+                <button
+                  type="button"
+                  class="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-zinc-600 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-white/[0.06]"
+                  @click="logout"
+                >
+                  <LogOut :size="15" :stroke-width="1.9" />
+                  {{ t('auth.logOut') }}
+                </button>
+              </div>
+            </div>
+          </template>
+          <NuxtLink v-else to="/login" class="btn-primary shrink-0 rounded-lg px-4 py-2 text-sm font-semibold">
+            {{ t('auth.logIn') }}
+          </NuxtLink>
+        </div>
+      </div>
+    </header>
+
+    <main>
       <slot />
     </main>
   </div>
