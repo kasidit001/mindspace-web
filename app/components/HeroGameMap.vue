@@ -271,6 +271,15 @@ watch(() => props.courses, () => {
 const selectedCourse = computed<Course | null>(() =>
   selectedIndex.value !== null ? props.courses[selectedIndex.value] ?? null : null
 )
+
+// White-outlined glow diamond under the selected pin's tile — the same
+// "you are here" highlight as the reference's Plant-a-Tree callout.
+const selectedGlowPoints = computed<string | null>(() => {
+  if (selectedIndex.value === null) return null
+  const tile = markerTiles[selectedIndex.value]
+  if (!tile) return null
+  return pts(tile.top, tile.right, tile.bottom, tile.left)
+})
 </script>
 
 <template>
@@ -295,7 +304,18 @@ const selectedCourse = computed<Course | null>(() =>
       <polygon :points="chunkPoints" :fill="GRASS[0]" />
 
       <template v-for="(item, i) in items" :key="i">
-        <polygon v-if="item.kind === 'top' || item.kind === 'cliff'" :points="item.points" :fill="item.color" />
+        <template v-if="item.kind === 'top' || item.kind === 'cliff'">
+          <polygon :points="item.points" :fill="item.color" />
+          <polygon
+            v-if="item.kind === 'top' && selectedGlowPoints === item.points"
+            :points="item.points"
+            fill="white"
+            fill-opacity="0.3"
+            stroke="white"
+            stroke-width="2.5"
+            class="tile-glow-pulse"
+          />
+        </template>
 
         <g v-else-if="item.kind === 'tree'" :transform="`translate(${item.x}, ${item.y}) scale(${item.scale})`">
           <g class="tree-sway">
@@ -332,12 +352,16 @@ const selectedCourse = computed<Course | null>(() =>
 
     <div
       v-if="selectedCourse"
-      class="absolute z-10 w-60 -translate-x-1/2 -translate-y-[calc(100%+30px)] rounded-2xl bg-white p-4 text-left shadow-2xl shadow-black/30"
+      class="pointer-events-none absolute z-10 w-60 -translate-x-1/2 -translate-y-[calc(100%+30px)] rounded-2xl bg-white p-4 text-left shadow-2xl shadow-black/30"
       :style="markerScreenPercent(selectedIndex!)"
     >
+      <!-- The card itself ignores pointer events (only the button below
+           re-enables them) — on a compact map, this card can visually sit
+           on top of a neighboring pin, and without this a user couldn't
+           click that pin to switch selection until closing this one first. -->
       <div class="absolute left-1/2 top-full h-3 w-3 -translate-x-1/2 -translate-y-1.5 rotate-45 bg-white" aria-hidden="true" />
-      <span class="flex size-9 items-center justify-center rounded-full bg-accent-50">
-        <MapPin :size="16" :stroke-width="2" class="text-accent-600" />
+      <span class="flex size-9 items-center justify-center rounded-full bg-ai-50">
+        <MapPin :size="16" :stroke-width="2" class="text-ai-600" />
       </span>
       <p class="font-display mt-2.5 text-sm font-bold leading-snug text-zinc-900">{{ selectedCourse.title }}</p>
       <p class="mt-1 line-clamp-1 text-xs text-zinc-500">
@@ -345,7 +369,7 @@ const selectedCourse = computed<Course | null>(() =>
       </p>
       <button
         type="button"
-        class="btn-primary mt-3 w-full rounded-lg py-2 text-sm font-semibold"
+        class="pointer-events-auto mt-3 w-full rounded-lg bg-zinc-900 py-2 text-sm font-semibold text-white transition-colors hover:bg-zinc-800"
         @click="goToCourse(selectedCourse)"
       >
         {{ t('landing.tryItYourself') }}
@@ -361,5 +385,19 @@ const selectedCourse = computed<Course | null>(() =>
 @keyframes tree-sway {
   0%, 100% { transform: rotate(0deg); }
   50% { transform: rotate(1.5deg); }
+}
+
+/* Opacity-only pulse — no `transform` here on purpose: this polygon has no
+   positioning transform attribute of its own (it's plain `points`), but a
+   sibling <g> elsewhere in this file was once broken by exactly this kind
+   of CSS transform silently overriding an SVG transform attribute, so
+   keeping every decorative animation opacity-only avoids that class of bug
+   entirely. */
+.tile-glow-pulse {
+  animation: tile-glow 2s ease-in-out infinite;
+}
+@keyframes tile-glow {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
 }
 </style>
