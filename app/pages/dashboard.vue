@@ -11,7 +11,7 @@
 // layout — left is the main focus ("Continue learning" plus a browsable,
 // invitational course grid), right is compact gamification widgets (streak,
 // points, overall progress) — no raw 4-box stat grid, no sortable table.
-import { ArrowRight, Award, Compass, Flame, GraduationCap, PartyPopper, Rocket, Sprout, Zap } from '@lucide/vue'
+import { ArrowRight, Compass, Flame, GraduationCap, PartyPopper, Rocket, Sprout, Zap } from '@lucide/vue'
 import type { Course } from '~/types/course'
 import { pickLocalized } from '~/utils/localizedLesson'
 
@@ -184,21 +184,23 @@ const exploreCourses = computed(() => {
           <NuxtLink
             v-else-if="continueCourse"
             :to="`/courses/${nextLessonId(continueCourse)}`"
-            class="group relative flex flex-col overflow-hidden rounded-2xl bg-zinc-900 p-6 text-white shadow-card-dark transition-transform duration-200 hover:-translate-y-0.5 sm:p-8"
+            class="group relative flex flex-col gap-5 overflow-hidden rounded-2xl bg-zinc-900 p-6 text-white shadow-card-dark transition-transform duration-200 hover:-translate-y-0.5 sm:flex-row sm:items-center sm:justify-between sm:p-8"
           >
-            <span class="inline-flex w-fit items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-xs font-semibold text-zinc-200">
-              <Compass :size="12" :stroke-width="2" />
-              {{ t('dashboard.continueLearning') }}
-            </span>
-            <h2 class="mt-4 font-display text-xl font-bold tracking-tight sm:text-2xl">{{ continueCourse.title }}</h2>
-            <p class="mt-1.5 text-sm text-zinc-400">
-              {{ t('dashboard.lessonPosition', { current: continueLessonPosition(continueCourse), total: continueCourse.lessons.length }) }}
-              &mdash; {{ continueLessonTitle(continueCourse) }}
-            </p>
-            <div class="mt-4 h-1.5 w-full max-w-sm overflow-hidden rounded-full bg-white/10">
-              <div class="h-full rounded-full bg-accent-400 transition-all duration-500" :style="{ width: `${progressPercent(continueCourse)}%` }" />
+            <div class="min-w-0">
+              <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">{{ t('dashboard.continueLearning') }}</p>
+              <h2 class="mt-2 truncate font-display text-xl font-bold tracking-tight sm:text-2xl">{{ continueCourse.title }}</h2>
+              <p class="mt-1.5 text-sm text-zinc-400">
+                {{ t('dashboard.lessonPosition', { current: continueLessonPosition(continueCourse), total: continueCourse.lessons.length }) }}
+                &mdash; {{ continueLessonTitle(continueCourse) }}
+              </p>
+              <div class="mt-4 flex items-center gap-3">
+                <div class="h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-white/10">
+                  <div class="h-full rounded-full bg-accent-400 transition-all duration-500" :style="{ width: `${progressPercent(continueCourse)}%` }" />
+                </div>
+                <span class="shrink-0 text-xs font-medium text-zinc-400">{{ progressPercent(continueCourse) }}%</span>
+              </div>
             </div>
-            <span class="btn-primary mt-5 inline-flex w-fit items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold">
+            <span class="btn-primary inline-flex shrink-0 items-center gap-1.5 self-start rounded-lg px-5 py-2.5 text-sm font-semibold sm:self-auto">
               {{ actionLabel(continueCourse) }}
               <ArrowRight :size="14" :stroke-width="2" class="transition-transform duration-200 group-hover:translate-x-0.5" />
             </span>
@@ -281,30 +283,31 @@ const exploreCourses = computed(() => {
         <div class="col-span-12 flex flex-col gap-6 lg:col-span-4">
           <div class="card p-6">
             <h2 class="font-display text-base font-bold tracking-tight">{{ t('dashboard.myActivity') }}</h2>
-            <div class="mt-4 flex items-center gap-3">
-              <span class="flex size-11 shrink-0 items-center justify-center rounded-full bg-accent-500 text-sm font-bold text-white">
-                {{ user.name.charAt(0).toUpperCase() }}
-              </span>
-              <p class="truncate font-semibold text-zinc-900 dark:text-white">{{ user.name }}</p>
-            </div>
-
-            <div class="mt-5 grid grid-cols-2 gap-3 border-t border-divider pt-5 dark:border-divider-dark">
-              <div>
-                <span
-                  class="flex size-8 items-center justify-center rounded-full"
-                  :class="streakDays > 0 ? 'bg-warning-50 text-warning-600 dark:bg-warning-400/10 dark:text-warning-400' : 'bg-zinc-100 text-zinc-400 dark:bg-white/[0.06] dark:text-zinc-500'"
-                >
-                  <Flame :size="15" :stroke-width="1.9" />
+            <div class="mt-4 flex items-center justify-between gap-4">
+              <div class="flex min-w-0 flex-col items-start gap-2">
+                <span class="flex size-12 shrink-0 items-center justify-center rounded-full bg-accent-500 text-base font-bold text-white">
+                  {{ user.name.charAt(0).toUpperCase() }}
                 </span>
-                <p class="mt-2 text-lg font-bold tracking-tight">{{ streakDays }}</p>
-                <p class="text-xs text-zinc-500 dark:text-zinc-400">{{ t('dashboard.dailyStreak') }}</p>
+                <p class="max-w-[6.5rem] truncate font-semibold text-zinc-900 dark:text-white">{{ user.name }}</p>
               </div>
-              <div>
-                <span class="flex size-8 items-center justify-center rounded-full bg-accent-50 text-accent-600 dark:bg-accent-400/10 dark:text-accent-400">
-                  <Award :size="15" :stroke-width="1.9" />
-                </span>
-                <p class="mt-2 text-lg font-bold tracking-tight">{{ totalPoints }}</p>
-                <p class="text-xs text-zinc-500 dark:text-zinc-400">{{ t('dashboard.totalPoints') }}</p>
+
+              <div class="flex flex-col gap-4">
+                <div>
+                  <p class="text-xs text-zinc-500 dark:text-zinc-400">{{ t('dashboard.dailyStreak') }}</p>
+                  <div class="mt-1 flex items-center gap-1.5">
+                    <span
+                      class="flex size-6 items-center justify-center rounded-full"
+                      :class="streakDays > 0 ? 'bg-warning-50 text-warning-600 dark:bg-warning-400/10 dark:text-warning-400' : 'bg-zinc-100 text-zinc-400 dark:bg-white/[0.06] dark:text-zinc-500'"
+                    >
+                      <Flame :size="13" :stroke-width="1.9" />
+                    </span>
+                    <span class="text-lg font-bold tracking-tight">{{ streakDays }}</span>
+                  </div>
+                </div>
+                <div>
+                  <p class="text-xs text-zinc-500 dark:text-zinc-400">{{ t('dashboard.totalPoints') }}</p>
+                  <p class="mt-1 text-lg font-bold tracking-tight">{{ totalPoints }}<span class="text-xs font-medium text-zinc-400"> XP</span></p>
+                </div>
               </div>
             </div>
           </div>
