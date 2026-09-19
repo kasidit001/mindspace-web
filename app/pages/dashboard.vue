@@ -11,9 +11,10 @@
 // layout — left is the main focus ("Continue learning" plus a browsable,
 // invitational course grid), right is compact gamification widgets (streak,
 // points, overall progress) — no raw 4-box stat grid, no sortable table.
-import { ArrowRight, Compass, Flame, GraduationCap, PartyPopper, Rocket, Sprout, Zap } from '@lucide/vue'
+import { ArrowRight, BookOpenCheck, Compass, Flame, GraduationCap, Medal, PartyPopper, Rocket, Sparkles, Sprout, Trophy, Zap } from '@lucide/vue'
 import type { Course } from '~/types/course'
 import { pickLocalized } from '~/utils/localizedLesson'
+import { getBadgeDefinition, getBadges, type BadgeMetric } from '~/utils/badges'
 
 definePageMeta({ layout: 'dashboard' })
 
@@ -86,6 +87,10 @@ const overallPercent = computed(() =>
   totalLessons.value ? Math.round((completedLessons.value / totalLessons.value) * 100) : 0
 )
 const streakDays = computed(() => (mounted.value ? progress.streakDays : 0))
+const coursesCompleted = computed(() => {
+  if (!mounted.value) return 0
+  return (courses.value ?? []).filter((c) => c.lessons.length > 0 && completedCount(c) === c.lessons.length).length
+})
 
 // There's no backend "points"/XP concept (or multi-user leaderboard data) to
 // pull from — this is a disclosed, deterministic score derived from real
@@ -93,6 +98,54 @@ const streakDays = computed(() => (mounted.value ? progress.streakDays : 0))
 // what the learner actually did.
 const POINTS_PER_LESSON = 10
 const totalPoints = computed(() => completedLessons.value * POINTS_PER_LESSON)
+
+// Mirrors mindspace-api's getDashboard.usecase.ts BADGE_CATALOG — see
+// app/utils/badges.ts for why this stays client-side/threshold-based rather
+// than fabricating an exams/badges data model. Titles/descriptions/hints are
+// localized (see the `badges` and `dashboard.badgeHint*` locale keys) rather
+// than hardcoded in the util, so this stays bilingual like the rest of the app.
+const badgeIds = computed(() => getBadges({
+  lessonsCompleted: completedLessons.value,
+  streakDays: streakDays.value,
+  coursesCompleted: coursesCompleted.value
+}))
+
+function badgeCurrentValue(metric: BadgeMetric): number {
+  if (metric === 'streakDays') return streakDays.value
+  if (metric === 'coursesCompleted') return coursesCompleted.value
+  return completedLessons.value
+}
+
+function badgeHint(id: string): string {
+  const def = getBadgeDefinition(id)
+  if (!def) return ''
+  if (def.metric === 'streakDays') return t('dashboard.badgeHintStreak', { days: def.threshold })
+  const remaining = Math.max(def.threshold - badgeCurrentValue(def.metric), 1)
+  const noun = def.metric === 'coursesCompleted'
+    ? t(remaining === 1 ? 'common.course' : 'common.courses')
+    : t(remaining === 1 ? 'common.lesson' : 'common.lessons')
+  return t('dashboard.badgeHintCount', { count: remaining, noun })
+}
+
+const recentBadge = computed(() => {
+  const id = badgeIds.value.recentBadgeId
+  if (!id) return null
+  return { id, title: t(`badges.${id}.title`), description: t(`badges.${id}.description`) }
+})
+const nextBadge = computed(() => {
+  const id = badgeIds.value.nextBadgeId
+  if (!id) return null
+  return { id, title: t(`badges.${id}.title`), hint: badgeHint(id) }
+})
+
+const BADGE_ICONS: Record<string, typeof Sparkles> = {
+  'first-lesson': Sparkles,
+  'getting-started': BookOpenCheck,
+  'three-day-streak': Flame,
+  'dedicated-learner': Medal,
+  'course-champion': Trophy,
+  'week-streak': Zap
+}
 
 /** The single course to feature in the "Continue learning" hero: the
  * in-progress course studied most recently, or — if nothing's in progress
@@ -309,6 +362,35 @@ const exploreCourses = computed(() => {
                   <p class="mt-1 text-lg font-bold tracking-tight">{{ totalPoints }}<span class="text-xs font-medium text-zinc-400"> XP</span></p>
                 </div>
               </div>
+            </div>
+
+            <!-- Badges: the most recently earned one in full color, and the
+                 next one as a grayed-out silhouette with a hint on how to
+                 unlock it — both are just thresholds on real stats above
+                 (see ~/utils/badges), never a fabricated achievement. -->
+            <div class="mt-5 flex items-start gap-4 border-t border-divider pt-5 dark:border-divider-dark">
+              <div v-if="recentBadge" class="flex min-w-0 flex-1 items-center gap-2.5" :title="recentBadge.description">
+                <span class="flex size-9 shrink-0 items-center justify-center rounded-full bg-accent-500 text-white">
+                  <component :is="BADGE_ICONS[recentBadge.id]" :size="16" :stroke-width="1.9" />
+                </span>
+                <div class="min-w-0">
+                  <p class="text-[10px] font-semibold uppercase tracking-wide text-zinc-400">{{ t('dashboard.latestBadge') }}</p>
+                  <p class="truncate text-xs font-semibold text-zinc-900 dark:text-white">{{ recentBadge.title }}</p>
+                </div>
+              </div>
+              <p v-else class="flex-1 text-xs text-zinc-400">{{ t('dashboard.noBadgeYet') }}</p>
+
+              <div v-if="nextBadge" class="flex min-w-0 flex-1 items-center gap-2.5" :title="nextBadge.hint">
+                <span class="flex size-9 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-zinc-400 opacity-70 dark:bg-white/[0.06] dark:text-zinc-600">
+                  <component :is="BADGE_ICONS[nextBadge.id]" :size="16" :stroke-width="1.9" />
+                </span>
+                <div class="min-w-0">
+                  <p class="text-[10px] font-semibold uppercase tracking-wide text-zinc-400">{{ t('dashboard.nextBadge') }}</p>
+                  <p class="truncate text-xs font-semibold text-zinc-500 dark:text-zinc-400">{{ nextBadge.title }}</p>
+                  <p class="truncate text-[10px] text-zinc-400">{{ nextBadge.hint }}</p>
+                </div>
+              </div>
+              <p v-else class="flex-1 text-xs text-zinc-400">{{ t('dashboard.allBadgesEarned') }}</p>
             </div>
           </div>
 

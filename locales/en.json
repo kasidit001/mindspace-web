@@ -2,7 +2,9 @@
   "common": {
     "brand": "Mindspace",
     "lesson": "lesson",
-    "lessons": "lessons"
+    "lessons": "lessons",
+    "course": "course",
+    "courses": "courses"
   },
   "auth": {
     "logIn": "Log In",
@@ -187,6 +189,12 @@
     "myActivity": "My Activity",
     "dailyStreak": "Daily streak",
     "totalPoints": "Total points",
+    "latestBadge": "Latest badge",
+    "nextBadge": "Next badge",
+    "noBadgeYet": "No badges yet — finish your first lesson to earn one.",
+    "allBadgesEarned": "You've earned every badge!",
+    "badgeHintCount": "Complete {count} more {noun} to unlock",
+    "badgeHintStreak": "Reach a {days}-day streak to unlock",
     "yourProgress": "Your progress",
     "statLessonsCompleted": "Lessons completed",
     "allCaughtUpTitle": "You're all caught up!",
@@ -201,5 +209,13 @@
     "review": "Review",
     "loginPromptTitle": "Sign in to continue your learning",
     "loginPromptBody": "Your lesson progress lives in this browser — log in to attach it to an account and pick up right where you left off."
+  },
+  "badges": {
+    "first-lesson": { "title": "First Lesson", "description": "Complete your first lesson" },
+    "getting-started": { "title": "Getting Started", "description": "Complete 5 lessons" },
+    "three-day-streak": { "title": "3-Day Streak", "description": "Study 3 days in a row" },
+    "dedicated-learner": { "title": "Dedicated Learner", "description": "Complete 10 lessons" },
+    "course-champion": { "title": "Course Champion", "description": "Finish a full course" },
+    "week-streak": { "title": "Week-Long Streak", "description": "Study 7 days in a row" }
   }
 }

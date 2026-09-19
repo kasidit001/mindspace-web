@@ -2,7 +2,9 @@
   "common": {
     "brand": "Mindspace",
     "lesson": "บทเรียน",
-    "lessons": "บทเรียน"
+    "lessons": "บทเรียน",
+    "course": "คอร์ส",
+    "courses": "คอร์ส"
   },
   "auth": {
     "logIn": "เข้าสู่ระบบ",
@@ -187,6 +189,12 @@
     "myActivity": "กิจกรรมของฉัน",
     "dailyStreak": "เรียนต่อเนื่อง",
     "totalPoints": "คะแนนสะสม",
+    "latestBadge": "เหรียญตรารางวัลล่าสุด",
+    "nextBadge": "เหรียญตรารางวัลถัดไป",
+    "noBadgeYet": "ยังไม่มีเหรียญตรารางวัล — เรียนจบบทแรกเพื่อรับเหรียญแรกของคุณ",
+    "allBadgesEarned": "คุณได้รับเหรียญตรารางวัลครบทุกอันแล้ว!",
+    "badgeHintCount": "เรียนอีก {count} {noun} เพื่อปลดล็อก",
+    "badgeHintStreak": "เรียนต่อเนื่อง {days} วันเพื่อปลดล็อก",
     "yourProgress": "ความคืบหน้าของคุณ",
     "statLessonsCompleted": "บทเรียนที่เรียนจบ",
     "allCaughtUpTitle": "เรียนครบทุกบทแล้ว!",
@@ -201,5 +209,13 @@
     "review": "ทบทวน",
     "loginPromptTitle": "เข้าสู่ระบบเพื่อเรียนต่อจากที่ค้างไว้",
     "loginPromptBody": "ความคืบหน้าบทเรียนของคุณถูกเก็บไว้ในเบราว์เซอร์นี้ — เข้าสู่ระบบเพื่อผูกกับบัญชีของคุณและเรียนต่อจากที่ค้างไว้"
+  },
+  "badges": {
+    "first-lesson": { "title": "บทเรียนแรก", "description": "เรียนจบบทเรียนแรกของคุณ" },
+    "getting-started": { "title": "เริ่มต้นได้ดี", "description": "เรียนจบ 5 บทเรียน" },
+    "three-day-streak": { "title": "ต่อเนื่อง 3 วัน", "description": "เรียนต่อเนื่อง 3 วันติดต่อกัน" },
+    "dedicated-learner": { "title": "นักเรียนตัวยง", "description": "เรียนจบ 10 บทเรียน" },
+    "course-champion": { "title": "เจ้าแห่งคอร์ส", "description": "เรียนจบคอร์สเต็มรูปแบบ" },
+    "week-streak": { "title": "ต่อเนื่อง 1 สัปดาห์", "description": "เรียนต่อเนื่อง 7 วันติดต่อกัน" }
   }
 }
