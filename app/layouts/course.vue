@@ -2,6 +2,7 @@
 import {
   Check,
   ChevronDown,
+  ChevronLeft,
   ChevronRight,
   Maximize2,
   Menu,
@@ -30,6 +31,21 @@ const { user, isAdmin, logout, setRole } = useAuth()
 const sidebarOpen = ref(false)
 const profileOpen = ref(false)
 const collapsedCourses = ref(new Set<string>())
+
+// Desktop sidebar collapse — independent of the mobile drawer (sidebarOpen)
+// and orthogonal to focusMode: either one hides the sidebar, but the small
+// rail toggle only ever touches this ref. Clicking it while focus mode is
+// active exits focus mode too, so the click always visibly does something.
+const sidebarCollapsed = ref(false)
+const sidebarHidden = computed(() => sidebarCollapsed.value || focusMode.value)
+function toggleSidebarCollapsed() {
+  if (focusMode.value) {
+    focusMode.value = false
+    sidebarCollapsed.value = false
+  } else {
+    sidebarCollapsed.value = !sidebarCollapsed.value
+  }
+}
 
 function toggleCourse(courseId: string) {
   const next = new Set(collapsedCourses.value)
@@ -252,7 +268,7 @@ function courseCompletedCount(course: Course): number {
       </div>
     </header>
 
-    <div class="flex flex-1 overflow-hidden">
+    <div class="relative flex flex-1 overflow-hidden">
       <!-- Backdrop for the mobile sidebar drawer -->
       <div
         v-if="sidebarOpen"
@@ -260,12 +276,15 @@ function courseCompletedCount(course: Course): number {
         @click="sidebarOpen = false"
       />
 
-      <!-- Left sidebar: compact lesson tree -->
+      <!-- Left sidebar: compact lesson tree. Collapses on desktop by
+           animating width to 0 (not display:none) so it slides shut instead
+           of vanishing — sidebarHidden is set by either the rail toggle
+           below or Focus mode. -->
       <aside
-        class="scrollbar-thin fixed inset-y-0 left-0 z-40 w-64 shrink-0 transform overflow-y-auto border-r border-divider bg-canvas transition-transform duration-200 dark:border-divider-dark dark:bg-canvas-dark lg:static lg:z-auto lg:translate-x-0"
+        class="scrollbar-thin fixed inset-y-0 left-0 z-40 w-64 shrink-0 transform overflow-y-auto border-r border-divider bg-canvas transition-[transform,width] duration-200 dark:border-divider-dark dark:bg-canvas-dark lg:static lg:z-auto lg:translate-x-0"
         :class="[
           sidebarOpen ? 'translate-x-0' : '-translate-x-full',
-          focusMode ? 'lg:hidden' : ''
+          sidebarHidden ? 'lg:w-0 lg:overflow-hidden lg:border-r-0' : 'lg:w-64'
         ]"
       >
         <!-- Formal index header: a fixed "table of contents" label anchoring
@@ -398,6 +417,20 @@ function courseCompletedCount(course: Course): number {
           </p>
         </nav>
       </aside>
+
+      <!-- Floating rail toggle: sits right on the sidebar/content boundary
+           (desktop only — the mobile drawer has its own hamburger/X), so
+           it's always reachable regardless of collapsed state and slides
+           along with the panel instead of jumping. -->
+      <button
+        type="button"
+        class="absolute top-1/2 z-20 hidden size-6 -translate-y-1/2 items-center justify-center rounded-full border border-divider bg-canvas text-zinc-400 shadow-sm transition-[left] duration-200 hover:border-accent-400 hover:text-accent-700 dark:border-divider-dark dark:bg-canvas-dark dark:text-zinc-500 dark:hover:border-accent-400/60 dark:hover:text-accent-400 lg:flex"
+        :style="{ left: sidebarHidden ? '4px' : '244px' }"
+        :aria-label="sidebarHidden ? t('nav.openSidebar') : t('nav.closeSidebar')"
+        @click="toggleSidebarCollapsed"
+      >
+        <component :is="sidebarHidden ? ChevronRight : ChevronLeft" :size="13" :stroke-width="2.5" />
+      </button>
 
       <!-- Main content — dot-grid workbench texture behind the reader card -->
       <main class="scrollbar-thin min-w-0 flex-1 overflow-y-auto bg-canvas dark:bg-canvas-dark">
