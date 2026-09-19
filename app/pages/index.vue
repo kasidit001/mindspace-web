@@ -136,7 +136,7 @@ const ecosystem = ['TypeScript', 'JavaScript', 'React', 'Node.js', 'Next.js', 'V
          than templated. -->
     <section class="px-6 pt-14 sm:pt-20">
       <div
-        class="reveal relative mx-auto max-w-6xl overflow-hidden rounded-[2.25rem] bg-gradient-to-b from-accent-600 to-ai-800 px-6 py-20 dark:from-accent-700 dark:to-ai-950 sm:px-12 sm:py-28"
+        class="reveal relative mx-auto max-w-6xl overflow-hidden rounded-[2.25rem] bg-gradient-to-b from-accent-600 to-ai-900 px-6 py-20 dark:from-accent-700 dark:to-ai-900 sm:px-12 sm:py-28"
         style="--delay: 0s; box-shadow: 0 40px 80px -32px rgb(49 46 129 / 0.45), 0 1px 0 0 rgb(255 255 255 / 0.08) inset;"
       >
         <!-- Decorative layer only, clipped to the banner's own corners so

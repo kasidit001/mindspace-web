@@ -91,8 +91,8 @@ function buildLandMask(): LandTile[] {
 type DrawItem =
   | { kind: 'top'; depth: number; points: string; color: string }
   | { kind: 'cliff'; depth: number; points: string; color: string }
-  | { kind: 'tree'; depth: number; x: number; y: number; scale: number; color: string }
-  | { kind: 'rock'; depth: number; x: number; y: number }
+  | { kind: 'tree'; depth: number; x: number; y: number; scale: number; color: string; type: 'pine' | 'round' }
+  | { kind: 'rock'; depth: number; x: number; y: number; scale: number }
   | { kind: 'marker'; depth: number; x: number; y: number; color: string; index: number }
 
 const land = buildLandMask()
@@ -172,17 +172,24 @@ const items = computed<DrawItem[]>(() => {
     const key = `${tile.col},${tile.row}`
     if (markerTileKeys.has(key)) return
     const deco = hash(tile.col, tile.row, 5)
-    if (deco < 0.22) {
+    if (deco < 0.24) {
       list.push({
         kind: 'tree',
         depth: tile.depth + 0.3,
         x: tile.top.x + (tile.bottom.x - tile.top.x) / 2,
         y: tile.top.y + HH,
         scale: 0.75 + hash(tile.col, tile.row, 6) * 0.55,
-        color: TREE_GREENS[Math.floor(hash(tile.col, tile.row, 7) * TREE_GREENS.length)]!
+        color: TREE_GREENS[Math.floor(hash(tile.col, tile.row, 7) * TREE_GREENS.length)]!,
+        type: hash(tile.col, tile.row, 8) < 0.65 ? 'pine' : 'round'
       })
-    } else if (deco > 0.94) {
-      list.push({ kind: 'rock', depth: tile.depth + 0.2, x: project(tile.col, tile.row).x, y: project(tile.col, tile.row).y })
+    } else if (deco > 0.92) {
+      list.push({
+        kind: 'rock',
+        depth: tile.depth + 0.2,
+        x: project(tile.col, tile.row).x,
+        y: project(tile.col, tile.row).y,
+        scale: 0.8 + hash(tile.col, tile.row, 9) * 0.5
+      })
     }
   })
 
@@ -280,6 +287,24 @@ const selectedGlowPoints = computed<string | null>(() => {
   if (!tile) return null
   return pts(tile.top, tile.right, tile.bottom, tile.left)
 })
+const selectedGlowCenter = computed<Point | null>(() => {
+  if (selectedIndex.value === null) return null
+  const tile = markerTiles[selectedIndex.value]
+  return tile ? project(tile.col, tile.row) : null
+})
+
+// Soft background clouds, hand-placed (not hashed) for a considered
+// composition — a couple tucked behind the island, a couple drifting
+// past the edges. Positioned via cx/cy on the ellipses themselves so the
+// wrapping <g> has no `transform` attribute for the CSS drift animation
+// to conflict with (see the tree-sway comment in <style> for why that
+// matters here).
+const CLOUDS = [
+  { x: -210, y: -85, scale: 1.15, drift: '22s', opacity: 0.5 },
+  { x: 150, y: -100, scale: 0.9, drift: '28s', opacity: 0.45 },
+  { x: 300, y: -20, scale: 0.7, drift: '19s', opacity: 0.55 },
+  { x: -290, y: 40, scale: 0.65, drift: '25s', opacity: 0.4 }
+]
 </script>
 
 <template>
@@ -289,6 +314,54 @@ const selectedGlowPoints = computed<string | null>(() => {
       class="block h-full w-full overflow-visible"
       preserveAspectRatio="xMidYMid meet"
     >
+      <defs>
+        <filter id="mapGlowBlur" x="-100%" y="-100%" width="300%" height="300%">
+          <feGaussianBlur stdDeviation="10" />
+        </filter>
+        <!-- Directional-light sheen, layered over the flat tile-top and
+             cliff-band fills below rather than replacing them with a
+             per-color gradient (one reusable overlay instead of a gradient
+             def per palette color) — a soft highlight top-left fading to
+             nothing, like a single sun angled over the whole island. -->
+        <linearGradient id="lightSheen" x1="0%" y1="0%" x2="70%" y2="100%">
+          <stop offset="0%" stop-color="white" stop-opacity="0.4" />
+          <stop offset="55%" stop-color="white" stop-opacity="0.08" />
+          <stop offset="100%" stop-color="white" stop-opacity="0" />
+        </linearGradient>
+        <linearGradient id="cliffShade" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="white" stop-opacity="0.14" />
+          <stop offset="45%" stop-color="white" stop-opacity="0" />
+          <stop offset="100%" stop-color="black" stop-opacity="0.16" />
+        </linearGradient>
+      </defs>
+
+      <!-- Soft blurred bloom behind the selected tile's outline — the
+           "radiating light" half of the reference's highlight, separate
+           from the crisp white outline drawn later (with the tiles). -->
+      <ellipse
+        v-if="selectedGlowCenter"
+        :cx="selectedGlowCenter.x"
+        :cy="selectedGlowCenter.y"
+        :rx="HW * 0.9"
+        :ry="HH * 0.9"
+        fill="white"
+        filter="url(#mapGlowBlur)"
+        class="tile-glow-pulse"
+        opacity="0.5"
+      />
+
+      <!-- Background clouds — drawn first so they always sit behind the
+           island. Each is 3 overlapping ellipses (a classic flat-illustration
+           cloud silhouette); the drift animation only moves the <g>, which
+           has no positioning `transform` attribute of its own. -->
+      <g v-for="(cloud, ci) in CLOUDS" :key="`cloud${ci}`" class="cloud-drift" :style="{ animationDuration: cloud.drift }">
+        <g :transform="`translate(${cloud.x}, ${cloud.y}) scale(${cloud.scale})`" :opacity="cloud.opacity">
+          <ellipse cx="0" cy="0" rx="30" ry="16" fill="white" />
+          <ellipse cx="-22" cy="6" rx="18" ry="11" fill="white" />
+          <ellipse cx="24" cy="7" rx="20" ry="12" fill="white" />
+        </g>
+      </g>
+
       <ellipse :cx="0" :cy="(GRID_COLS + GRID_ROWS) * HH + CLIFF_BAND[0] + CLIFF_BAND[1] + 22" :rx="GRID_COLS * HW * 0.55" ry="16" fill="black" opacity="0.16" />
       <ellipse
         :cx="chunkOffset.x"
@@ -299,13 +372,21 @@ const selectedGlowPoints = computed<string | null>(() => {
         opacity="0.15"
       />
 
-      <polygon v-for="(band, i) in chunkEastBands" :key="`ce${i}`" :points="band.points" :fill="band.color" />
-      <polygon v-for="(band, i) in chunkWestBands" :key="`cw${i}`" :points="band.points" :fill="band.color" />
+      <template v-for="(band, i) in chunkEastBands" :key="`ce${i}`">
+        <polygon :points="band.points" :fill="band.color" />
+        <polygon :points="band.points" fill="url(#cliffShade)" />
+      </template>
+      <template v-for="(band, i) in chunkWestBands" :key="`cw${i}`">
+        <polygon :points="band.points" :fill="band.color" />
+        <polygon :points="band.points" fill="url(#cliffShade)" />
+      </template>
       <polygon :points="chunkPoints" :fill="GRASS[0]" />
+      <polygon :points="chunkPoints" fill="url(#lightSheen)" />
 
       <template v-for="(item, i) in items" :key="i">
         <template v-if="item.kind === 'top' || item.kind === 'cliff'">
           <polygon :points="item.points" :fill="item.color" />
+          <polygon :points="item.points" :fill="item.kind === 'top' ? 'url(#lightSheen)' : 'url(#cliffShade)'" />
           <polygon
             v-if="item.kind === 'top' && selectedGlowPoints === item.points"
             :points="item.points"
@@ -318,17 +399,30 @@ const selectedGlowPoints = computed<string | null>(() => {
         </template>
 
         <g v-else-if="item.kind === 'tree'" :transform="`translate(${item.x}, ${item.y}) scale(${item.scale})`">
+          <ellipse cx="0" cy="1" rx="9" ry="3" fill="black" opacity="0.18" />
           <g class="tree-sway">
             <rect x="-2" y="-11" width="4" height="11" fill="#6b4a2b" rx="1" />
-            <circle cx="-6" cy="-26" r="9" :fill="item.color" opacity="0.92" />
-            <circle cx="7" cy="-25" r="8" :fill="item.color" opacity="0.92" />
-            <circle cx="0" cy="-32" r="11" :fill="item.color" />
+            <template v-if="item.type === 'pine'">
+              <circle cx="-6" cy="-26" r="9" :fill="item.color" opacity="0.92" />
+              <circle cx="7" cy="-25" r="8" :fill="item.color" opacity="0.92" />
+              <circle cx="0" cy="-32" r="11" :fill="item.color" />
+              <circle cx="-3" cy="-35" r="4.5" fill="white" opacity="0.12" />
+            </template>
+            <template v-else>
+              <circle cx="-8" cy="-22" r="10" :fill="item.color" opacity="0.9" />
+              <circle cx="8" cy="-21" r="10.5" :fill="item.color" opacity="0.9" />
+              <circle cx="0" cy="-30" r="13" :fill="item.color" />
+              <circle cx="-4" cy="-34" r="5.5" fill="white" opacity="0.14" />
+            </template>
           </g>
         </g>
 
-        <g v-else-if="item.kind === 'rock'" :transform="`translate(${item.x}, ${item.y})`">
-          <ellipse cx="-4" cy="-3" rx="7" ry="5.5" fill="#8b93a7" />
-          <ellipse cx="5" cy="-1" rx="5.5" ry="4.5" fill="#a3aabb" />
+        <g v-else-if="item.kind === 'rock'" :transform="`translate(${item.x}, ${item.y}) scale(${item.scale})`">
+          <ellipse cx="0" cy="3" rx="10" ry="3" fill="black" opacity="0.14" />
+          <ellipse cx="-4" cy="-3" rx="7" ry="5.5" fill="#7c8598" />
+          <ellipse cx="5" cy="-1" rx="5.5" ry="4.5" fill="#8b93a7" />
+          <ellipse cx="0" cy="-4.5" rx="3.5" ry="2.5" fill="#a3aabb" />
+          <ellipse cx="-2" cy="-5.5" rx="1.6" ry="1" fill="white" opacity="0.35" />
         </g>
 
         <g v-else-if="item.kind === 'marker'">
@@ -372,7 +466,7 @@ const selectedGlowPoints = computed<string | null>(() => {
         class="pointer-events-auto mt-3 w-full rounded-lg bg-zinc-900 py-2 text-sm font-semibold text-white transition-colors hover:bg-zinc-800"
         @click="goToCourse(selectedCourse)"
       >
-        {{ t('landing.tryItYourself') }}
+        {{ t('landing.startCourse') }}
       </button>
     </div>
   </div>
@@ -399,5 +493,18 @@ const selectedGlowPoints = computed<string | null>(() => {
 @keyframes tile-glow {
   0%, 100% { opacity: 0.55; }
   50% { opacity: 1; }
+}
+
+/* The outer <g> per cloud carries this class and has no positioning
+   `transform` attribute (each cloud's own translate/scale lives on the
+   inner <g>), so animating `transform: translateX` here is safe. */
+.cloud-drift {
+  animation-name: cloud-drift;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+@keyframes cloud-drift {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(18px); }
 }
 </style>
