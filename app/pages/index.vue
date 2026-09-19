@@ -156,7 +156,7 @@ const ecosystem = ['TypeScript', 'JavaScript', 'React', 'Node.js', 'Next.js', 'V
               <span class="size-1.5 shrink-0 rounded-full bg-success-400" />
               {{ t('landing.badgeVerb') }} <span class="text-white/60">{{ t('landing.badgeTerm') }}</span>
             </span>
-            <h1 class="font-display text-balance mt-7 text-[2.75rem] font-bold leading-[1.06] tracking-[-0.02em] text-white sm:text-6xl lg:text-[3.4rem]">
+            <h1 class="font-display text-balance mt-7 text-[2.75rem] font-semibold leading-[1.18] tracking-normal text-white sm:text-6xl lg:text-[3.4rem]">
               {{ t('landing.heroTitle') }}
             </h1>
             <p class="mx-auto mt-6 max-w-[34rem] text-balance text-lg leading-relaxed text-indigo-100/80 lg:mx-0">
