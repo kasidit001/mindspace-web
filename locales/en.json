@@ -25,7 +25,13 @@
     "passwordMismatch": "Passwords don't match",
     "roleAdmin": "Admin",
     "roleUser": "User",
-    "demoRoleToggle": "Simulate admin (demo)"
+    "demoRoleToggle": "Simulate admin (demo)",
+    "orRegisterUsing": "Or register using",
+    "orLogInUsing": "Or log in using",
+    "continueWithGoogle": "Continue with Google",
+    "continueWithFacebook": "Continue with Facebook",
+    "continueWithApple": "Continue with Apple",
+    "socialComingSoon": "{provider} sign-in isn't connected yet — use email for now."
   },
   "nav": {
     "searchPlaceholder": "Search lessons, or ask the AI…",
@@ -41,7 +47,8 @@
     "openSidebar": "Open sidebar",
     "closeSidebar": "Close sidebar",
     "language": "Language",
-    "skillMap": "Skill Map"
+    "skillMap": "Skill Map",
+    "courses": "Courses"
   },
   "sidebar": {
     "coursesHeading": "Courses",
@@ -80,6 +87,7 @@
     "startLearningFree": "Start Learning Free",
     "exploreCourses": "Explore Courses",
     "preview": "preview",
+    "mapHint": "Click a pin to preview a course",
     "tryItYourself": "Try it yourself",
     "badgeVerb": "Master",
     "badgeTerm": "/TypeScript",
@@ -91,7 +99,14 @@
     "startWithACourse": "Start with a course",
     "viewAll": "View all",
     "readyToDiveIn": "Ready to dive in?",
-    "openTheCourses": "Open the courses"
+    "openTheCourses": "Open the courses",
+    "filterLabel": "Filter by level",
+    "filterAll": "All",
+    "filterBeginner": "Beginner",
+    "filterIntermediate": "Intermediate",
+    "filterAdvanced": "Advanced",
+    "noLevelMatches": "No courses at this level yet — try another filter.",
+    "whyMindspace": "Why learn here"
   },
   "features": {
     "aiTutor": {

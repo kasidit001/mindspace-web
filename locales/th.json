@@ -25,7 +25,13 @@
     "passwordMismatch": "รหัสผ่านไม่ตรงกัน",
     "roleAdmin": "ผู้ดูแลระบบ",
     "roleUser": "ผู้ใช้ทั่วไป",
-    "demoRoleToggle": "จำลองสิทธิ์ผู้ดูแลระบบ (สำหรับทดสอบ)"
+    "demoRoleToggle": "จำลองสิทธิ์ผู้ดูแลระบบ (สำหรับทดสอบ)",
+    "orRegisterUsing": "หรือสมัครด้วย",
+    "orLogInUsing": "หรือเข้าสู่ระบบด้วย",
+    "continueWithGoogle": "ดำเนินการต่อด้วย Google",
+    "continueWithFacebook": "ดำเนินการต่อด้วย Facebook",
+    "continueWithApple": "ดำเนินการต่อด้วย Apple",
+    "socialComingSoon": "ยังไม่เปิดใช้งานการเข้าสู่ระบบด้วย {provider} — ใช้อีเมลไปก่อนนะครับ"
   },
   "nav": {
     "searchPlaceholder": "ค้นหาบทเรียน หรือถาม AI…",
@@ -41,7 +47,8 @@
     "openSidebar": "เปิดแถบด้านข้าง",
     "closeSidebar": "ปิดแถบด้านข้าง",
     "language": "ภาษา",
-    "skillMap": "แผนที่ทักษะ"
+    "skillMap": "แผนที่ทักษะ",
+    "courses": "คอร์สเรียน"
   },
   "sidebar": {
     "coursesHeading": "คอร์สเรียน",
@@ -80,6 +87,7 @@
     "startLearningFree": "เริ่มเรียนฟรี",
     "exploreCourses": "สำรวจคอร์สเรียน",
     "preview": "ตัวอย่าง",
+    "mapHint": "คลิกหมุดเพื่อดูคอร์สเรียน",
     "tryItYourself": "ทดลองใช้งาน",
     "badgeVerb": "เชี่ยวชาญ",
     "badgeTerm": "/TypeScript",
@@ -91,7 +99,14 @@
     "startWithACourse": "เริ่มต้นด้วยคอร์สเรียน",
     "viewAll": "ดูทั้งหมด",
     "readyToDiveIn": "พร้อมเริ่มต้นใช้งานแล้วหรือไม่?",
-    "openTheCourses": "เปิดดูคอร์สเรียน"
+    "openTheCourses": "เปิดดูคอร์สเรียน",
+    "filterLabel": "กรองตามระดับ",
+    "filterAll": "ทั้งหมด",
+    "filterBeginner": "ระดับเริ่มต้น",
+    "filterIntermediate": "ระดับกลาง",
+    "filterAdvanced": "ระดับสูง",
+    "noLevelMatches": "ยังไม่มีคอร์สในระดับนี้ — ลองเลือกตัวกรองอื่น",
+    "whyMindspace": "ทำไมต้องเรียนที่นี่"
   },
   "features": {
     "aiTutor": {

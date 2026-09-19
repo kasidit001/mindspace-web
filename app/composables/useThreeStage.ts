@@ -1,13 +1,13 @@
 import * as THREE from 'three'
 
 /**
- * Shared boilerplate for the two hand-rolled Three.js scenes in this app
- * (HeroConstellation, the /map skill-map) — scene/camera/renderer setup,
- * resize handling via ResizeObserver (not `window.resize`, since both
- * scenes live in a sized container, not the full viewport), and a single
- * teardown function. Deliberately NOT a generic 3D framework — just enough
- * shared plumbing that each component only has to write the geometry/scene
- * content that's actually specific to it.
+ * Shared boilerplate for hand-rolled Three.js scenes in this app (currently
+ * the /map skill-map) — scene/camera/renderer setup, resize handling via
+ * ResizeObserver (not `window.resize`, since the scene lives in a sized
+ * container, not the full viewport), and a single teardown function.
+ * Deliberately NOT a generic 3D framework — just enough shared plumbing
+ * that each component only has to write the geometry/scene content that's
+ * actually specific to it.
  */
 export function useThreeStage(
   canvas: HTMLCanvasElement,
