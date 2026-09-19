@@ -15,6 +15,7 @@ import { ArrowRight, BookOpenCheck, Compass, FileText, Flame, GraduationCap, Med
 import type { Course, LessonContentType } from '~/types/course'
 import { pickLocalized } from '~/utils/localizedLesson'
 import { getBadgeDefinition, getBadges, type BadgeMetric } from '~/utils/badges'
+import { getCourseTech } from '~/utils/courseTech'
 
 definePageMeta({ layout: 'dashboard' })
 
@@ -285,10 +286,13 @@ const exploreCourses = computed(() => {
                 <span class="shrink-0 text-xs font-medium text-zinc-400">{{ progressPercent(continueCourse) }}%</span>
               </div>
             </div>
-            <span class="btn-primary relative inline-flex shrink-0 items-center gap-1.5 self-start rounded-lg px-5 py-2.5 text-sm font-semibold sm:self-auto">
-              {{ actionLabel(continueCourse) }}
-              <ArrowRight :size="14" :stroke-width="2" class="transition-transform duration-200 group-hover:translate-x-0.5" />
-            </span>
+            <div class="relative flex shrink-0 flex-row-reverse items-center gap-4 self-start sm:flex-col sm:items-end sm:self-auto">
+              <TechLogo :tech="getCourseTech(continueCourse)" :size="48" />
+              <span class="btn-primary inline-flex items-center gap-1.5 rounded-lg px-5 py-2.5 text-sm font-semibold">
+                {{ actionLabel(continueCourse) }}
+                <ArrowRight :size="14" :stroke-width="2" class="transition-transform duration-200 group-hover:translate-x-0.5" />
+              </span>
+            </div>
           </NuxtLink>
 
           <div v-else-if="allCaughtUp" class="flex flex-col items-center rounded-2xl bg-zinc-900 p-6 text-center text-white shadow-card-dark sm:p-8">
@@ -339,17 +343,22 @@ const exploreCourses = computed(() => {
                 :to="nextLessonId(course) ? `/courses/${nextLessonId(course)}` : '/courses'"
                 class="card flex flex-col p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
               >
-                <div class="flex items-center justify-between gap-2">
-                  <span
-                    class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold"
-                    :class="levelBadgeClass[getCourseLevel(course)]"
-                  >
-                    <component :is="levelIcon[getCourseLevel(course)]" :size="12" :stroke-width="2" />
-                    {{ getCourseLevel(course) }}
-                  </span>
-                  <span class="text-xs font-medium text-zinc-400">{{ progressPercent(course) }}%</span>
+                <div class="flex items-start justify-between gap-2">
+                  <div class="flex min-w-0 items-center gap-3">
+                    <TechLogo :tech="getCourseTech(course)" :size="40" />
+                    <div class="min-w-0">
+                      <h3 class="truncate font-semibold leading-snug">{{ course.title }}</h3>
+                      <span
+                        class="mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold"
+                        :class="levelBadgeClass[getCourseLevel(course)]"
+                      >
+                        <component :is="levelIcon[getCourseLevel(course)]" :size="11" :stroke-width="2" />
+                        {{ getCourseLevel(course) }}
+                      </span>
+                    </div>
+                  </div>
+                  <span class="shrink-0 text-xs font-medium text-zinc-400">{{ progressPercent(course) }}%</span>
                 </div>
-                <h3 class="mt-3 font-semibold leading-snug">{{ course.title }}</h3>
                 <div class="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-white/10">
                   <div class="h-full rounded-full bg-accent-500" :style="{ width: `${progressPercent(course)}%` }" />
                 </div>
