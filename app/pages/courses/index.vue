@@ -2,7 +2,11 @@
 import { RefreshCw, Rocket, Sprout, Unplug, Zap } from '@lucide/vue'
 import type { Course } from '~/types/course'
 
-definePageMeta({ layout: 'course' })
+// Uses the minimal Home/Explore/My Courses sidebar (layouts/dashboard.vue),
+// not course.vue's nested lesson-tree sidebar — that tree is for navigating
+// *within* a lesson you're reading, and showing it while just browsing the
+// catalog was exactly the cognitive-overload complaint this page used to get.
+definePageMeta({ layout: 'dashboard' })
 
 const { data: courses, status, error, refresh, pending } = useCourses()
 const progress = useProgressStore()

@@ -6,7 +6,11 @@
 // rather than a course.vue variant since the two serve different jobs:
 // course.vue is the lesson-reading chrome (chat drawer, lesson tree),
 // this is the account-level "your learning" overview.
-import { BookOpen, LayoutDashboard, LogOut, Waypoints } from '@lucide/vue'
+// Deliberately just three links — "Learning & Explore" only, not a catch-all
+// site nav — so this stays a quick, low-cognitive-load switcher rather than
+// growing back into the dense, nested-syllabus sidebar course.vue uses while
+// actually reading a lesson (Skill Map etc. stay reachable from there instead).
+import { Compass, GraduationCap, LayoutDashboard, LogOut } from '@lucide/vue'
 
 const route = useRoute()
 const { t } = useLanguage()
@@ -14,12 +18,12 @@ const { user, logout } = useAuth()
 
 const navItems = computed(() => [
   { to: '/dashboard', label: t('dashboard.navDashboard'), icon: LayoutDashboard },
-  { to: '/courses', label: t('nav.courses'), icon: BookOpen },
-  { to: '/map', label: t('nav.skillMap'), icon: Waypoints }
+  { to: '/courses', label: t('dashboard.navExplore'), icon: Compass },
+  { to: '/my-courses', label: t('dashboard.navMyCourses'), icon: GraduationCap }
 ])
 
 function isActive(to: string) {
-  return to === '/dashboard' ? route.path === to : route.path.startsWith(to)
+  return route.path === to
 }
 
 const initials = computed(() => {

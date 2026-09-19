@@ -170,8 +170,16 @@
     "colRole": "Role",
     "pendingApiNotice": "Not wired to mindspace-api yet — showing your local demo session only."
   },
+  "myCourses": {
+    "title": "My Courses",
+    "subtitle": "Everything you've started, in one place.",
+    "emptyTitle": "You haven't started a course yet",
+    "emptyBody": "Once you begin a lesson, it'll show up here so you can pick it back up any time."
+  },
   "dashboard": {
     "navDashboard": "Home",
+    "navExplore": "Explore Courses",
+    "navMyCourses": "My Courses",
     "title": "Welcome back, {name}",
     "subtitle": "Pick up right where you left off, or find something new to explore.",
     "continueLearning": "Continue learning",
