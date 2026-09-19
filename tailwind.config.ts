@@ -13,11 +13,23 @@ export default <Partial<Config>>{
        * UI text and headlines (weight does the differentiation, not a
        * second typeface — a dashboard reads as a tool, not an editorial
        * piece). JetBrains Mono is kept, but demoted to actual code only.
+       *
+       * Plus Jakarta Sans has no Thai glyphs, so Thai copy was silently
+       * falling back to whatever sans-serif the OS ships — inconsistent
+       * weight/x-height next to the Latin type. IBM Plex Sans Thai is added
+       * as the Thai fallback in every stack: a loopless, formal, corporate-
+       * tech face (the earlier pick, Noto Sans Thai, is more neutral/generic;
+       * Plex reads more deliberately "designed" and pairs better with Plus
+       * Jakarta Sans's own geometric character — @nuxt/fonts' Google
+       * provider can't serve its Thai subset correctly, so it's loaded via
+       * a direct Google Fonts <link> in nuxt.config.ts instead, same
+       * workaround, different font). The browser picks per-character
+       * automatically from stack order — no lang-specific CSS needed.
        */
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        display: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace']
+        sans: ['"Plus Jakarta Sans"', '"IBM Plex Sans Thai"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['"Plus Jakarta Sans"', '"IBM Plex Sans Thai"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        mono: ['"JetBrains Mono"', '"IBM Plex Sans Thai"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace']
       },
       colors: {
         // Near-white canvas / pure-white surface by day, deep slate-navy by

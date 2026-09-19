@@ -97,6 +97,8 @@ async function submit() {
           </button>
         </form>
 
+        <SocialLoginButtons mode="signup" />
+
         <p class="mt-5 flex items-start gap-1.5 rounded-lg bg-info-50 px-3 py-2 text-[11px] leading-relaxed text-info-700 dark:bg-info-400/10 dark:text-info-400">
           <Lock :size="12" :stroke-width="2" class="mt-0.5 shrink-0" />
           {{ t('auth.demoNotice') }}
