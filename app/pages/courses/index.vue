@@ -31,6 +31,11 @@ function lessonCountLabel(course: Course): string {
   return done > 0 ? `${done}/${total} ${noun}` : `${total} ${noun}`
 }
 
+function progressPercent(course: Course): number {
+  if (!course.lessons.length) return 0
+  return Math.round((completedCount(course) / course.lessons.length) * 100)
+}
+
 const levelIcon = {
   Beginner: Sprout,
   Intermediate: Zap,
@@ -76,24 +81,34 @@ const levelIcon = {
       </button>
     </div>
 
-    <!-- Soft-shadow cards: icon, name, lesson count. -->
-    <div v-else-if="courses?.length" class="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <!-- Structured cards: level badge, title, a real progress bar (not just
+         a lesson-count caption), lesson count below it. -->
+    <div v-else-if="courses?.length" class="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <NuxtLink
         v-for="course in courses"
         :key="course.id"
         :to="firstLessonId(course) ? `/courses/${firstLessonId(course)}` : '/courses'"
-        class="card flex items-center gap-4 p-5 transition-all duration-200"
+        class="card flex flex-col p-5 transition-all duration-200"
         :class="firstLessonId(course)
           ? 'hover:-translate-y-0.5 hover:shadow-lg'
           : 'pointer-events-none opacity-60'"
       >
-        <span class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-accent-50 text-accent-600 dark:bg-accent-400/10 dark:text-accent-400">
-          <component :is="levelIcon[getCourseLevel(course)]" :size="18" :stroke-width="1.75" />
-        </span>
-        <div class="min-w-0 flex-1">
-          <h2 class="truncate font-semibold">{{ course.title }}</h2>
-          <p class="text-sm text-zinc-500 dark:text-zinc-400">{{ lessonCountLabel(course) }}</p>
+        <div class="flex items-center justify-between gap-2">
+          <span class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-accent-50 text-accent-600 dark:bg-accent-400/10 dark:text-accent-400">
+            <component :is="levelIcon[getCourseLevel(course)]" :size="18" :stroke-width="1.75" />
+          </span>
+          <span v-if="mounted && progressPercent(course) > 0" class="text-xs font-semibold text-accent-700 dark:text-accent-400">
+            {{ progressPercent(course) }}%
+          </span>
         </div>
+        <h2 class="mt-3.5 truncate font-semibold">{{ course.title }}</h2>
+        <div class="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-white/10">
+          <div
+            class="h-full rounded-full bg-accent-500 transition-all duration-500"
+            :style="{ width: `${progressPercent(course)}%` }"
+          />
+        </div>
+        <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">{{ lessonCountLabel(course) }}</p>
       </NuxtLink>
     </div>
 

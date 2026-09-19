@@ -51,6 +51,10 @@ body {
 }
 .dark .card {
   background-color: theme('colors.surface.dark');
+  /* surface.dark (#12151F) sits close in luminance to canvas.dark
+     (#0B0E16), so shadow alone barely reads against a dark page — a
+     hairline border does the separation that contrast can't here. */
+  border: 1px solid rgb(255 255 255 / 0.06);
   box-shadow: theme('boxShadow.card-dark');
 }
 
