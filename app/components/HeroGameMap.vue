@@ -12,6 +12,7 @@
 import { MapPin } from '@lucide/vue'
 import type { Course } from '~/types/course'
 import type { CourseLevel } from '~/utils/courseLevel'
+import { TECH_LOGOS, techLogoPlate, type TechLogoId } from '~/utils/techLogos'
 
 const { t } = useLanguage()
 
@@ -31,24 +32,21 @@ const DIRT = ['#e0954f', '#d9814a', '#c97a3e']
 const CLIFF_EAST = ['#cfa876', '#8b5e34']
 const CLIFF_WEST = ['#b8925f', '#74491f']
 
-// Simplified/generic brand-color badges, not the detailed official
-// logo artwork — the same "which tech does this course cover" convention
-// already used as plain-text chips further down the landing page (see
-// `ecosystem` in index.vue), just rendered as small map props here. Sized
-// generously past the typical number of icon slots on the map (see
-// `ICON_TILE_COUNT` below) so every icon placed is actually unique instead
-// of cycling back through a short list.
-const TECH_ICONS = [
-  { id: 'js', bg: '#F0DB4F', mark: '#1B1B1B', label: 'JS' },
-  { id: 'ts', bg: '#3178C6', mark: '#FFFFFF', label: 'TS' },
-  { id: 'python', bg: '#3776AB', mark: '#FFE873', label: 'Py' },
-  { id: 'node', bg: '#3C873A', mark: '#FFFFFF', label: 'Node' },
-  { id: 'go', bg: '#00ADD8', mark: '#FFFFFF', label: 'Go' },
-  { id: 'docker', bg: '#2496ED', mark: '#FFFFFF', label: 'Docker' },
-  { id: 'nuxt', bg: '#00DC82', mark: '#00341F', label: 'Nuxt' },
-  { id: 'vue', bg: '#41B883', mark: 'shape' },
-  { id: 'react', bg: '#20232A', mark: 'shape' }
-] as const
+// Each prop is the technology's official logo (vendored — see
+// ~/utils/techLogos) on a small plaque. Sized generously past the typical
+// number of icon slots on the map (see `ICON_TILE_COUNT` below) so every
+// icon placed is actually unique instead of cycling back through a short list.
+const TECH_ICONS: Array<{ id: TechLogoId; label: string }> = [
+  { id: 'js', label: 'JavaScript' },
+  { id: 'ts', label: 'TypeScript' },
+  { id: 'python', label: 'Python' },
+  { id: 'node', label: 'Node.js' },
+  { id: 'go', label: 'Go' },
+  { id: 'docker', label: 'Docker' },
+  { id: 'nuxt', label: 'Nuxt' },
+  { id: 'vue', label: 'Vue' },
+  { id: 'react', label: 'React' }
+]
 
 const GRID_COLS = 9
 const GRID_ROWS = 7
@@ -514,34 +512,20 @@ const CLOUDS = [
                  navigateTo() gets the same SPA transition NuxtLink would
                  give an HTML element). -->
             <rect x="-20.5" y="-43" width="41" height="31" rx="7" fill="black" opacity="0.18" />
-            <rect x="-19.5" y="-44" width="41" height="31" rx="7" :fill="item.icon.bg" stroke="white" stroke-width="2" stroke-opacity="0.55" />
-            <!-- Marks are authored once at a local origin, then this single
-                 transform both scales and re-centers them on the badge —
-                 changing the badge size only ever means editing these two
-                 numbers, not every path/circle coordinate inside it. -->
-            <g transform="translate(0, -28.5) scale(1.7)">
-              <template v-if="item.icon.mark === 'shape'">
-                <template v-if="item.icon.id === 'vue'">
-                  <path d="M -7.5 -5 L 0 7.5 L 7.5 -5 L 4 -5 L 0 1.7 L -4 -5 Z" fill="white" />
-                </template>
-                <template v-else>
-                  <ellipse cx="0" cy="0" rx="9" ry="3.4" fill="none" stroke="#61DAFB" stroke-width="1.3" />
-                  <ellipse cx="0" cy="0" rx="9" ry="3.4" fill="none" stroke="#61DAFB" stroke-width="1.3" transform="rotate(60)" />
-                  <ellipse cx="0" cy="0" rx="9" ry="3.4" fill="none" stroke="#61DAFB" stroke-width="1.3" transform="rotate(120)" />
-                  <circle cx="0" cy="0" r="1.6" fill="#61DAFB" />
-                </template>
-              </template>
-              <text
-                v-else
-                x="0"
-                y="2"
-                text-anchor="middle"
-                :fill="item.icon.mark"
-                :font-size="item.icon.label.length > 4 ? 5.5 : item.icon.label.length > 2 ? 7 : 9"
-                font-weight="800"
-                font-family="ui-sans-serif, system-ui, sans-serif"
-              >{{ item.icon.label }}</text>
-            </g>
+            <rect x="-19.5" y="-44" width="41" height="31" rx="7" :fill="techLogoPlate(item.icon.id)" stroke="white" stroke-width="2" stroke-opacity="0.55" />
+            <!-- The official logo, fitted (preserveAspectRatio "meet") into a
+                 33x23 box centered on the plaque, so wide marks (Go) and tall
+                 ones (Node) both fit without distortion. Static vendored
+                 markup, so v-html is safe. -->
+            <svg
+              x="-15.5"
+              y="-40"
+              width="33"
+              height="23"
+              :viewBox="`0 0 ${TECH_LOGOS[item.icon.id].width} ${TECH_LOGOS[item.icon.id].height}`"
+              preserveAspectRatio="xMidYMid meet"
+              v-html="TECH_LOGOS[item.icon.id].body"
+            />
           </g>
         </g>
 

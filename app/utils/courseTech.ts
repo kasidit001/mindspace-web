@@ -2,23 +2,17 @@ import type { Course } from '~/types/course'
 
 export type TechId = 'ts' | 'js' | 'python' | 'node' | 'go' | 'docker' | 'react' | 'vue'
 
-export interface TechBadge {
-  bg: string
-  mark: string
-  label: string
-}
-
-// Same brand palette as HeroGameMap.vue's TECH_ICONS, extracted here so both
-// components stay visually consistent instead of drifting apart over time.
-export const TECH_BADGES: Record<TechId, TechBadge> = {
-  ts: { bg: '#3178C6', mark: '#FFFFFF', label: 'TS' },
-  js: { bg: '#F0DB4F', mark: '#1B1B1B', label: 'JS' },
-  python: { bg: '#3776AB', mark: '#FFE873', label: 'Py' },
-  node: { bg: '#3C873A', mark: '#FFFFFF', label: 'Node' },
-  go: { bg: '#00ADD8', mark: '#FFFFFF', label: 'Go' },
-  docker: { bg: '#2496ED', mark: '#FFFFFF', label: 'Docker' },
-  react: { bg: '#20232A', mark: '#61DAFB', label: 'React' },
-  vue: { bg: '#41B883', mark: '#FFFFFF', label: 'Vue' }
+// Full names for tooltips/aria-labels. The logos themselves live in
+// ~/utils/techLogos (official artwork, not a hand-drawn approximation).
+export const TECH_LABELS: Record<TechId, string> = {
+  ts: 'TypeScript',
+  js: 'JavaScript',
+  python: 'Python',
+  node: 'Node.js',
+  go: 'Go',
+  docker: 'Docker',
+  react: 'React',
+  vue: 'Vue'
 }
 
 const TECH_HINTS: Array<{ id: TechId; pattern: RegExp }> = [
