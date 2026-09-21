@@ -135,9 +135,9 @@ const ecosystem = ['TypeScript', 'JavaScript', 'React', 'Node.js', 'Next.js', 'V
          restrained two-tone gradient with a soft vignette instead of a flat
          fill — the kind of quiet polish that reads as considered rather
          than templated. -->
-    <section class="px-6 pt-14 sm:pt-20">
+    <section class="px-6 pt-8 sm:pt-12">
       <div
-        class="reveal relative mx-auto max-w-6xl overflow-hidden rounded-[2.25rem] bg-gradient-to-b from-accent-600 to-ai-900 px-6 py-20 dark:from-accent-700 dark:to-ai-900 sm:px-12 sm:py-28"
+        class="reveal relative mx-auto max-w-6xl overflow-hidden rounded-[1.75rem] bg-gradient-to-b from-accent-600 to-ai-900 px-6 py-12 dark:from-accent-700 dark:to-ai-900 sm:px-10 sm:py-14"
         style="--delay: 0s; box-shadow: 0 40px 80px -32px rgb(49 46 129 / 0.45), 0 1px 0 0 rgb(255 255 255 / 0.08) inset;"
       >
         <!-- Decorative layer only, clipped to the banner's own corners so
@@ -145,45 +145,45 @@ const ecosystem = ['TypeScript', 'JavaScript', 'React', 'Node.js', 'Next.js', 'V
              soft, low-opacity glows and a faint top vignette read as
              ambient light rather than a "pattern" — no dot-grid texture,
              which skewed more playful/gamified than premium-corporate. -->
-        <div class="pointer-events-none absolute inset-0 overflow-hidden rounded-[2.25rem]" aria-hidden="true">
-          <div class="absolute -top-24 left-1/4 size-[28rem] rounded-full bg-white/[0.07] blur-[100px]" />
-          <div class="absolute -bottom-40 -right-24 size-[32rem] rounded-full bg-ai-300/20 blur-[110px]" />
+        <div class="pointer-events-none absolute inset-0 overflow-hidden rounded-[1.75rem]" aria-hidden="true">
+          <div class="absolute -top-20 left-1/4 size-[20rem] rounded-full bg-white/[0.07] blur-[90px]" />
+          <div class="absolute -bottom-32 -right-20 size-[24rem] rounded-full bg-ai-300/20 blur-[100px]" />
           <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
         </div>
 
-        <div class="relative z-10 grid items-center gap-16 lg:grid-cols-[1.08fr_0.92fr] lg:gap-12">
+        <div class="relative z-10 grid items-center gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:gap-8">
           <div class="text-center lg:text-left">
-            <span class="inline-flex items-center gap-2 rounded-full bg-white/10 py-1.5 pl-2.5 pr-3.5 text-[13px] font-medium text-indigo-50 ring-1 ring-inset ring-white/15">
+            <span class="inline-flex items-center gap-2 rounded-full bg-white/10 py-1 pl-2 pr-3 text-xs font-medium text-indigo-50 ring-1 ring-inset ring-white/15">
               <span class="size-1.5 shrink-0 rounded-full bg-success-400" />
               {{ t('landing.badgeVerb') }} <span class="text-white/60">{{ t('landing.badgeTerm') }}</span>
             </span>
-            <h1 class="font-display text-balance mt-7 text-[2.75rem] font-semibold leading-[1.18] tracking-normal text-white sm:text-6xl lg:text-[3.4rem]">
+            <h1 class="font-display text-balance mt-5 text-[1.9rem] font-semibold leading-[1.2] tracking-normal text-white sm:text-4xl lg:text-[2.5rem]">
               {{ t('landing.heroTitle') }}
             </h1>
-            <p class="mx-auto mt-6 max-w-[34rem] text-balance text-lg leading-relaxed text-indigo-100/80 lg:mx-0">
+            <p class="mx-auto mt-4 max-w-[30rem] text-balance text-base leading-relaxed text-indigo-100/80 lg:mx-0">
               {{ t('landing.heroBody') }}
             </p>
 
-            <div class="mt-11 flex flex-col items-center gap-6 sm:flex-row sm:justify-center lg:justify-start">
+            <div class="mt-7 flex flex-col items-center gap-4 sm:flex-row sm:justify-center lg:justify-start">
               <NuxtLink
                 to="/courses"
-                class="w-full rounded-xl bg-white px-7 py-3.5 text-base font-semibold text-accent-700 shadow-[0_1px_2px_rgb(0_0_0/0.06),0_12px_28px_-8px_rgb(0_0_0/0.35)] transition-all hover:-translate-y-0.5 hover:shadow-[0_1px_2px_rgb(0_0_0/0.06),0_16px_36px_-8px_rgb(0_0_0/0.4)] sm:w-auto"
+                class="w-full rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-accent-700 shadow-[0_1px_2px_rgb(0_0_0/0.06),0_10px_24px_-8px_rgb(0_0_0/0.35)] transition-all hover:-translate-y-0.5 hover:shadow-[0_1px_2px_rgb(0_0_0/0.06),0_14px_30px_-8px_rgb(0_0_0/0.4)] sm:w-auto"
               >
                 {{ t('landing.startLearningFree') }}
               </NuxtLink>
               <NuxtLink
                 to="/courses"
-                class="group inline-flex items-center gap-1.5 text-base font-semibold text-white/90 transition-colors hover:text-white"
+                class="group inline-flex items-center gap-1.5 text-sm font-semibold text-white/90 transition-colors hover:text-white"
               >
                 {{ t('landing.exploreCourses') }}
-                <ArrowRight :size="16" :stroke-width="2" class="transition-transform group-hover:translate-x-1" />
+                <ArrowRight :size="14" :stroke-width="2" class="transition-transform group-hover:translate-x-1" />
               </NuxtLink>
             </div>
           </div>
 
-          <div class="relative h-[22rem] overflow-visible rounded-2xl sm:h-[26rem]">
+          <div class="relative h-[17rem] overflow-visible rounded-2xl sm:h-[20rem]">
             <HeroGameMap :courses="courses ?? []" />
-            <p class="pointer-events-none absolute -bottom-8 left-1/2 w-full -translate-x-1/2 text-center text-xs font-medium text-indigo-100/50">
+            <p class="pointer-events-none absolute -bottom-6 left-1/2 w-full -translate-x-1/2 text-center text-xs font-medium text-indigo-100/50">
               {{ t('landing.mapHint') }}
             </p>
           </div>

@@ -558,7 +558,7 @@ const CLOUDS = [
 
     <div
       v-if="selectedCourse"
-      class="pointer-events-none absolute z-10 w-60 -translate-x-1/2 -translate-y-[calc(100%+30px)] rounded-2xl bg-white p-4 text-left shadow-2xl shadow-black/30"
+      class="pointer-events-none absolute z-10 w-48 -translate-x-1/2 -translate-y-[calc(100%+26px)] rounded-xl bg-white p-3 text-left shadow-2xl shadow-black/30"
       :style="markerScreenPercent(selectedIndex!)"
     >
       <!-- The card itself ignores pointer events (only the button below
@@ -566,16 +566,16 @@ const CLOUDS = [
            on top of a neighboring pin, and without this a user couldn't
            click that pin to switch selection until closing this one first. -->
       <div class="absolute left-1/2 top-full h-3 w-3 -translate-x-1/2 -translate-y-1.5 rotate-45 bg-white" aria-hidden="true" />
-      <span class="flex size-9 items-center justify-center rounded-full bg-ai-50">
-        <MapPin :size="16" :stroke-width="2" class="text-ai-600" />
+      <span class="flex size-7 items-center justify-center rounded-full bg-ai-50">
+        <MapPin :size="14" :stroke-width="2" class="text-ai-600" />
       </span>
-      <p class="font-display mt-2.5 text-sm font-bold leading-snug text-zinc-900">{{ selectedCourse.title }}</p>
+      <p class="font-display mt-2 text-[13px] font-bold leading-snug text-zinc-900">{{ selectedCourse.title }}</p>
       <p class="mt-1 line-clamp-1 text-xs text-zinc-500">
         {{ selectedCourse.lessons.length }} {{ t(selectedCourse.lessons.length === 1 ? 'common.lesson' : 'common.lessons') }}
       </p>
       <button
         type="button"
-        class="pointer-events-auto mt-3 w-full rounded-lg bg-zinc-900 py-2 text-sm font-semibold text-white transition-colors hover:bg-zinc-800"
+        class="pointer-events-auto mt-2.5 w-full rounded-md bg-zinc-900 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-zinc-800"
         @click="goToCourse(selectedCourse)"
       >
         {{ t('landing.startCourse') }}
