@@ -1,15 +1,16 @@
 <script setup lang="ts">
-import { Lock } from '@lucide/vue'
-
 // Standalone page, like index.vue — no sidebar/chat chrome.
 const { t } = useLanguage()
-const { login } = useAuth()
+const { signup } = useAuth()
 
 const name = ref('')
 const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
 const submitting = ref(false)
+const errorKey = ref<string | null>(null)
+// The free-tier API sleeps when idle, so the first request can take ~a minute.
+const slow = ref(false)
 
 const mismatch = computed(() =>
   confirmPassword.value.length > 0 && password.value !== confirmPassword.value
@@ -18,12 +19,20 @@ const mismatch = computed(() =>
 async function submit() {
   if (!name.value.trim() || !email.value.trim() || !password.value || mismatch.value) return
   submitting.value = true
-  // No backend yet (see useAuth) — the password is intentionally never read
-  // past this point, just required so the form feels real.
-  login(email.value, name.value)
-  password.value = ''
-  confirmPassword.value = ''
-  await navigateTo('/courses')
+  errorKey.value = null
+  const slowTimer = setTimeout(() => { slow.value = true }, 5000)
+  try {
+    await signup({ name: name.value.trim(), email: email.value.trim(), password: password.value })
+    password.value = ''
+    confirmPassword.value = ''
+    await navigateTo('/dashboard')
+  } catch (err) {
+    errorKey.value = authErrorKey(err)
+  } finally {
+    clearTimeout(slowTimer)
+    slow.value = false
+    submitting.value = false
+  }
 }
 </script>
 
@@ -88,6 +97,14 @@ async function submit() {
             </span>
           </label>
 
+          <p
+            v-if="errorKey"
+            role="alert"
+            class="rounded-md bg-critical-400/10 px-3 py-2 text-xs text-critical-600 dark:text-critical-400"
+          >
+            {{ t(errorKey) }}
+          </p>
+
           <button
             type="submit"
             class="btn-primary w-full rounded-md px-4 py-2.5 text-sm font-semibold disabled:opacity-60"
@@ -95,14 +112,10 @@ async function submit() {
           >
             {{ t('auth.signUp') }}
           </button>
+          <p v-if="slow" class="text-center text-xs text-zinc-500 dark:text-zinc-400">{{ t('auth.slowServer') }}</p>
         </form>
 
         <SocialLoginButtons mode="signup" />
-
-        <p class="mt-5 flex items-start gap-1.5 rounded-lg bg-info-50 px-3 py-2 text-[11px] leading-relaxed text-info-700 dark:bg-info-400/10 dark:text-info-400">
-          <Lock :size="12" :stroke-width="2" class="mt-0.5 shrink-0" />
-          {{ t('auth.demoNotice') }}
-        </p>
       </div>
 
       <p class="mt-6 text-center text-sm text-zinc-500 dark:text-zinc-400">

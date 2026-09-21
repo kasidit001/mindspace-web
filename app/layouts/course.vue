@@ -26,7 +26,7 @@ const focusMode = useFocusMode()
 const chatOpen = useChatDrawerOpen()
 const { theme, toggle: toggleTheme } = useTheme()
 const { t, lang } = useLanguage()
-const { user, isAdmin, logout, setRole } = useAuth()
+const { user, isAdmin, logout } = useAuth()
 
 const sidebarOpen = ref(false)
 const profileOpen = ref(false)
@@ -200,16 +200,6 @@ function courseCompletedCount(course: Course): number {
             >
               {{ t('admin.title') }}
             </NuxtLink>
-            <!-- Demo-only: no backend to actually grant SYSTEM_ADMIN yet
-                 (see useAuth), so this locally flips the session's role to
-                 preview admin-gated UI. Remove once real roles land. -->
-            <button
-              type="button"
-              class="mt-2 block text-xs text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300"
-              @click="setRole(isAdmin ? 'USER' : 'SYSTEM_ADMIN')"
-            >
-              {{ t('auth.demoRoleToggle') }}
-            </button>
           </template>
           <template v-else>
             <p class="font-semibold text-zinc-900 dark:text-white">{{ t('auth.notLoggedIn') }}</p>
