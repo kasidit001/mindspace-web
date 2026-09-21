@@ -40,3 +40,22 @@ export function getCourseTech(course: Pick<Course, 'title' | 'descriptionEn'>): 
   }
   return 'ts'
 }
+
+export type CourseCategory = 'frontend' | 'backend' | 'devops' | 'languages'
+
+// Derived from the course's technology, so it shares getCourseTech's disclosed
+// keyword heuristic — there's no `category` field on the API yet.
+const TECH_CATEGORY: Record<TechId, CourseCategory> = {
+  react: 'frontend',
+  vue: 'frontend',
+  node: 'backend',
+  go: 'backend',
+  docker: 'devops',
+  ts: 'languages',
+  js: 'languages',
+  python: 'languages'
+}
+
+export function getCourseCategory(course: Pick<Course, 'title' | 'descriptionEn'>): CourseCategory {
+  return TECH_CATEGORY[getCourseTech(course)]
+}

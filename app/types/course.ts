@@ -16,6 +16,7 @@ export interface LessonSummary {
   slug: string
   order: number
   contentType: LessonContentType
+  readingMinutes: number
 }
 
 export interface Course {
