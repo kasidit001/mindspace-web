@@ -70,10 +70,6 @@ export const useProgressStore = defineStore('progress', {
       this.completed = { ...this.completed, [lessonId]: new Date().toISOString() }
       this.persist()
     },
-    reset() {
-      this.completed = {}
-      this.persist()
-    },
     persist() {
       if (!import.meta.client) return
       try {

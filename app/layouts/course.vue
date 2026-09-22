@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {
-  Check,
+  ArrowLeft,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -25,7 +25,7 @@ const paletteOpen = useCommandPaletteOpen()
 const focusMode = useFocusMode()
 const chatOpen = useChatDrawerOpen()
 const { theme, toggle: toggleTheme } = useTheme()
-const { t, lang } = useLanguage()
+const { t } = useLanguage()
 const { user, isAdmin, logout } = useAuth()
 
 const sidebarOpen = ref(false)
@@ -70,6 +70,17 @@ watch(
   }
 )
 
+// The reading page (the only page with a :lessonId param) scopes the
+// sidebar to just that lesson's course — showing every course's full tree
+// at once (the old behavior) buried the course actually being read among
+// unrelated ones. map.vue/admin/index.vue reuse this same layout with no
+// lessonId, so they fall back to the full multi-course browser below.
+const currentCourse = computed(() => {
+  const lessonId = route.params.lessonId as string | undefined
+  if (!lessonId) return null
+  return (courses.value ?? []).find((c) => c.lessons.some((l) => l.id === lessonId)) ?? null
+})
+
 const totalLessons = computed(() => (courses.value ?? []).reduce((n, c) => n + c.lessons.length, 0))
 const completedTotal = computed(() => {
   if (!mounted.value) return 0
@@ -78,10 +89,6 @@ const completedTotal = computed(() => {
     0
   )
 })
-
-function resetProgress() {
-  progress.reset()
-}
 
 function courseCompletedCount(course: Course): number {
   if (!mounted.value) return 0
@@ -240,16 +247,9 @@ function courseCompletedCount(course: Course): number {
             {{ t('dashboard.navDashboard') }}
           </NuxtLink>
           <button
-            type="button"
-            class="mt-3 w-full rounded-md border border-divider py-1.5 text-xs text-zinc-500 hover:border-critical-300 hover:text-critical-600 dark:border-divider-dark dark:text-zinc-400 dark:hover:border-critical-800 dark:hover:text-critical-400"
-            @click="resetProgress"
-          >
-            {{ t('progress.resetProgress') }}
-          </button>
-          <button
             v-if="user"
             type="button"
-            class="mt-2 w-full rounded-md border border-divider py-1.5 text-xs text-zinc-500 hover:border-critical-300 hover:text-critical-600 dark:border-divider-dark dark:text-zinc-400 dark:hover:border-critical-800 dark:hover:text-critical-400"
+            class="mt-3 w-full rounded-md border border-divider py-1.5 text-xs text-zinc-500 hover:border-critical-300 hover:text-critical-600 dark:border-divider-dark dark:text-zinc-400 dark:hover:border-critical-800 dark:hover:text-critical-400"
             @click="logout"
           >
             {{ t('auth.logOut') }}
@@ -278,9 +278,21 @@ function courseCompletedCount(course: Course): number {
         ]"
       >
         <!-- Formal index header: a fixed "table of contents" label anchoring
-             the tree, rather than dropping straight into the list. -->
+             the tree, rather than dropping straight into the list. When
+             reading a lesson, this is a back link to the course catalog
+             instead of a generic "Courses" label — the tree below is
+             scoped to one course, so "back to everything" is the useful
+             action here, not a heading. -->
         <div class="flex items-center justify-between border-b border-divider px-4 py-3 dark:border-divider-dark">
-          <span class="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-600">
+          <NuxtLink
+            v-if="currentCourse"
+            to="/courses"
+            class="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-zinc-400 hover:text-accent-700 dark:text-zinc-600 dark:hover:text-accent-400"
+          >
+            <ArrowLeft :size="12" :stroke-width="2" />
+            {{ t('sidebar.backToCourses') }}
+          </NuxtLink>
+          <span v-else class="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-600">
             {{ t('sidebar.coursesHeading') }}
           </span>
           <NuxtLink
@@ -327,6 +339,31 @@ function courseCompletedCount(course: Course): number {
           </button>
         </div>
 
+        <!-- Reading a lesson: the tree is scoped to just that lesson's
+             course, not every course at once — the old always-show-every-
+             course accordion buried the one actually being read among
+             unrelated ones. -->
+        <nav v-else-if="currentCourse" class="px-2 py-2">
+          <div class="flex items-center gap-2 px-1 py-1">
+            <span class="flex-1 truncate text-[11px] font-semibold uppercase tracking-[0.1em] text-zinc-700 dark:text-zinc-300">
+              {{ currentCourse.title }}
+            </span>
+            <span
+              v-if="mounted"
+              class="shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-bold tabular-nums"
+              :class="courseCompletedCount(currentCourse) === currentCourse.lessons.length && currentCourse.lessons.length > 0
+                ? 'bg-success-50 text-success-700 dark:bg-success-400/10 dark:text-success-400'
+                : 'bg-zinc-100 text-zinc-500 dark:bg-white/[0.06] dark:text-zinc-500'"
+            >
+              {{ courseCompletedCount(currentCourse) }}/{{ currentCourse.lessons.length }}
+            </span>
+          </div>
+          <CourseSidebarLessons class="mt-1" :lessons="currentCourse.lessons" />
+        </nav>
+
+        <!-- Fallback for the other pages sharing this layout (Skill Map,
+             Admin) which have no single lesson/course to scope to — browse
+             every course, each individually collapsible. -->
         <nav v-else class="px-2 py-1">
           <!-- Each course reads as a numbered section of a table of
                contents — index numeral instead of a folder icon, a rule
@@ -361,45 +398,7 @@ function courseCompletedCount(course: Course): number {
                 class="shrink-0 text-zinc-400 dark:text-zinc-600"
               />
             </button>
-            <ul v-if="!collapsedCourses.has(course.id)" class="relative mt-1">
-              <li v-for="lesson in course.lessons" :key="lesson.id" class="relative">
-                <NuxtLink
-                  :to="`/courses/${lesson.id}`"
-                  class="group relative flex items-center gap-2.5 py-1.5 pl-4 pr-2.5 text-[13px] leading-5 transition-colors duration-100"
-                  :class="route.params.lessonId === lesson.id
-                    ? 'bg-zinc-100 font-medium text-zinc-900 dark:bg-white/[0.06] dark:text-white'
-                    : 'text-zinc-600 hover:bg-zinc-50 dark:text-zinc-400 dark:hover:bg-white/[0.04]'"
-                >
-                  <!-- Progress rail: a continuous line down the lesson list —
-                       green where completed, indigo at the current lesson,
-                       dim elsewhere. -->
-                  <span
-                    class="absolute inset-y-0 left-0 w-0.5"
-                    :class="mounted && progress.isCompleted(lesson.id)
-                      ? 'bg-success-500'
-                      : route.params.lessonId === lesson.id
-                        ? 'bg-accent-500'
-                        : 'bg-divider dark:bg-divider-dark'"
-                    aria-hidden="true"
-                  />
-                  <!-- Step-number marker: a squared, form-field-style box
-                       (outlined when pending, filled once current/complete)
-                       reads closer to a syllabus checklist than a chat chip. -->
-                  <span
-                    class="flex size-5 shrink-0 items-center justify-center rounded-md text-[10px] font-semibold tabular-nums"
-                    :class="mounted && progress.isCompleted(lesson.id)
-                      ? 'bg-success-500 text-white'
-                      : route.params.lessonId === lesson.id
-                        ? 'bg-accent-500 text-white'
-                        : 'border border-divider text-zinc-400 dark:border-divider-dark dark:text-zinc-500'"
-                  >
-                    <Check v-if="mounted && progress.isCompleted(lesson.id)" :size="12" :stroke-width="2.25" :aria-label="t('sidebar.completed')" />
-                    <template v-else>{{ lesson.order }}</template>
-                  </span>
-                  <span class="flex-1 truncate">{{ pickLocalized(lesson.titleEn, lesson.titleTh, lang) }}</span>
-                </NuxtLink>
-              </li>
-            </ul>
+            <CourseSidebarLessons v-if="!collapsedCourses.has(course.id)" class="mt-1" :lessons="course.lessons" />
           </div>
 
           <p v-if="courses && courses.length === 0" class="px-2.5 py-1 text-sm text-zinc-500">

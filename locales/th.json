@@ -62,6 +62,7 @@
   },
   "sidebar": {
     "coursesHeading": "คอร์สเรียน",
+    "backToCourses": "คอร์สเรียนทั้งหมด",
     "noCourses": "ยังไม่มีคอร์สเรียน",
     "reconnect": "เชื่อมต่อ API ใหม่",
     "reconnecting": "กำลังเชื่อมต่อใหม่…",
@@ -69,8 +70,7 @@
     "completed": "เรียนจบแล้ว"
   },
   "progress": {
-    "lessonsCompleted": "เรียนจบแล้ว {done}/{total} บทเรียน",
-    "resetProgress": "รีเซ็ตความคืบหน้า"
+    "lessonsCompleted": "เรียนจบแล้ว {done}/{total} บทเรียน"
   },
   "aiAssistant": {
     "title": "ผู้ช่วย AI",

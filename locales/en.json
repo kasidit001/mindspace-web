@@ -62,6 +62,7 @@
   },
   "sidebar": {
     "coursesHeading": "Courses",
+    "backToCourses": "All courses",
     "noCourses": "No courses yet.",
     "reconnect": "Reconnect API",
     "reconnecting": "Reconnecting…",
@@ -69,8 +70,7 @@
     "completed": "Completed"
   },
   "progress": {
-    "lessonsCompleted": "{done}/{total} lessons completed",
-    "resetProgress": "Reset progress"
+    "lessonsCompleted": "{done}/{total} lessons completed"
   },
   "aiAssistant": {
     "title": "AI Assistant",
