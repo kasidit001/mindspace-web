@@ -83,7 +83,8 @@ const filteredCourses = computed(() => {
     if (selectedCategory.value !== 'all' && getCourseCategory(course) !== selectedCategory.value) return false
     if (selectedLevel.value !== 'all' && getCourseLevel(course) !== selectedLevel.value) return false
     if (!q) return true
-    const haystack = `${course.title} ${course.descriptionEn ?? ''} ${TECH_LABELS[getCourseTech(course)]}`.toLowerCase()
+    const tagNames = course.tags.map((tag) => tag.name).join(' ')
+    const haystack = `${course.title} ${course.descriptionEn ?? ''} ${TECH_LABELS[getCourseTech(course)]} ${tagNames}`.toLowerCase()
     return haystack.includes(q)
   })
 })
@@ -223,6 +224,15 @@ const pillOff = 'border-divider bg-surface text-zinc-600 hover:border-accent-200
           </span>
         </div>
         <h2 class="mt-4 font-semibold leading-snug">{{ course.title }}</h2>
+        <ul v-if="course.tags.length" class="mt-2 flex flex-wrap gap-1.5">
+          <li
+            v-for="tag in course.tags"
+            :key="tag.id"
+            class="rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-600 dark:bg-white/[0.06] dark:text-zinc-400"
+          >
+            {{ tag.name }}
+          </li>
+        </ul>
         <p class="mt-2 flex items-center gap-3 text-sm text-zinc-500 dark:text-zinc-400">
           <span>{{ lessonCountLabel(course) }}</span>
           <span class="inline-flex items-center gap-1">

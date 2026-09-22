@@ -19,6 +19,15 @@ export interface LessonSummary {
   readingMinutes: number
 }
 
+/** A real, curated label attached to a course (mindspace-api's Tag model) —
+ *  distinct from ~/utils/courseTech's title-regex tech-detection heuristic,
+ *  which is a display-only guess, not queryable data from the API. */
+export interface Tag {
+  id: string
+  name: string
+  slug: string
+}
+
 export interface Course {
   id: string
   title: string
@@ -26,6 +35,7 @@ export interface Course {
   descriptionEn: string | null
   descriptionTh: string | null
   lessons: LessonSummary[]
+  tags: Tag[]
 }
 
 /** One Code Lab exercise (see ~/components/CodeLab.vue). A lesson can carry
