@@ -45,9 +45,6 @@
   },
   "nav": {
     "searchPlaceholder": "Search lessons, or ask the AI…",
-    "focus": "Focus",
-    "exitFocusMode": "Exit focus mode",
-    "hideSidebar": "Hide sidebar to focus on reading",
     "assistant": "Assistant",
     "openAssistant": "Open AI Assistant",
     "closeAssistant": "Close AI Assistant",

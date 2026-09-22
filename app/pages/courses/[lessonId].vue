@@ -9,7 +9,7 @@ const lessonId = computed(() => route.params.lessonId as string)
 const { data: lesson, status, error } = useLesson(lessonId)
 const { data: courses } = useCourses()
 const progress = useProgressStore()
-const focusMode = useFocusMode()
+const sidebarCollapsed = useSidebarCollapsed()
 const { t, lang } = useLanguage()
 
 // Thai is a partial translation layered on English — fall back whenever a
@@ -74,7 +74,7 @@ watch(lessonId, () => {
   <div
     ref="rootEl"
     class="mx-auto px-4 py-10 transition-[max-width] duration-200 sm:px-6"
-    :class="focusMode ? 'max-w-[960px]' : 'max-w-[820px]'"
+    :class="sidebarCollapsed ? 'max-w-[960px]' : 'max-w-[820px]'"
   >
     <!-- Reader card, floating over the workspace canvas -->
     <div class="card p-6 sm:p-10">

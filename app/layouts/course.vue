@@ -4,9 +4,7 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  Maximize2,
   Menu,
-  Minimize2,
   RefreshCw,
   Search,
   Sparkles,
@@ -22,7 +20,7 @@ const { data: courses, status, error, refresh, pending } = useCourses()
 const route = useRoute()
 const progress = useProgressStore()
 const paletteOpen = useCommandPaletteOpen()
-const focusMode = useFocusMode()
+const sidebarCollapsed = useSidebarCollapsed()
 const chatOpen = useChatDrawerOpen()
 const { theme, toggle: toggleTheme } = useTheme()
 const { t } = useLanguage()
@@ -32,19 +30,11 @@ const sidebarOpen = ref(false)
 const profileOpen = ref(false)
 const collapsedCourses = ref(new Set<string>())
 
-// Desktop sidebar collapse — independent of the mobile drawer (sidebarOpen)
-// and orthogonal to focusMode: either one hides the sidebar, but the small
-// rail toggle only ever touches this ref. Clicking it while focus mode is
-// active exits focus mode too, so the click always visibly does something.
-const sidebarCollapsed = ref(false)
-const sidebarHidden = computed(() => sidebarCollapsed.value || focusMode.value)
+// Desktop sidebar collapse — independent of the mobile drawer (sidebarOpen).
+// Shared state (not a local ref) since the lesson page widens its reading
+// column when this is true.
 function toggleSidebarCollapsed() {
-  if (focusMode.value) {
-    focusMode.value = false
-    sidebarCollapsed.value = false
-  } else {
-    sidebarCollapsed.value = !sidebarCollapsed.value
-  }
+  sidebarCollapsed.value = !sidebarCollapsed.value
 }
 
 function toggleCourse(courseId: string) {
@@ -124,20 +114,6 @@ function courseCompletedCount(course: Course): number {
           <kbd class="hidden shrink-0 rounded-md border border-zinc-300 px-1.5 py-0.5 font-mono text-[10px] dark:border-zinc-600 sm:inline">⌘K</kbd>
         </button>
       </div>
-
-      <!-- Focus mode (desktop only — on mobile the sidebar is already an overlay) -->
-      <button
-        type="button"
-        class="hidden shrink-0 items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium transition-colors lg:inline-flex"
-        :class="focusMode
-          ? 'border-accent-500 text-accent-700 dark:text-accent-400'
-          : 'border-divider text-zinc-600 hover:border-zinc-300 dark:border-divider-dark dark:text-zinc-300 dark:hover:border-white/20'"
-        :title="focusMode ? t('nav.exitFocusMode') : t('nav.hideSidebar')"
-        @click="focusMode = !focusMode"
-      >
-        <component :is="focusMode ? Minimize2 : Maximize2" :size="14" :stroke-width="1.75" />
-        {{ t('nav.focus') }}
-      </button>
 
       <!-- AI Assistant toggle (tool-window style, docks on desktop) -->
       <button
@@ -268,13 +244,13 @@ function courseCompletedCount(course: Course): number {
 
       <!-- Left sidebar: compact lesson tree. Collapses on desktop by
            animating width to 0 (not display:none) so it slides shut instead
-           of vanishing — sidebarHidden is set by either the rail toggle
+           of vanishing — sidebarCollapsed is set by either the rail toggle
            below or Focus mode. -->
       <aside
         class="scrollbar-thin fixed inset-y-0 left-0 z-40 w-64 shrink-0 transform overflow-y-auto border-r border-divider bg-canvas transition-[transform,width] duration-200 dark:border-divider-dark dark:bg-canvas-dark lg:static lg:z-auto lg:translate-x-0"
         :class="[
           sidebarOpen ? 'translate-x-0' : '-translate-x-full',
-          sidebarHidden ? 'lg:w-0 lg:overflow-hidden lg:border-r-0' : 'lg:w-64'
+          sidebarCollapsed ? 'lg:w-0 lg:overflow-hidden lg:border-r-0' : 'lg:w-64'
         ]"
       >
         <!-- Formal index header: a fixed "table of contents" label anchoring
@@ -414,11 +390,11 @@ function courseCompletedCount(course: Course): number {
       <button
         type="button"
         class="absolute top-1/2 z-20 hidden size-6 -translate-y-1/2 items-center justify-center rounded-full border border-divider bg-canvas text-zinc-400 shadow-sm transition-[left] duration-200 hover:border-accent-400 hover:text-accent-700 dark:border-divider-dark dark:bg-canvas-dark dark:text-zinc-500 dark:hover:border-accent-400/60 dark:hover:text-accent-400 lg:flex"
-        :style="{ left: sidebarHidden ? '4px' : '244px' }"
-        :aria-label="sidebarHidden ? t('nav.openSidebar') : t('nav.closeSidebar')"
+        :style="{ left: sidebarCollapsed ? '4px' : '244px' }"
+        :aria-label="sidebarCollapsed ? t('nav.openSidebar') : t('nav.closeSidebar')"
         @click="toggleSidebarCollapsed"
       >
-        <component :is="sidebarHidden ? ChevronRight : ChevronLeft" :size="13" :stroke-width="2.5" />
+        <component :is="sidebarCollapsed ? ChevronRight : ChevronLeft" :size="13" :stroke-width="2.5" />
       </button>
 
       <!-- Main content — dot-grid workbench texture behind the reader card -->

@@ -45,9 +45,6 @@
   },
   "nav": {
     "searchPlaceholder": "ค้นหาบทเรียน หรือถาม AI…",
-    "focus": "โฟกัส",
-    "exitFocusMode": "ออกจากโหมดโฟกัส",
-    "hideSidebar": "ซ่อนแถบด้านข้างเพื่อโฟกัสการอ่าน",
     "assistant": "ผู้ช่วย",
     "openAssistant": "เปิดผู้ช่วย AI",
     "closeAssistant": "ปิดผู้ช่วย AI",
