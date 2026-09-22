@@ -53,14 +53,7 @@ async function submit() {
           </label>
           <label class="block">
             <span class="mb-1.5 block text-xs font-medium text-zinc-600 dark:text-zinc-400">{{ t('auth.password') }}</span>
-            <input
-              v-model="password"
-              type="password"
-              autocomplete="current-password"
-              required
-              minlength="6"
-              class="w-full rounded-md border border-divider bg-white px-3 py-2 text-sm focus:border-accent-500 focus:outline-none dark:border-divider-dark dark:bg-white/[0.04] dark:text-white"
-            >
+            <PasswordInput v-model="password" autocomplete="current-password" />
           </label>
 
           <p

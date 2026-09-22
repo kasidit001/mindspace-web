@@ -33,6 +33,8 @@
     "continueWithApple": "Continue with Apple",
     "socialComingSoon": "{provider} sign-in isn't connected yet — use email for now.",
     "slowServer": "Waking up the server — the first request can take up to a minute.",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
     "error": {
       "invalid_credentials": "Incorrect email or password.",
       "email_taken": "An account with this email already exists — try logging in instead.",

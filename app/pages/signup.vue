@@ -70,28 +70,11 @@ async function submit() {
           </label>
           <label class="block">
             <span class="mb-1.5 block text-xs font-medium text-zinc-600 dark:text-zinc-400">{{ t('auth.password') }}</span>
-            <input
-              v-model="password"
-              type="password"
-              autocomplete="new-password"
-              required
-              minlength="6"
-              class="w-full rounded-md border border-divider bg-white px-3 py-2 text-sm focus:border-accent-500 focus:outline-none dark:border-divider-dark dark:bg-white/[0.04] dark:text-white"
-            >
+            <PasswordInput v-model="password" autocomplete="new-password" />
           </label>
           <label class="block">
             <span class="mb-1.5 block text-xs font-medium text-zinc-600 dark:text-zinc-400">{{ t('auth.confirmPassword') }}</span>
-            <input
-              v-model="confirmPassword"
-              type="password"
-              autocomplete="new-password"
-              required
-              minlength="6"
-              class="w-full rounded-md border px-3 py-2 text-sm focus:outline-none dark:bg-white/[0.04] dark:text-white"
-              :class="mismatch
-                ? 'border-critical-400 focus:border-critical-500 dark:border-critical-600'
-                : 'border-divider bg-white focus:border-accent-500 dark:border-divider-dark'"
-            >
+            <PasswordInput v-model="confirmPassword" autocomplete="new-password" :error="mismatch" />
             <span v-if="mismatch" class="mt-1 block text-xs text-critical-600 dark:text-critical-400">
               {{ t('auth.passwordMismatch') }}
             </span>
