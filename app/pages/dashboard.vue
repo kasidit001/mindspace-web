@@ -11,11 +11,12 @@
 // layout — left is the main focus ("Continue learning" plus a browsable,
 // invitational course grid), right is compact gamification widgets (streak,
 // points, overall progress) — no raw 4-box stat grid, no sortable table.
-import { ArrowRight, BookOpenCheck, Compass, FileText, Flame, GraduationCap, Medal, PartyPopper, Play, Rocket, Sparkles, Sprout, Terminal, Trophy, Zap } from '@lucide/vue'
+import { ArrowRight, BookOpenCheck, Compass, Flame, GraduationCap, Medal, PartyPopper, Rocket, Sparkles, Sprout, Trophy, Zap } from '@lucide/vue'
 import type { Course, LessonContentType } from '~/types/course'
 import { pickLocalized } from '~/utils/localizedLesson'
 import { getBadgeDefinition, getBadges, type BadgeMetric } from '~/utils/badges'
 import { getCourseTech, type TechId } from '~/utils/courseTech'
+import { CONTENT_TYPE_ICONS } from '~/utils/contentType'
 import type { RoadmapNode } from '~/components/LearningPathRoadmap.vue'
 
 definePageMeta({ layout: 'dashboard' })
@@ -151,16 +152,6 @@ const BADGE_ICONS: Record<string, typeof Sparkles> = {
   'dedicated-learner': Medal,
   'course-champion': Trophy,
   'week-streak': Zap
-}
-
-// Content Type Indicator: 'article' is the only value any lesson has today
-// (see types/course.ts) — the mapping covers the rest so the icon is already
-// correct once a video/lab reader experience ships and starts setting them.
-const CONTENT_TYPE_ICONS: Record<LessonContentType, typeof Play> = {
-  article: FileText,
-  video: Play,
-  advlab: Terminal,
-  ctf: Terminal
 }
 
 function continueLessonContentType(course: Course): LessonContentType {

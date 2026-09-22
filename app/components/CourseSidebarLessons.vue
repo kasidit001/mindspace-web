@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Check } from '@lucide/vue'
 import type { LessonSummary } from '~/types/course'
+import { CONTENT_TYPE_ICONS } from '~/utils/contentType'
 
 defineProps<{ lessons: LessonSummary[] }>()
 
@@ -37,11 +38,13 @@ onMounted(() => {
               : 'bg-divider dark:bg-divider-dark'"
           aria-hidden="true"
         />
-        <!-- Step-number marker: a squared, form-field-style box (outlined
-             when pending, filled once current/complete) reads closer to a
-             syllabus checklist than a chat chip. -->
+        <!-- Marker: what the lesson actually is (article/video/lab) rather
+             than its position — the list order already shows position, so a
+             plain sequence number here was redundant and, out of visual
+             order in a bug we hit, actively misleading. A checkmark takes
+             over once complete. -->
         <span
-          class="flex size-5 shrink-0 items-center justify-center rounded-md text-[10px] font-semibold tabular-nums"
+          class="flex size-5 shrink-0 items-center justify-center rounded-md"
           :class="mounted && progress.isCompleted(lesson.id)
             ? 'bg-success-500 text-white'
             : route.params.lessonId === lesson.id
@@ -49,7 +52,13 @@ onMounted(() => {
               : 'border border-divider text-zinc-400 dark:border-divider-dark dark:text-zinc-500'"
         >
           <Check v-if="mounted && progress.isCompleted(lesson.id)" :size="12" :stroke-width="2.25" :aria-label="t('sidebar.completed')" />
-          <template v-else>{{ lesson.order }}</template>
+          <component
+            :is="CONTENT_TYPE_ICONS[lesson.contentType]"
+            v-else
+            :size="11"
+            :stroke-width="2"
+            :aria-label="t(`dashboard.contentType.${lesson.contentType}`)"
+          />
         </span>
         <span class="flex-1 truncate">{{ pickLocalized(lesson.titleEn, lesson.titleTh, lang) }}</span>
       </NuxtLink>
