@@ -28,6 +28,16 @@ function markAsRead() {
   if (lesson.value) progress.markCompleted(lesson.value.id)
 }
 
+const hasLab = computed(() => !!(lesson.value?.labStarterCode && lesson.value?.labTestCode))
+const labPassed = ref(false)
+// A lesson with a lab can only be marked read once its tests pass; one
+// without a lab keeps the old self-reported behavior.
+const canMarkAsRead = computed(() => !hasLab.value || labPassed.value)
+
+watch(lessonId, () => {
+  labPassed.value = false
+})
+
 const siblingLessons = computed(() => {
   const course = courses.value?.find((c) => c.id === lesson.value?.courseId)
   if (!course) return []
@@ -113,14 +123,26 @@ watch(lessonId, () => {
           <MDC :value="lessonContent" tag="div" />
         </div>
 
+        <!-- Pilot Code Lab: a real exercise to solve, not just prose to
+             skim. Its tests must pass before "Mark as Read" unlocks below. -->
+        <CodeLab
+          v-if="hasLab"
+          class="mt-6"
+          :starter-code="lesson.labStarterCode!"
+          :test-code="lesson.labTestCode!"
+          @passed="labPassed = true"
+        />
+
         <!-- Explicit completion — the only way a lesson gets marked done,
              so "completed" actually reflects the learner's own judgment
-             rather than the page merely having loaded. -->
+             (and, for lessons with a lab, actually solving it) rather than
+             the page merely having loaded. -->
         <div class="mt-8 border-t border-divider pt-6 text-center dark:border-divider-dark">
           <button
             v-if="!(mounted && progress.isCompleted(lesson.id))"
             type="button"
-            class="btn-primary inline-flex items-center gap-2 rounded-md px-5 py-2.5 text-sm font-semibold"
+            class="btn-primary inline-flex items-center gap-2 rounded-md px-5 py-2.5 text-sm font-semibold disabled:opacity-40"
+            :disabled="!canMarkAsRead"
             @click="markAsRead"
           >
             <Check :size="16" :stroke-width="2" />
@@ -129,6 +151,9 @@ watch(lessonId, () => {
           <p v-else class="inline-flex items-center gap-2 text-sm font-medium text-success-700 dark:text-success-400">
             <Check :size="16" :stroke-width="2" />
             {{ t('lesson.markedAsRead') }}
+          </p>
+          <p v-if="hasLab && !canMarkAsRead" class="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+            {{ t('lab.gateNotice') }}
           </p>
         </div>
 

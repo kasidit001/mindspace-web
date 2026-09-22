@@ -37,6 +37,10 @@ export interface LessonDetail {
   contentEn: string
   contentTh: string | null
   order: number
+  /** Pilot "Code Lab" exercise (see ~/components/CodeLab.vue) — null on
+   *  the overwhelming majority of lessons that don't have one yet. */
+  labStarterCode: string | null
+  labTestCode: string | null
   course: {
     id: string
     title: string

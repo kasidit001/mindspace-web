@@ -171,6 +171,19 @@
     "loadError": "Couldn't load this lesson",
     "loadErrorBody": "It may not exist, or mindspace-api isn't running on port 8080."
   },
+  "lab": {
+    "title": "Code Lab",
+    "instructions": "Complete the code below, then run the tests. All of them need to pass before you can mark this lesson as read.",
+    "runTests": "Run Tests",
+    "running": "Running…",
+    "allPassed": "All tests passed — you can mark this lesson as read now.",
+    "somePassed": "{passed}/{total} tests passed",
+    "expected": "Expected",
+    "actual": "Actual",
+    "errorTitle": "Your code didn't run",
+    "timeout": "Your code took too long to run — check for an infinite loop.",
+    "gateNotice": "This lesson has a Code Lab — pass all its tests to unlock \"Mark as Read\"."
+  },
   "error": {
     "errorCode": "Error {code}",
     "notFoundTitle": "This page doesn't exist",
