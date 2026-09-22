@@ -1,6 +1,6 @@
 import type { Course } from '~/types/course'
 
-export type TechId = 'ts' | 'js' | 'python' | 'node' | 'go' | 'docker' | 'react' | 'vue' | 'claude'
+export type TechId = 'ts' | 'js' | 'python' | 'node' | 'go' | 'docker' | 'react' | 'vue' | 'nuxt' | 'claude'
 
 // Full names for tooltips/aria-labels. The logos themselves live in
 // ~/utils/techLogos (official artwork, not a hand-drawn approximation).
@@ -13,9 +13,12 @@ export const TECH_LABELS: Record<TechId, string> = {
   docker: 'Docker',
   react: 'React',
   vue: 'Vue',
+  nuxt: 'Nuxt',
   claude: 'Claude'
 }
 
+// Order matters: 'nuxt' is checked before the plain 'vue' pattern so a Nuxt
+// course gets its own logo/category instead of falling into 'vue'.
 const TECH_HINTS: Array<{ id: TechId; pattern: RegExp }> = [
   { id: 'ts', pattern: /\btypescript\b/i },
   { id: 'js', pattern: /\bjavascript\b/i },
@@ -23,7 +26,8 @@ const TECH_HINTS: Array<{ id: TechId; pattern: RegExp }> = [
   { id: 'go', pattern: /\bgo(lang)?\b/i },
   { id: 'docker', pattern: /\bdocker\b/i },
   { id: 'react', pattern: /\breact\b/i },
-  { id: 'vue', pattern: /\b(vue|nuxt)\b/i },
+  { id: 'nuxt', pattern: /\bnuxt\b/i },
+  { id: 'vue', pattern: /\bvue\b/i },
   { id: 'node', pattern: /\bnode(\.js)?\b/i },
   { id: 'claude', pattern: /\b(claude|agent skills?|ai agents?)\b/i }
 ]
@@ -50,6 +54,7 @@ export type CourseCategory = 'frontend' | 'backend' | 'devops' | 'languages' | '
 const TECH_CATEGORY: Record<TechId, CourseCategory> = {
   react: 'frontend',
   vue: 'frontend',
+  nuxt: 'frontend',
   node: 'backend',
   go: 'backend',
   docker: 'devops',
