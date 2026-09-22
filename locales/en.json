@@ -167,6 +167,8 @@
   },
   "lesson": {
     "minRead": "{count} min read",
+    "markAsRead": "Mark as Read",
+    "markedAsRead": "Marked as read",
     "previous": "Previous",
     "next": "Next",
     "loadError": "Couldn't load this lesson",

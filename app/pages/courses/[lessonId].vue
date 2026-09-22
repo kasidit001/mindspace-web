@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowLeft, ArrowRight, BookOpen, Unplug } from '@lucide/vue'
+import { ArrowLeft, ArrowRight, BookOpen, Check, Unplug } from '@lucide/vue'
 
 definePageMeta({ layout: 'course' })
 
@@ -21,13 +21,12 @@ const lessonContent = computed(() =>
   lesson.value ? pickLocalized(lesson.value.contentEn, lesson.value.contentTh, lang.value) : ''
 )
 
-watch(
-  lesson,
-  (l) => {
-    if (l) progress.markCompleted(l.id)
-  },
-  { immediate: true }
-)
+// Completion is an explicit action (the "Mark as Read" button below the
+// content) — it used to fire automatically the instant a lesson loaded,
+// which counted a lesson as done whether or not anyone actually read it.
+function markAsRead() {
+  if (lesson.value) progress.markCompleted(lesson.value.id)
+}
 
 const siblingLessons = computed(() => {
   const course = courses.value?.find((c) => c.id === lesson.value?.courseId)
@@ -54,6 +53,13 @@ const nextLesson = computed(() => {
 const readingMinutes = computed(() => {
   const words = lessonContent.value.trim().split(/\s+/).filter(Boolean).length
   return Math.max(1, Math.round(words / 200))
+})
+
+// Avoid a hydration mismatch: progress is localStorage-backed and only
+// known once mounted on the client.
+const mounted = ref(false)
+onMounted(() => {
+  mounted.value = true
 })
 
 const rootEl = ref<HTMLElement | null>(null)
@@ -105,6 +111,25 @@ watch(lessonId, () => {
         <!-- Markdown content, with syntax-highlighted TypeScript code blocks -->
         <div class="prose prose-zinc mt-6 max-w-none dark:prose-invert">
           <MDC :value="lessonContent" tag="div" />
+        </div>
+
+        <!-- Explicit completion — the only way a lesson gets marked done,
+             so "completed" actually reflects the learner's own judgment
+             rather than the page merely having loaded. -->
+        <div class="mt-8 border-t border-divider pt-6 text-center dark:border-divider-dark">
+          <button
+            v-if="!(mounted && progress.isCompleted(lesson.id))"
+            type="button"
+            class="btn-primary inline-flex items-center gap-2 rounded-md px-5 py-2.5 text-sm font-semibold"
+            @click="markAsRead"
+          >
+            <Check :size="16" :stroke-width="2" />
+            {{ t('lesson.markAsRead') }}
+          </button>
+          <p v-else class="inline-flex items-center gap-2 text-sm font-medium text-success-700 dark:text-success-400">
+            <Check :size="16" :stroke-width="2" />
+            {{ t('lesson.markedAsRead') }}
+          </p>
         </div>
 
         <!-- Previous / next lesson navigation -->
