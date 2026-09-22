@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { Check, CircleAlert, FlaskConical, Lightbulb, LoaderCircle, Play, X } from '@lucide/vue'
+import { Check, CircleAlert, FlaskConical, Lightbulb, LoaderCircle, Play, Send, Terminal, X } from '@lucide/vue'
 import type { LessonLab } from '~/types/course'
-import type { CodeLabResult } from '~/utils/runCodeLab'
+import type { CodeLabResult, CodePreviewResult } from '~/utils/runCodeLab'
 
 const props = defineProps<{ labs: LessonLab[] }>()
 const emit = defineEmits<{ passed: [] }>()
@@ -23,6 +23,15 @@ const resultByLab = reactive<Record<string, CodeLabResult | null>>(
 const runningByLab = reactive<Record<string, boolean>>(
   Object.fromEntries(props.labs.map((l) => [l.id, false]))
 )
+// "Run Code" (ungraded — just execute and show console output) is kept
+// separate from "Submit Answer" (graded, below) so trying code out doesn't
+// get conflated with an actual attempt.
+const previewByLab = reactive<Record<string, CodePreviewResult | null>>(
+  Object.fromEntries(props.labs.map((l) => [l.id, null]))
+)
+const previewRunningByLab = reactive<Record<string, boolean>>(
+  Object.fromEntries(props.labs.map((l) => [l.id, false]))
+)
 const passedLabIds = ref(new Set<string>())
 
 const activeCode = computed({
@@ -31,6 +40,8 @@ const activeCode = computed({
 })
 const activeResult = computed(() => resultByLab[activeLab.value.id] ?? null)
 const activeRunning = computed(() => runningByLab[activeLab.value.id] ?? false)
+const activePreview = computed(() => previewByLab[activeLab.value.id] ?? null)
+const activePreviewRunning = computed(() => previewRunningByLab[activeLab.value.id] ?? false)
 
 const passedCount = computed(() => activeResult.value?.checks.filter((c) => c.pass).length ?? 0)
 const totalCount = computed(() => activeResult.value?.checks.length ?? 0)
@@ -41,7 +52,18 @@ watch(allLabsPassed, (passed) => {
   if (passed) emit('passed')
 })
 
-async function runTests() {
+async function runPreview() {
+  const lab = activeLab.value
+  previewRunningByLab[lab.id] = true
+  previewByLab[lab.id] = null
+  try {
+    previewByLab[lab.id] = await runCodePreview(codeByLab[lab.id]!)
+  } finally {
+    previewRunningByLab[lab.id] = false
+  }
+}
+
+async function submitAnswer() {
   const lab = activeLab.value
   runningByLab[lab.id] = true
   resultByLab[lab.id] = null
@@ -158,15 +180,25 @@ function syncGutterScroll(event: Event) {
           />
         </div>
 
-        <div class="mt-3 flex items-center gap-3">
+        <div class="mt-3 flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            class="inline-flex items-center gap-1.5 rounded-md border border-divider px-4 py-2 text-sm font-semibold text-zinc-700 disabled:opacity-60 dark:border-divider-dark dark:text-zinc-200"
+            :disabled="activePreviewRunning"
+            @click="runPreview"
+          >
+            <component :is="activePreviewRunning ? LoaderCircle : Play" :size="14" :stroke-width="2" :class="activePreviewRunning && 'animate-spin'" />
+            {{ activePreviewRunning ? t('lab.running') : t('lab.runCode') }}
+          </button>
+
           <button
             type="button"
             class="btn-primary inline-flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-semibold disabled:opacity-60"
             :disabled="activeRunning"
-            @click="runTests"
+            @click="submitAnswer"
           >
-            <component :is="activeRunning ? LoaderCircle : Play" :size="14" :stroke-width="2" :class="activeRunning && 'animate-spin'" />
-            {{ activeRunning ? t('lab.running') : t('lab.runTests') }}
+            <component :is="activeRunning ? LoaderCircle : Send" :size="14" :stroke-width="2" :class="activeRunning && 'animate-spin'" />
+            {{ activeRunning ? t('lab.running') : t('lab.submitAnswer') }}
           </button>
 
           <p v-if="activeResult && !activeResult.ok && activeResult.timedOut" class="text-sm font-medium text-critical-600 dark:text-critical-400">
@@ -178,6 +210,24 @@ function syncGutterScroll(event: Event) {
           <p v-else-if="activeResult && activeResult.ok" class="text-sm font-medium text-zinc-600 dark:text-zinc-400">
             {{ t('lab.somePassed', { passed: passedCount, total: totalCount }) }}
           </p>
+        </div>
+
+        <!-- Console Output — the result of "Run Code": whatever the code
+             logged, or why it failed to run. Independent of Submit
+             Answer's pass/fail checks below. -->
+        <div v-if="activePreview" class="mt-3 rounded-md border border-divider dark:border-divider-dark">
+          <div class="flex items-center gap-1.5 border-b border-divider px-3 py-1.5 text-xs font-semibold text-zinc-500 dark:border-divider-dark dark:text-zinc-400">
+            <Terminal :size="12" :stroke-width="2" />
+            {{ t('lab.consoleOutput') }}
+          </div>
+          <div class="p-3 font-mono text-xs">
+            <p v-if="!activePreview.ok && activePreview.timedOut" class="text-critical-600 dark:text-critical-400">{{ t('lab.timeout') }}</p>
+            <p v-else-if="!activePreview.ok && activePreview.error" class="text-critical-600 dark:text-critical-400">{{ activePreview.error }}</p>
+            <template v-else-if="activePreview.logs.length">
+              <p v-for="(line, i) in activePreview.logs" :key="i" class="text-zinc-700 dark:text-zinc-300">{{ line }}</p>
+            </template>
+            <p v-else class="text-zinc-400 dark:text-zinc-500">{{ t('lab.noOutput') }}</p>
+          </div>
         </div>
 
         <div

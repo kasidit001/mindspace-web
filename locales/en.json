@@ -175,7 +175,8 @@
     "title": "Code Lab",
     "labProgress": "Lab {current} of {total}",
     "goToLab": "Go to lab {n}",
-    "runTests": "Run Tests",
+    "runCode": "Run Code",
+    "submitAnswer": "Submit Answer",
     "running": "Running…",
     "allPassed": "All tests passed — you can mark this lesson as read now.",
     "somePassed": "{passed}/{total} tests passed",
@@ -184,7 +185,9 @@
     "errorTitle": "Your code didn't run",
     "timeout": "Your code took too long to run — check for an infinite loop.",
     "gateNotice": "This lesson has a Code Lab — pass every lab's tests to unlock \"Mark as Read\".",
-    "viewHint": "View Hint (-{cost} pts)"
+    "viewHint": "View Hint (-{cost} pts)",
+    "consoleOutput": "Console Output",
+    "noOutput": "Code ran with no console output."
   },
   "error": {
     "errorCode": "Error {code}",
