@@ -173,7 +173,8 @@
   },
   "lab": {
     "title": "Code Lab",
-    "instructions": "Complete the code below, then run the tests. All of them need to pass before you can mark this lesson as read.",
+    "labProgress": "Lab {current} of {total}",
+    "goToLab": "Go to lab {n}",
     "runTests": "Run Tests",
     "running": "Running…",
     "allPassed": "All tests passed — you can mark this lesson as read now.",
@@ -182,7 +183,8 @@
     "actual": "Actual",
     "errorTitle": "Your code didn't run",
     "timeout": "Your code took too long to run — check for an infinite loop.",
-    "gateNotice": "This lesson has a Code Lab — pass all its tests to unlock \"Mark as Read\"."
+    "gateNotice": "This lesson has a Code Lab — pass every lab's tests to unlock \"Mark as Read\".",
+    "viewHint": "View Hint (-{cost} pts)"
   },
   "error": {
     "errorCode": "Error {code}",

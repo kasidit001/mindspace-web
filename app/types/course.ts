@@ -28,6 +28,18 @@ export interface Course {
   lessons: LessonSummary[]
 }
 
+/** One Code Lab exercise (see ~/components/CodeLab.vue). A lesson can carry
+ *  several — `instructions` renders in the left panel, `hint` (if set)
+ *  costs real points to reveal (see ~/stores/progress.ts). */
+export interface LessonLab {
+  id: string
+  title: string
+  instructions: string
+  starterCode: string
+  testCode: string
+  hint: string | null
+}
+
 export interface LessonDetail {
   id: string
   courseId: string
@@ -37,10 +49,9 @@ export interface LessonDetail {
   contentEn: string
   contentTh: string | null
   order: number
-  /** Pilot "Code Lab" exercise (see ~/components/CodeLab.vue) — null on
-   *  the overwhelming majority of lessons that don't have one yet. */
-  labStarterCode: string | null
-  labTestCode: string | null
+  /** Code Lab exercises (see ~/components/CodeLab.vue) — null/empty on
+   *  the overwhelming majority of lessons that don't have any yet. */
+  labs: LessonLab[] | null
   course: {
     id: string
     title: string

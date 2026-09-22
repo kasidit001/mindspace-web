@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 
 const STORAGE_KEY = 'mindspace:completed-lessons'
+const HINTS_STORAGE_KEY = 'mindspace:used-hints'
 const DAY_MS = 24 * 60 * 60 * 1000
 
 /**
@@ -15,10 +16,15 @@ const DAY_MS = 24 * 60 * 60 * 1000
  */
 export const useProgressStore = defineStore('progress', {
   state: () => ({
-    completed: {} as Record<string, string>
+    completed: {} as Record<string, string>,
+    /** Lab ids whose hint has been revealed — keyed by lab id (unique
+     * across lessons, see the `id` field on LessonLab), not by lesson. */
+    hintsUsed: {} as Record<string, true>
   }),
   getters: {
     isCompleted: (state) => (lessonId: string) => lessonId in state.completed,
+    hasUsedHint: (state) => (labId: string) => labId in state.hintsUsed,
+    hintsUsedCount: (state) => Object.keys(state.hintsUsed).length,
     /** Consecutive-day count ending today or yesterday, from real completion
      * timestamps only — entries with no known date (pre-migration) don't count. */
     streakDays: (state): number => {
@@ -53,16 +59,22 @@ export const useProgressStore = defineStore('progress', {
         const raw = localStorage.getItem(STORAGE_KEY)
         if (!raw) {
           this.completed = {}
-          return
+        } else {
+          const parsed = JSON.parse(raw)
+          // Migrate the old `string[]` shape (no timestamps) to the record
+          // shape, so existing progress isn't lost — just undated.
+          this.completed = Array.isArray(parsed)
+            ? Object.fromEntries(parsed.map((id: string) => [id, '']))
+            : parsed
         }
-        const parsed = JSON.parse(raw)
-        // Migrate the old `string[]` shape (no timestamps) to the record
-        // shape, so existing progress isn't lost — just undated.
-        this.completed = Array.isArray(parsed)
-          ? Object.fromEntries(parsed.map((id: string) => [id, '']))
-          : parsed
       } catch {
         this.completed = {}
+      }
+      try {
+        const raw = localStorage.getItem(HINTS_STORAGE_KEY)
+        this.hintsUsed = raw ? JSON.parse(raw) : {}
+      } catch {
+        this.hintsUsed = {}
       }
     },
     markCompleted(lessonId: string) {
@@ -70,10 +82,17 @@ export const useProgressStore = defineStore('progress', {
       this.completed = { ...this.completed, [lessonId]: new Date().toISOString() }
       this.persist()
     },
+    /** Idempotent — revealing an already-revealed hint doesn't cost twice. */
+    useHint(labId: string) {
+      if (labId in this.hintsUsed) return
+      this.hintsUsed = { ...this.hintsUsed, [labId]: true }
+      this.persist()
+    },
     persist() {
       if (!import.meta.client) return
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(this.completed))
+        localStorage.setItem(HINTS_STORAGE_KEY, JSON.stringify(this.hintsUsed))
       } catch {
         // localStorage unavailable (private mode, etc.) — progress just won't persist.
       }

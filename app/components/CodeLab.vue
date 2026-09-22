@@ -1,126 +1,223 @@
 <script setup lang="ts">
-import { Check, CircleAlert, FlaskConical, LoaderCircle, Play, X } from '@lucide/vue'
+import { Check, CircleAlert, FlaskConical, Lightbulb, LoaderCircle, Play, X } from '@lucide/vue'
+import type { LessonLab } from '~/types/course'
 import type { CodeLabResult } from '~/utils/runCodeLab'
 
-const props = defineProps<{ starterCode: string; testCode: string }>()
+const props = defineProps<{ labs: LessonLab[] }>()
 const emit = defineEmits<{ passed: [] }>()
 
 const { t } = useLanguage()
+const progress = useProgressStore()
 
-const code = ref(props.starterCode)
-const running = ref(false)
-const result = ref<CodeLabResult | null>(null)
+const activeIndex = ref(0)
+const activeLab = computed<LessonLab>(() => props.labs[activeIndex.value]!)
 
-const passedCount = computed(() => result.value?.checks.filter((c) => c.pass).length ?? 0)
-const totalCount = computed(() => result.value?.checks.length ?? 0)
-const allPassed = computed(() => result.value?.ok && totalCount.value > 0 && passedCount.value === totalCount.value)
+// Per-lab state, keyed by lab id, so switching the active lab (or coming
+// back to one already attempted) doesn't lose anything.
+const codeByLab = reactive<Record<string, string>>(
+  Object.fromEntries(props.labs.map((l) => [l.id, l.starterCode]))
+)
+const resultByLab = reactive<Record<string, CodeLabResult | null>>(
+  Object.fromEntries(props.labs.map((l) => [l.id, null]))
+)
+const runningByLab = reactive<Record<string, boolean>>(
+  Object.fromEntries(props.labs.map((l) => [l.id, false]))
+)
+const passedLabIds = ref(new Set<string>())
 
-watch(allPassed, (passed) => {
+const activeCode = computed({
+  get: () => codeByLab[activeLab.value.id]!,
+  set: (v: string) => { codeByLab[activeLab.value.id] = v }
+})
+const activeResult = computed(() => resultByLab[activeLab.value.id] ?? null)
+const activeRunning = computed(() => runningByLab[activeLab.value.id] ?? false)
+
+const passedCount = computed(() => activeResult.value?.checks.filter((c) => c.pass).length ?? 0)
+const totalCount = computed(() => activeResult.value?.checks.length ?? 0)
+const activeAllPassed = computed(() => activeResult.value?.ok && totalCount.value > 0 && passedCount.value === totalCount.value)
+
+const allLabsPassed = computed(() => props.labs.every((l) => passedLabIds.value.has(l.id)))
+watch(allLabsPassed, (passed) => {
   if (passed) emit('passed')
 })
 
 async function runTests() {
-  running.value = true
-  result.value = null
+  const lab = activeLab.value
+  runningByLab[lab.id] = true
+  resultByLab[lab.id] = null
   try {
-    result.value = await runCodeLab(code.value, props.testCode)
+    const result = await runCodeLab(codeByLab[lab.id]!, lab.testCode)
+    resultByLab[lab.id] = result
+    const total = result.checks.length
+    const pass = result.ok && total > 0 && result.checks.every((c) => c.pass)
+    if (pass) {
+      const next = new Set(passedLabIds.value)
+      next.add(lab.id)
+      passedLabIds.value = next
+    }
   } finally {
-    running.value = false
+    runningByLab[lab.id] = false
   }
 }
 
-// Tab inserts two spaces instead of moving focus out of the textarea —
-// without this, the editor is unusable for anything indentation-sensitive.
+function revealHint(lab: LessonLab) {
+  progress.useHint(lab.id)
+}
+
+// Tab inserts two spaces instead of moving focus out of the textarea.
 function onTab(event: KeyboardEvent) {
   event.preventDefault()
   const el = event.target as HTMLTextAreaElement
   const start = el.selectionStart
   const end = el.selectionEnd
-  code.value = code.value.slice(0, start) + '  ' + code.value.slice(end)
+  activeCode.value = activeCode.value.slice(0, start) + '  ' + activeCode.value.slice(end)
   nextTick(() => {
     el.selectionStart = el.selectionEnd = start + 2
   })
 }
+
+// Line-number gutter for the editor: a scroll-synced column, not a real
+// editor — no syntax highlighting, just enough to stop feeling like a bare
+// <textarea> for anything more than a couple of lines.
+const gutterEl = ref<HTMLElement | null>(null)
+const lineCount = computed(() => Math.max(1, activeCode.value.split('\n').length))
+function syncGutterScroll(event: Event) {
+  if (gutterEl.value) gutterEl.value.scrollTop = (event.target as HTMLTextAreaElement).scrollTop
+}
 </script>
 
 <template>
-  <div class="not-prose rounded-xl border border-divider dark:border-divider-dark">
-    <div class="flex items-center gap-2 border-b border-divider px-4 py-2.5 dark:border-divider-dark">
-      <FlaskConical :size="15" :stroke-width="1.9" class="text-ai-600 dark:text-ai-400" />
-      <span class="text-sm font-semibold">{{ t('lab.title') }}</span>
-    </div>
+  <div class="not-prose overflow-hidden rounded-xl border border-divider dark:border-divider-dark">
+    <div class="flex items-center justify-between gap-2 border-b border-divider px-4 py-2.5 dark:border-divider-dark">
+      <span class="flex items-center gap-2 text-sm font-semibold">
+        <FlaskConical :size="15" :stroke-width="1.9" class="text-ai-600 dark:text-ai-400" />
+        {{ t('lab.title') }}
+      </span>
 
-    <p class="px-4 pt-3 text-sm text-zinc-600 dark:text-zinc-400">{{ t('lab.instructions') }}</p>
-
-    <textarea
-      v-model="code"
-      spellcheck="false"
-      autocapitalize="off"
-      autocorrect="off"
-      class="m-4 h-48 w-[calc(100%-2rem)] resize-y rounded-lg bg-zinc-900 p-4 font-mono text-[13px] leading-6 text-zinc-100 outline-none focus:ring-2 focus:ring-accent-500/40"
-      @keydown.tab="onTab"
-    />
-
-    <div class="flex items-center gap-3 px-4 pb-4">
-      <button
-        type="button"
-        class="btn-primary inline-flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-semibold disabled:opacity-60"
-        :disabled="running"
-        @click="runTests"
-      >
-        <component :is="running ? LoaderCircle : Play" :size="14" :stroke-width="2" :class="running && 'animate-spin'" />
-        {{ running ? t('lab.running') : t('lab.runTests') }}
-      </button>
-
-      <p v-if="result && !result.ok && result.timedOut" class="text-sm font-medium text-critical-600 dark:text-critical-400">
-        {{ t('lab.timeout') }}
-      </p>
-      <p v-else-if="allPassed" class="text-sm font-medium text-success-700 dark:text-success-400">
-        {{ t('lab.allPassed') }}
-      </p>
-      <p v-else-if="result && result.ok" class="text-sm font-medium text-zinc-600 dark:text-zinc-400">
-        {{ t('lab.somePassed', { passed: passedCount, total: totalCount }) }}
-      </p>
-    </div>
-
-    <!-- Fatal error (bad syntax, an uncaught throw) — distinct from a normal
-         run with failing assertions. -->
-    <div
-      v-if="result && !result.ok && !result.timedOut && result.error"
-      class="mx-4 mb-4 flex items-start gap-2 rounded-md border border-critical-200 bg-critical-50 p-3 text-sm text-critical-700 dark:border-critical-900/50 dark:bg-critical-900/20 dark:text-critical-400"
-    >
-      <CircleAlert :size="15" :stroke-width="1.9" class="mt-0.5 shrink-0" />
-      <div>
-        <p class="font-medium">{{ t('lab.errorTitle') }}</p>
-        <p class="mt-0.5 font-mono text-xs">{{ result.error }}</p>
+      <!-- Progress dots — one per lab in this lesson, clickable, only shown
+           when there's more than one to navigate between. -->
+      <div v-if="labs.length > 1" class="flex items-center gap-1.5">
+        <button
+          v-for="(lab, i) in labs"
+          :key="lab.id"
+          type="button"
+          class="size-2.5 rounded-full transition-colors"
+          :class="[
+            passedLabIds.has(lab.id)
+              ? 'bg-success-500'
+              : i === activeIndex ? 'bg-accent-500' : 'bg-zinc-300 dark:bg-white/20'
+          ]"
+          :aria-label="t('lab.goToLab', { n: i + 1 })"
+          :aria-current="i === activeIndex"
+          @click="activeIndex = i"
+        />
+        <span class="ml-1 text-xs text-zinc-500 dark:text-zinc-400">{{ t('lab.labProgress', { current: activeIndex + 1, total: labs.length }) }}</span>
       </div>
     </div>
 
-    <ul v-if="result && result.checks.length" class="space-y-1.5 px-4 pb-4">
-      <li
-        v-for="(check, i) in result.checks"
-        :key="i"
-        class="flex items-start gap-2 rounded-md border px-3 py-2 text-sm"
-        :class="check.pass
-          ? 'border-success-400/30 bg-success-50 dark:border-success-400/20 dark:bg-success-400/10'
-          : 'border-critical-200 bg-critical-50 dark:border-critical-900/40 dark:bg-critical-900/10'"
-      >
-        <component
-          :is="check.pass ? Check : X"
-          :size="15"
-          :stroke-width="2.25"
-          class="mt-0.5 shrink-0"
-          :class="check.pass ? 'text-success-600 dark:text-success-400' : 'text-critical-600 dark:text-critical-400'"
-        />
-        <div class="min-w-0 flex-1">
-          <p :class="check.pass ? 'text-success-700 dark:text-success-400' : 'text-critical-800 dark:text-critical-300'">
-            {{ check.label }}
+    <!-- Two columns on larger screens: instructions/hint on the left,
+         editor + results on the right — stacked on mobile. -->
+    <div class="flex flex-col md:flex-row">
+      <div class="shrink-0 border-b border-divider p-4 dark:border-divider-dark md:w-64 md:border-b-0 md:border-r">
+        <h3 class="font-semibold">{{ activeLab.title }}</h3>
+        <p class="mt-1.5 text-sm text-zinc-600 dark:text-zinc-400">{{ activeLab.instructions }}</p>
+
+        <template v-if="activeLab.hint">
+          <p v-if="progress.hasUsedHint(activeLab.id)" class="mt-4 flex items-start gap-1.5 rounded-md bg-ai-50 p-2.5 text-xs text-ai-800 dark:bg-ai-400/10 dark:text-ai-300">
+            <Lightbulb :size="13" :stroke-width="1.9" class="mt-0.5 shrink-0" />
+            {{ activeLab.hint }}
           </p>
-          <p v-if="!check.pass" class="mt-0.5 font-mono text-xs text-zinc-500 dark:text-zinc-400">
-            {{ t('lab.expected') }}: {{ JSON.stringify(check.expected) }} · {{ t('lab.actual') }}: {{ JSON.stringify(check.actual) }}
+          <button
+            v-else
+            type="button"
+            class="mt-4 inline-flex items-center gap-1.5 rounded-md border border-divider px-2.5 py-1.5 text-xs font-medium text-zinc-600 hover:border-ai-400 hover:text-ai-700 dark:border-divider-dark dark:text-zinc-300 dark:hover:text-ai-400"
+            @click="revealHint(activeLab)"
+          >
+            <Lightbulb :size="13" :stroke-width="1.9" />
+            {{ t('lab.viewHint', { cost: HINT_POINT_COST }) }}
+          </button>
+        </template>
+      </div>
+
+      <div class="min-w-0 flex-1 p-4">
+        <div class="flex overflow-hidden rounded-lg bg-zinc-900">
+          <div
+            ref="gutterEl"
+            class="select-none overflow-hidden px-2.5 py-4 text-right font-mono text-[13px] leading-6 text-zinc-600"
+          >
+            <div v-for="n in lineCount" :key="n">{{ n }}</div>
+          </div>
+          <textarea
+            v-model="activeCode"
+            spellcheck="false"
+            autocapitalize="off"
+            autocorrect="off"
+            class="h-48 flex-1 resize-y bg-transparent py-4 pr-4 font-mono text-[13px] leading-6 text-zinc-100 outline-none"
+            @keydown.tab="onTab"
+            @scroll="syncGutterScroll"
+          />
+        </div>
+
+        <div class="mt-3 flex items-center gap-3">
+          <button
+            type="button"
+            class="btn-primary inline-flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-semibold disabled:opacity-60"
+            :disabled="activeRunning"
+            @click="runTests"
+          >
+            <component :is="activeRunning ? LoaderCircle : Play" :size="14" :stroke-width="2" :class="activeRunning && 'animate-spin'" />
+            {{ activeRunning ? t('lab.running') : t('lab.runTests') }}
+          </button>
+
+          <p v-if="activeResult && !activeResult.ok && activeResult.timedOut" class="text-sm font-medium text-critical-600 dark:text-critical-400">
+            {{ t('lab.timeout') }}
+          </p>
+          <p v-else-if="activeAllPassed" class="text-sm font-medium text-success-700 dark:text-success-400">
+            {{ t('lab.allPassed') }}
+          </p>
+          <p v-else-if="activeResult && activeResult.ok" class="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+            {{ t('lab.somePassed', { passed: passedCount, total: totalCount }) }}
           </p>
         </div>
-      </li>
-    </ul>
+
+        <div
+          v-if="activeResult && !activeResult.ok && !activeResult.timedOut && activeResult.error"
+          class="mt-3 flex items-start gap-2 rounded-md border border-critical-200 bg-critical-50 p-3 text-sm text-critical-700 dark:border-critical-900/50 dark:bg-critical-900/20 dark:text-critical-400"
+        >
+          <CircleAlert :size="15" :stroke-width="1.9" class="mt-0.5 shrink-0" />
+          <div>
+            <p class="font-medium">{{ t('lab.errorTitle') }}</p>
+            <p class="mt-0.5 font-mono text-xs">{{ activeResult.error }}</p>
+          </div>
+        </div>
+
+        <ul v-if="activeResult && activeResult.checks.length" class="mt-3 space-y-1.5">
+          <li
+            v-for="(check, i) in activeResult.checks"
+            :key="i"
+            class="flex items-start gap-2 rounded-md border px-3 py-2 text-sm"
+            :class="check.pass
+              ? 'border-success-400/30 bg-success-50 dark:border-success-400/20 dark:bg-success-400/10'
+              : 'border-critical-200 bg-critical-50 dark:border-critical-900/40 dark:bg-critical-900/10'"
+          >
+            <component
+              :is="check.pass ? Check : X"
+              :size="15"
+              :stroke-width="2.25"
+              class="mt-0.5 shrink-0"
+              :class="check.pass ? 'text-success-600 dark:text-success-400' : 'text-critical-600 dark:text-critical-400'"
+            />
+            <div class="min-w-0 flex-1">
+              <p :class="check.pass ? 'text-success-700 dark:text-success-400' : 'text-critical-800 dark:text-critical-300'">
+                {{ check.label }}
+              </p>
+              <p v-if="!check.pass" class="mt-0.5 font-mono text-xs text-zinc-500 dark:text-zinc-400">
+                {{ t('lab.expected') }}: {{ JSON.stringify(check.expected) }} · {{ t('lab.actual') }}: {{ JSON.stringify(check.actual) }}
+              </p>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
   </div>
 </template>

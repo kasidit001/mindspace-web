@@ -28,7 +28,7 @@ function markAsRead() {
   if (lesson.value) progress.markCompleted(lesson.value.id)
 }
 
-const hasLab = computed(() => !!(lesson.value?.labStarterCode && lesson.value?.labTestCode))
+const hasLab = computed(() => !!lesson.value?.labs?.length)
 const labPassed = ref(false)
 // A lesson with a lab can only be marked read once its tests pass; one
 // without a lab keeps the old self-reported behavior.
@@ -123,13 +123,13 @@ watch(lessonId, () => {
           <MDC :value="lessonContent" tag="div" />
         </div>
 
-        <!-- Pilot Code Lab: a real exercise to solve, not just prose to
-             skim. Its tests must pass before "Mark as Read" unlocks below. -->
+        <!-- Code Lab: a real exercise (or several) to solve, not just prose
+             to skim. Every lab's tests must pass before "Mark as Read"
+             unlocks below. -->
         <CodeLab
           v-if="hasLab"
           class="mt-6"
-          :starter-code="lesson.labStarterCode!"
-          :test-code="lesson.labTestCode!"
+          :labs="lesson.labs!"
           @passed="labPassed = true"
         />
 

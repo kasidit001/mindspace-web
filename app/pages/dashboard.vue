@@ -96,10 +96,14 @@ const coursesCompleted = computed(() => {
 
 // There's no backend "points"/XP concept (or multi-user leaderboard data) to
 // pull from — this is a disclosed, deterministic score derived from real
-// completed-lesson counts, not a fabricated number, so it can't drift from
-// what the learner actually did.
+// completed-lesson counts (minus real Code Lab hints revealed, see
+// HINT_POINT_COST in ~/stores/progress.ts), not a fabricated number, so it
+// can't drift from what the learner actually did.
 const POINTS_PER_LESSON = 10
-const totalPoints = computed(() => completedLessons.value * POINTS_PER_LESSON)
+const totalPoints = computed(() => {
+  if (!mounted.value) return 0
+  return Math.max(0, completedLessons.value * POINTS_PER_LESSON - progress.hintsUsedCount * HINT_POINT_COST)
+})
 
 // Mirrors mindspace-api's getDashboard.usecase.ts BADGE_CATALOG — see
 // app/utils/badges.ts for why this stays client-side/threshold-based rather
