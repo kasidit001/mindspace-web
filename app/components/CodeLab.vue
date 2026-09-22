@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Check, CircleAlert, FlaskConical, Lightbulb, LoaderCircle, Play, Send, Terminal, X } from '@lucide/vue'
+import { Check, ChevronLeft, ChevronRight, CircleAlert, FlaskConical, Lightbulb, LoaderCircle, Play, Send, Terminal, X } from '@lucide/vue'
 import type { LessonLab } from '~/types/course'
 import type { CodeLabResult, CodePreviewResult } from '~/utils/runCodeLab'
 
@@ -11,6 +11,11 @@ const progress = useProgressStore()
 
 const activeIndex = ref(0)
 const activeLab = computed<LessonLab>(() => props.labs[activeIndex.value]!)
+
+// Collapses the instructions column to give the editor the full width —
+// same rail-toggle pattern as the lesson sidebar (layouts/course.vue).
+// Desktop only; on mobile the columns are already stacked, not side by side.
+const instructionsCollapsed = ref(false)
 
 // Per-lab state, keyed by lab id, so switching the active lab (or coming
 // back to one already attempted) doesn't lose anything.
@@ -139,27 +144,45 @@ function syncGutterScroll(event: Event) {
 
     <!-- Two columns on larger screens: instructions/hint on the left,
          editor + results on the right — stacked on mobile. -->
-    <div class="flex flex-col md:flex-row">
-      <div class="shrink-0 border-b border-divider p-4 dark:border-divider-dark md:w-64 md:border-b-0 md:border-r">
-        <h3 class="font-semibold">{{ activeLab.title }}</h3>
-        <p class="mt-1.5 text-sm text-zinc-600 dark:text-zinc-400">{{ activeLab.instructions }}</p>
+    <div class="relative flex flex-col md:flex-row">
+      <div
+        class="overflow-hidden border-b border-divider dark:border-divider-dark md:border-b-0 md:border-r md:transition-[width] md:duration-200"
+        :class="instructionsCollapsed ? 'md:w-0 md:border-r-0' : 'shrink-0 p-4 md:w-64'"
+      >
+        <div :class="instructionsCollapsed ? 'md:hidden' : 'p-4 md:p-0'">
+          <h3 class="font-semibold">{{ activeLab.title }}</h3>
+          <p class="mt-1.5 text-sm text-zinc-600 dark:text-zinc-400">{{ activeLab.instructions }}</p>
 
-        <template v-if="activeLab.hint">
-          <p v-if="progress.hasUsedHint(activeLab.id)" class="mt-4 flex items-start gap-1.5 rounded-md bg-ai-50 p-2.5 text-xs text-ai-800 dark:bg-ai-400/10 dark:text-ai-300">
-            <Lightbulb :size="13" :stroke-width="1.9" class="mt-0.5 shrink-0" />
-            {{ activeLab.hint }}
-          </p>
-          <button
-            v-else
-            type="button"
-            class="mt-4 inline-flex items-center gap-1.5 rounded-md border border-divider px-2.5 py-1.5 text-xs font-medium text-zinc-600 hover:border-ai-400 hover:text-ai-700 dark:border-divider-dark dark:text-zinc-300 dark:hover:text-ai-400"
-            @click="revealHint(activeLab)"
-          >
-            <Lightbulb :size="13" :stroke-width="1.9" />
-            {{ t('lab.viewHint', { cost: HINT_POINT_COST }) }}
-          </button>
-        </template>
+          <template v-if="activeLab.hint">
+            <p v-if="progress.hasUsedHint(activeLab.id)" class="mt-4 flex items-start gap-1.5 rounded-md bg-ai-50 p-2.5 text-xs text-ai-800 dark:bg-ai-400/10 dark:text-ai-300">
+              <Lightbulb :size="13" :stroke-width="1.9" class="mt-0.5 shrink-0" />
+              {{ activeLab.hint }}
+            </p>
+            <button
+              v-else
+              type="button"
+              class="mt-4 inline-flex items-center gap-1.5 rounded-md border border-divider px-2.5 py-1.5 text-xs font-medium text-zinc-600 hover:border-ai-400 hover:text-ai-700 dark:border-divider-dark dark:text-zinc-300 dark:hover:text-ai-400"
+              @click="revealHint(activeLab)"
+            >
+              <Lightbulb :size="13" :stroke-width="1.9" />
+              {{ t('lab.viewHint', { cost: HINT_POINT_COST }) }}
+            </button>
+          </template>
+        </div>
       </div>
+
+      <!-- Floating rail toggle — collapses/expands the instructions column,
+           same interaction as the main lesson sidebar's. Desktop only: on
+           mobile the panel is already stacked above the editor, not beside it. -->
+      <button
+        type="button"
+        class="absolute top-3 z-10 hidden size-6 items-center justify-center rounded-full border border-divider bg-white text-zinc-400 shadow-sm transition-[left] duration-200 hover:border-accent-400 hover:text-accent-700 dark:border-divider-dark dark:bg-zinc-900 dark:text-zinc-500 dark:hover:border-accent-400/60 dark:hover:text-accent-400 md:flex"
+        :style="{ left: instructionsCollapsed ? '8px' : '244px' }"
+        :aria-label="instructionsCollapsed ? t('lab.showInstructions') : t('lab.hideInstructions')"
+        @click="instructionsCollapsed = !instructionsCollapsed"
+      >
+        <component :is="instructionsCollapsed ? ChevronRight : ChevronLeft" :size="13" :stroke-width="2.5" />
+      </button>
 
       <div class="min-w-0 flex-1 p-4">
         <div class="flex overflow-hidden rounded-lg bg-zinc-900">

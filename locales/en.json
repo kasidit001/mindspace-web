@@ -187,7 +187,9 @@
     "gateNotice": "This lesson has a Code Lab — pass every lab's tests to unlock \"Mark as Read\".",
     "viewHint": "View Hint (-{cost} pts)",
     "consoleOutput": "Console Output",
-    "noOutput": "Code ran with no console output."
+    "noOutput": "Code ran with no console output.",
+    "hideInstructions": "Hide instructions",
+    "showInstructions": "Show instructions"
   },
   "error": {
     "errorCode": "Error {code}",
