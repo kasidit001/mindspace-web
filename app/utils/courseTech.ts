@@ -1,6 +1,6 @@
 import type { Course } from '~/types/course'
 
-export type TechId = 'ts' | 'js' | 'python' | 'node' | 'go' | 'docker' | 'react' | 'vue'
+export type TechId = 'ts' | 'js' | 'python' | 'node' | 'go' | 'docker' | 'react' | 'vue' | 'claude'
 
 // Full names for tooltips/aria-labels. The logos themselves live in
 // ~/utils/techLogos (official artwork, not a hand-drawn approximation).
@@ -12,7 +12,8 @@ export const TECH_LABELS: Record<TechId, string> = {
   go: 'Go',
   docker: 'Docker',
   react: 'React',
-  vue: 'Vue'
+  vue: 'Vue',
+  claude: 'Claude'
 }
 
 const TECH_HINTS: Array<{ id: TechId; pattern: RegExp }> = [
@@ -23,7 +24,8 @@ const TECH_HINTS: Array<{ id: TechId; pattern: RegExp }> = [
   { id: 'docker', pattern: /\bdocker\b/i },
   { id: 'react', pattern: /\breact\b/i },
   { id: 'vue', pattern: /\b(vue|nuxt)\b/i },
-  { id: 'node', pattern: /\bnode(\.js)?\b/i }
+  { id: 'node', pattern: /\bnode(\.js)?\b/i },
+  { id: 'claude', pattern: /\b(claude|agent skills?|ai agents?)\b/i }
 ]
 
 /**
@@ -41,7 +43,7 @@ export function getCourseTech(course: Pick<Course, 'title' | 'descriptionEn'>): 
   return 'ts'
 }
 
-export type CourseCategory = 'frontend' | 'backend' | 'devops' | 'languages'
+export type CourseCategory = 'frontend' | 'backend' | 'devops' | 'languages' | 'ai'
 
 // Derived from the course's technology, so it shares getCourseTech's disclosed
 // keyword heuristic — there's no `category` field on the API yet.
@@ -53,7 +55,8 @@ const TECH_CATEGORY: Record<TechId, CourseCategory> = {
   docker: 'devops',
   ts: 'languages',
   js: 'languages',
-  python: 'languages'
+  python: 'languages',
+  claude: 'ai'
 }
 
 export function getCourseCategory(course: Pick<Course, 'title' | 'descriptionEn'>): CourseCategory {

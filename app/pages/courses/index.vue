@@ -58,7 +58,8 @@ const categoryLabelKey: Record<CourseCategory, string> = {
   frontend: 'courses.categoryFrontend',
   backend: 'courses.categoryBackend',
   devops: 'courses.categoryDevops',
-  languages: 'courses.categoryLanguages'
+  languages: 'courses.categoryLanguages',
+  ai: 'courses.categoryAi'
 }
 
 const query = ref('')
