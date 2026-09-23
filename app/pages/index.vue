@@ -236,6 +236,7 @@ const ecosystem = ['TypeScript', 'JavaScript', 'React', 'Node.js', 'Next.js', 'V
           </div>
 
           <div class="relative h-[17rem] overflow-visible rounded-2xl sm:h-[20rem]">
+            <HeroAmbientScene />
             <HeroGameMap :courses="courses ?? []" />
             <p class="pointer-events-none absolute -bottom-6 left-1/2 w-full -translate-x-1/2 text-center text-xs font-medium text-indigo-100/50">
               {{ t('landing.mapHint') }}
