@@ -36,13 +36,17 @@ export function useThreeStage(
   resizeObserver.observe(container)
 
   let rafId: number | null = null
-  function loop(tick: (dt: number) => void) {
+  /** `render`, if given, replaces the default `renderer.render(scene, camera)`
+   * call — e.g. an `EffectComposer#render()` for a scene that needs
+   * postprocessing (bloom, etc). Everything else about the loop is unchanged. */
+  function loop(tick: (dt: number) => void, render?: () => void) {
     let last = performance.now()
     const frame = (now: number) => {
       const dt = Math.min((now - last) / 1000, 0.1)
       last = now
       tick(dt)
-      renderer.render(scene, camera)
+      if (render) render()
+      else renderer.render(scene, camera)
       rafId = requestAnimationFrame(frame)
     }
     rafId = requestAnimationFrame(frame)
