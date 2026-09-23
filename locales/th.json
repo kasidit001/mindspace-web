@@ -2,7 +2,9 @@
   "common": {
     "brand": "Mindspace",
     "lesson": "บทเรียน",
-    "lessons": "บทเรียน"
+    "lessons": "บทเรียน",
+    "course": "คอร์ส",
+    "courses": "คอร์ส"
   },
   "auth": {
     "logIn": "เข้าสู่ระบบ",
@@ -18,26 +20,31 @@
     "signupSubtitle": "เริ่มเรียน TypeScript พร้อมติวเตอร์ AI ของคุณ",
     "noAccount": "ยังไม่มีบัญชี?",
     "haveAccount": "มีบัญชีอยู่แล้ว?",
-    "demoNotice": "โหมดทดลองใช้งาน — ยังไม่มีการสร้างบัญชีบนเซิร์ฟเวอร์ ระบบจะบันทึกชื่อของคุณไว้ในเบราว์เซอร์นี้เท่านั้น",
     "greeting": "สวัสดี, {name}",
     "notLoggedIn": "คุณยังไม่ได้เข้าสู่ระบบ",
     "notLoggedInBody": "กรุณาเข้าสู่ระบบหรือสมัครสมาชิกโดยไม่มีค่าใช้จ่าย เพื่อบันทึกความคืบหน้าของคุณในทุกการใช้งาน",
     "passwordMismatch": "รหัสผ่านไม่ตรงกัน",
     "roleAdmin": "ผู้ดูแลระบบ",
     "roleUser": "ผู้ใช้ทั่วไป",
-    "demoRoleToggle": "จำลองสิทธิ์ผู้ดูแลระบบ (สำหรับทดสอบ)",
     "orRegisterUsing": "หรือสมัครด้วย",
     "orLogInUsing": "หรือเข้าสู่ระบบด้วย",
     "continueWithGoogle": "ดำเนินการต่อด้วย Google",
     "continueWithFacebook": "ดำเนินการต่อด้วย Facebook",
     "continueWithApple": "ดำเนินการต่อด้วย Apple",
-    "socialComingSoon": "ยังไม่เปิดใช้งานการเข้าสู่ระบบด้วย {provider} — ใช้อีเมลไปก่อนนะครับ"
+    "socialComingSoon": "ยังไม่เปิดใช้งานการเข้าสู่ระบบด้วย {provider} — ใช้อีเมลไปก่อนนะครับ",
+    "slowServer": "กำลังปลุกเซิร์ฟเวอร์ — คำขอแรกอาจใช้เวลาถึง 1 นาที",
+    "showPassword": "แสดงรหัสผ่าน",
+    "hidePassword": "ซ่อนรหัสผ่าน",
+    "error": {
+      "invalid_credentials": "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
+      "email_taken": "มีบัญชีที่ใช้อีเมลนี้อยู่แล้ว — ลองเข้าสู่ระบบแทน",
+      "invalid_input": "กรุณาตรวจสอบข้อมูล — รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร",
+      "network": "เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง",
+      "unknown": "เกิดข้อผิดพลาดบางอย่าง กรุณาลองอีกครั้ง"
+    }
   },
   "nav": {
     "searchPlaceholder": "ค้นหาบทเรียน หรือถาม AI…",
-    "focus": "โฟกัส",
-    "exitFocusMode": "ออกจากโหมดโฟกัส",
-    "hideSidebar": "ซ่อนแถบด้านข้างเพื่อโฟกัสการอ่าน",
     "assistant": "ผู้ช่วย",
     "openAssistant": "เปิดผู้ช่วย AI",
     "closeAssistant": "ปิดผู้ช่วย AI",
@@ -52,6 +59,7 @@
   },
   "sidebar": {
     "coursesHeading": "คอร์สเรียน",
+    "backToCourses": "คอร์สเรียนทั้งหมด",
     "noCourses": "ยังไม่มีคอร์สเรียน",
     "reconnect": "เชื่อมต่อ API ใหม่",
     "reconnecting": "กำลังเชื่อมต่อใหม่…",
@@ -59,8 +67,7 @@
     "completed": "เรียนจบแล้ว"
   },
   "progress": {
-    "lessonsCompleted": "เรียนจบแล้ว {done}/{total} บทเรียน",
-    "resetProgress": "รีเซ็ตความคืบหน้า"
+    "lessonsCompleted": "เรียนจบแล้ว {done}/{total} บทเรียน"
   },
   "aiAssistant": {
     "title": "ผู้ช่วย AI",
@@ -133,14 +140,56 @@
     "subtitleSuffix": "เพื่อไปยังบทเรียนที่ต้องการทันที",
     "noCourses": "ยังไม่มีคอร์สเรียน",
     "cantReach": "ไม่สามารถเชื่อมต่อ mindspace-api ได้",
-    "loadError": "โหลดรายการคอร์สเรียนไม่สำเร็จ ตรวจสอบว่า mindspace-api กำลังทำงานที่พอร์ต 8080 แล้วลองใหม่อีกครั้ง"
+    "loadError": "โหลดรายการคอร์สเรียนไม่สำเร็จ ตรวจสอบว่า mindspace-api กำลังทำงานที่พอร์ต 8080 แล้วลองใหม่อีกครั้ง",
+    "searchPlaceholder": "ค้นหาคอร์สจากชื่อหรือหัวข้อ…",
+    "searchLabel": "ค้นหาคอร์ส",
+    "categoryLabel": "หมวดหมู่",
+    "levelLabel": "ระดับ",
+    "all": "ทั้งหมด",
+    "categoryFrontend": "Frontend",
+    "categoryBackend": "Backend",
+    "categoryDevops": "DevOps",
+    "categoryLanguages": "ภาษาโปรแกรม",
+    "categoryAi": "AI Agent",
+    "levelBeginner": "เริ่มต้น",
+    "levelIntermediate": "ปานกลาง",
+    "levelAdvanced": "ขั้นสูง",
+    "resultCount": "{count} จาก {total} คอร์ส",
+    "clearFilters": "ล้างตัวกรอง",
+    "noMatches": "ไม่พบคอร์สที่ตรงกับการค้นหา",
+    "noMatchesBody": "ลองเปลี่ยนคำค้นหา หรือล้างตัวกรอง",
+    "duration": "~{minutes} นาที",
+    "durationHours": "~{hours} ชม. {minutes} นาที",
+    "durationHoursOnly": "~{hours} ชม."
   },
   "lesson": {
     "minRead": "อ่าน {count} นาที",
+    "markAsRead": "ทำเครื่องหมายว่าอ่านแล้ว",
+    "markedAsRead": "ทำเครื่องหมายว่าอ่านแล้ว",
     "previous": "ก่อนหน้า",
     "next": "ถัดไป",
     "loadError": "โหลดบทเรียนนี้ไม่สำเร็จ",
     "loadErrorBody": "บทเรียนนี้อาจไม่มีอยู่ หรือ mindspace-api ไม่ได้ทำงานที่พอร์ต 8080"
+  },
+  "lab": {
+    "title": "Code Lab",
+    "labProgress": "โจทย์ {current} จาก {total}",
+    "goToLab": "ไปโจทย์ที่ {n}",
+    "runCode": "รันโค้ด",
+    "submitAnswer": "ส่งคำตอบ",
+    "running": "กำลังรัน…",
+    "allPassed": "ผ่านครบทุกเทสต์แล้ว — ตอนนี้ทำเครื่องหมายว่าอ่านแล้วได้เลย",
+    "somePassed": "ผ่าน {passed}/{total} เทสต์",
+    "expected": "ค่าที่ควรได้",
+    "actual": "ค่าที่ได้จริง",
+    "errorTitle": "โค้ดของคุณรันไม่สำเร็จ",
+    "timeout": "โค้ดใช้เวลารันนานเกินไป — ลองเช็กว่ามี infinite loop หรือไม่",
+    "gateNotice": "บทเรียนนี้มี Code Lab — ต้องผ่านเทสต์ของทุกโจทย์ก่อนถึงจะปลดล็อก \"ทำเครื่องหมายว่าอ่านแล้ว\"",
+    "viewHint": "ดูคำใบ้ (-{cost} แต้ม)",
+    "consoleOutput": "ผลลัพธ์คอนโซล",
+    "noOutput": "โค้ดรันสำเร็จ แต่ไม่มีผลลัพธ์ออกทางคอนโซล",
+    "hideInstructions": "ซ่อนคำอธิบาย",
+    "showInstructions": "แสดงคำอธิบาย"
   },
   "error": {
     "errorCode": "ข้อผิดพลาด {code}",
@@ -164,10 +213,68 @@
   },
   "admin": {
     "title": "จัดการผู้ใช้",
-    "subtitle": "สำหรับผู้ใช้สิทธิ์ SYSTEM_ADMIN เท่านั้น หน้านี้เป็นตัวอย่างการแสดงผลล่วงหน้า และจะเชื่อมต่อกับตาราง User ของ API เมื่อพร้อมใช้งาน",
+    "subtitle": "สำหรับผู้ใช้สิทธิ์ SYSTEM_ADMIN เท่านั้น ตอนนี้ยังไม่มี API รายชื่อผู้ใช้ จึงแสดงเฉพาะบัญชีของคุณเอง",
     "colName": "ชื่อ",
     "colEmail": "อีเมล",
     "colRole": "สิทธิ์",
-    "pendingApiNotice": "ยังไม่ได้เชื่อมต่อกับ mindspace-api — แสดงเฉพาะเซสชันทดลองใช้งานในเครื่องของคุณ"
+    "pendingApiNotice": "mindspace-api ยังไม่มี endpoint รายชื่อผู้ใช้สำหรับผู้ดูแล — แสดงเฉพาะบัญชีของคุณเอง"
+  },
+  "myCourses": {
+    "title": "คอร์สของฉัน",
+    "subtitle": "ทุกคอร์สที่คุณเริ่มเรียนไว้ อยู่ที่นี่ที่เดียว",
+    "emptyTitle": "คุณยังไม่ได้เริ่มเรียนคอร์สใดเลย",
+    "emptyBody": "เมื่อคุณเริ่มบทเรียนแรก คอร์สนั้นจะปรากฏที่นี่ให้คุณกลับมาเรียนต่อได้ทุกเมื่อ"
+  },
+  "dashboard": {
+    "navDashboard": "หน้าแรก",
+    "navExplore": "สำรวจคอร์สเรียน",
+    "navMyCourses": "คอร์สของฉัน",
+    "title": "ยินดีต้อนรับกลับ, {name}",
+    "subtitle": "เรียนต่อจากที่ค้างไว้ หรือค้นหาสิ่งใหม่ที่น่าเรียนรู้",
+    "continueLearning": "เรียนต่อ",
+    "lessonPosition": "บทที่ {current} จาก {total}",
+    "contentType": {
+      "article": "บทความ",
+      "video": "วิดีโอ",
+      "advlab": "แล็บฝึกปฏิบัติ",
+      "ctf": "ความท้าทาย"
+    },
+    "pathHeading": "เส้นทางการเรียนของคุณ",
+    "pathSubtitle": "สิ่งที่ผ่านมาและก้าวต่อไปในคอร์ส {course}",
+    "pathCurrentCaption": "บทถัดไป",
+    "pathBadgeCaption": "ปลดล็อกได้เมื่อเรียนจบบทด้านบน",
+    "pathBadgeLabel": "เหรียญตรา",
+    "pathViewFull": "ดูแผนที่ทักษะแบบเต็ม",
+    "myActivity": "กิจกรรมของฉัน",
+    "dailyStreak": "เรียนต่อเนื่อง",
+    "totalPoints": "คะแนนสะสม",
+    "latestBadge": "เหรียญตรารางวัลล่าสุด",
+    "nextBadge": "เหรียญตรารางวัลถัดไป",
+    "noBadgeYet": "ยังไม่มีเหรียญตรารางวัล — เรียนจบบทแรกเพื่อรับเหรียญแรกของคุณ",
+    "allBadgesEarned": "คุณได้รับเหรียญตรารางวัลครบทุกอันแล้ว!",
+    "badgeHintCount": "เรียนอีก {count} {noun} เพื่อปลดล็อก",
+    "badgeHintStreak": "เรียนต่อเนื่อง {days} วันเพื่อปลดล็อก",
+    "yourProgress": "ความคืบหน้าของคุณ",
+    "statLessonsCompleted": "บทเรียนที่เรียนจบ",
+    "allCaughtUpTitle": "เรียนครบทุกบทแล้ว!",
+    "allCaughtUpBody": "คุณเรียนจบทุกบทในทุกคอร์สแล้ว เก่งมาก — รอติดตามเนื้อหาใหม่เร็ว ๆ นี้",
+    "emptyStateTitle": "พร้อมเริ่มเรียนหรือยัง?",
+    "emptyStateBody": "เลือกคอร์สด้านล่างแล้วเริ่มบทเรียนแรกได้เลย",
+    "browseCourses": "ดูคอร์สเรียนทั้งหมด",
+    "exploreHeading": "สำรวจเพิ่มเติม",
+    "exploreSubtitle": "คอร์สที่น่าเรียนต่อไป จากสิ่งที่คุณเริ่มเรียนไว้",
+    "continue": "เรียนต่อ",
+    "start": "เริ่มเรียน",
+    "review": "ทบทวน",
+    "loginPromptTitle": "เข้าสู่ระบบเพื่อเรียนต่อจากที่ค้างไว้",
+    "loginPromptBody": "ความคืบหน้าบทเรียนของคุณถูกเก็บไว้ในเบราว์เซอร์นี้ — เข้าสู่ระบบเพื่อผูกกับบัญชีของคุณและเรียนต่อจากที่ค้างไว้"
+  },
+  "badges": {
+    "first-lesson": { "title": "บทเรียนแรก", "description": "เรียนจบบทเรียนแรกของคุณ" },
+    "getting-started": { "title": "เริ่มต้นได้ดี", "description": "เรียนจบ 5 บทเรียน" },
+    "three-day-streak": { "title": "ต่อเนื่อง 3 วัน", "description": "เรียนต่อเนื่อง 3 วันติดต่อกัน" },
+    "dedicated-learner": { "title": "นักเรียนตัวยง", "description": "เรียนจบ 10 บทเรียน" },
+    "course-champion": { "title": "เจ้าแห่งคอร์ส", "description": "เรียนจบคอร์สเต็มรูปแบบ" },
+    "week-streak": { "title": "ต่อเนื่อง 1 สัปดาห์", "description": "เรียนต่อเนื่อง 7 วันติดต่อกัน" }
   }
 }

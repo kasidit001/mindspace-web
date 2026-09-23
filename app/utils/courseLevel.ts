@@ -2,7 +2,7 @@ import type { Course } from '~/types/course'
 
 export type CourseLevel = 'Beginner' | 'Intermediate' | 'Advanced'
 
-const BEGINNER_HINTS = ['intro', 'introduction', 'getting started', 'for js programmers', 'basics', 'essentials', 'fundamentals']
+const BEGINNER_HINTS = ['intro', 'introduction', 'getting started', 'for js programmers', 'basics', 'essentials', 'fundamentals', 'beginner']
 const ADVANCED_HINTS = ['advanced', 'tooling', 'internals', 'patterns', 'performance', 'architecture']
 
 /**

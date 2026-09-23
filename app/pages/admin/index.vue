@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ShieldAlert } from '@lucide/vue'
 
-// SYSTEM_ADMIN-only preview of the API's upcoming User table. Gated by the
-// `admin` middleware; not wired to mindspace-api yet (see useAuth) — once
-// the API exposes something like GET /api/admin/users, swap `rows` below
-// for a real fetch (useFetch/useAsyncData), keeping the same columns.
+// SYSTEM_ADMIN-only page. Gated by the `admin` middleware (a UI convenience,
+// not access control — see it). mindspace-api has no admin users endpoint
+// yet, so this only lists the signed-in admin's own account — once the API
+// exposes something like GET /api/admin/users (with a server-side role
+// check), swap `rows` below for a real fetch, keeping the same columns.
 definePageMeta({ layout: 'course', middleware: 'admin' })
 
 const { t } = useLanguage()

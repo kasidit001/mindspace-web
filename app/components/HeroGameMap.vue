@@ -1,16 +1,18 @@
 <script setup lang="ts">
-// Hand-illustrated isometric island (pure SVG, no WebGL) — matches the
-// reference's flat-illustration style (Riau/Tesso Nilo map): a single
-// landmass with a grass/dirt diamond-tile top, layered cliff sides only at
-// the coastline, scattered trees/rocks, and a small detached chunk. Every
-// course gets a pin; clicking one pins an info card above it, same
-// interaction as before. Pure SVG + CSS means this renders fine on the
+// Hand-illustrated isometric island (pure SVG, no WebGL) — a single
+// landmass with a grass/dirt diamond-tile top, terraced into a few
+// elevation levels (raised platforms get their own short cliff riser
+// wherever a neighboring tile is lower), layered coastal cliffs at the
+// true edge, tech-stack icon props instead of trees, scattered rocks, and
+// a small detached chunk. Every course gets a pin; clicking one pins an
+// info card above it. Pure SVG + CSS means this renders fine on the
 // server (no <ClientOnly> needed) and needs no per-frame JS loop — the
 // screen position of each element is a percentage of the SVG's own
 // viewBox, so it stays correct across any container size for free.
 import { MapPin } from '@lucide/vue'
 import type { Course } from '~/types/course'
 import type { CourseLevel } from '~/utils/courseLevel'
+import { TECH_LOGOS, techLogoPlate, type TechLogoId } from '~/utils/techLogos'
 
 const { t } = useLanguage()
 
@@ -29,13 +31,31 @@ const GRASS = ['#7cb342', '#8bc34a', '#6fa83b']
 const DIRT = ['#e0954f', '#d9814a', '#c97a3e']
 const CLIFF_EAST = ['#cfa876', '#8b5e34']
 const CLIFF_WEST = ['#b8925f', '#74491f']
-const TREE_GREENS = ['#2f7d4f', '#3fa066', '#256842']
+
+// Each prop is the technology's official logo (vendored — see
+// ~/utils/techLogos) on a small plaque. Sized generously past the typical
+// number of icon slots on the map (see `ICON_TILE_COUNT` below) so every
+// icon placed is actually unique instead of cycling back through a short list.
+const TECH_ICONS: Array<{ id: TechLogoId; label: string }> = [
+  { id: 'js', label: 'JavaScript' },
+  { id: 'ts', label: 'TypeScript' },
+  { id: 'python', label: 'Python' },
+  { id: 'node', label: 'Node.js' },
+  { id: 'go', label: 'Go' },
+  { id: 'docker', label: 'Docker' },
+  { id: 'nuxt', label: 'Nuxt' },
+  { id: 'vue', label: 'Vue' },
+  { id: 'react', label: 'React' }
+]
 
 const GRID_COLS = 9
 const GRID_ROWS = 7
 const HW = 42
 const HH = 21
 const CLIFF_BAND = [16, 20]
+// Height of one terrain step. Two steps above the base plane max — enough
+// for visible raised platforms without the island reading as a tower.
+const LEVEL_HEIGHT = 24
 
 function hash(x: number, y: number, salt: number): number {
   const v = Math.sin(x * 127.1 + y * 311.7 + salt * 74.7) * 43758.5453
@@ -43,23 +63,38 @@ function hash(x: number, y: number, salt: number): number {
 }
 
 interface Point { x: number; y: number }
-interface LandTile { col: number; row: number; depth: number; top: Point; right: Point; bottom: Point; left: Point }
+interface LandTile { col: number; row: number; depth: number; elevation: number; top: Point; right: Point; bottom: Point; left: Point }
 
 function project(col: number, row: number): Point {
   return { x: (col - row) * HW, y: (col + row) * HH }
 }
 
-function tileCorners(col: number, row: number): LandTile {
+/** Block-quantized (2x2) so elevation forms small plateaus, not per-tile
+ * noise — reads as deliberate raised platforms instead of static. */
+function tileElevation(col: number, row: number): number {
+  const h = hash(Math.floor(col / 2), Math.floor(row / 2), 20)
+  if (h < 0.55) return 0
+  if (h < 0.82) return 1
+  return 2
+}
+
+function tileCorners(col: number, row: number, elevation: number): LandTile {
   const c = project(col, row)
+  const y = c.y - elevation * LEVEL_HEIGHT
   return {
     col,
     row,
     depth: col + row,
-    top: { x: c.x, y: c.y - HH },
-    right: { x: c.x + HW, y: c.y },
-    bottom: { x: c.x, y: c.y + HH },
-    left: { x: c.x - HW, y: c.y }
+    elevation,
+    top: { x: c.x, y: y - HH },
+    right: { x: c.x + HW, y },
+    bottom: { x: c.x, y: y + HH },
+    left: { x: c.x - HW, y }
   }
+}
+
+function tileCenter(tile: LandTile): Point {
+  return { x: tile.top.x, y: tile.top.y + HH }
 }
 
 function pts(...points: Point[]): string {
@@ -82,7 +117,7 @@ function buildLandMask(): LandTile[] {
       const jitter = (hash(col, row, 1) - 0.5) * 0.3
       if (dist > 1 + jitter) continue
       if (dist > 0.82 && hash(col, row, 2) < 0.3) continue
-      tiles.push(tileCorners(col, row))
+      tiles.push(tileCorners(col, row, tileElevation(col, row)))
     }
   }
   return tiles
@@ -91,11 +126,37 @@ function buildLandMask(): LandTile[] {
 type DrawItem =
   | { kind: 'top'; depth: number; points: string; color: string }
   | { kind: 'cliff'; depth: number; points: string; color: string }
-  | { kind: 'tree'; depth: number; x: number; y: number; scale: number; color: string; type: 'pine' | 'round' }
+  | { kind: 'icon'; depth: number; x: number; y: number; scale: number; icon: (typeof TECH_ICONS)[number] }
   | { kind: 'rock'; depth: number; x: number; y: number; scale: number }
   | { kind: 'marker'; depth: number; x: number; y: number; color: string; index: number }
 
+/** Builds the tan+dark-brown strata for one cliff edge, from its two top
+ * corners down through `heights` (one polygon per band). Coastal edges
+ * pass [elevation*LEVEL_HEIGHT + CLIFF_BAND[0], CLIFF_BAND[1]] (a riser
+ * fused into the tan band, so taller platforms just get a taller — not
+ * differently-colored — coastline); internal steps between two tiles at
+ * different elevations pass a single tan-only band. */
+function buildCliffBands(aTop: Point, bTop: Point, heights: number[], colors: string[], depth: number): DrawItem[] {
+  const out: DrawItem[] = []
+  let y0a = aTop.y
+  let y0b = bTop.y
+  heights.forEach((h, i) => {
+    const y1a = y0a + h
+    const y1b = y0b + h
+    out.push({
+      kind: 'cliff',
+      depth,
+      points: pts({ x: aTop.x, y: y0a }, { x: bTop.x, y: y0b }, { x: bTop.x, y: y1b }, { x: aTop.x, y: y1a }),
+      color: colors[i]!
+    })
+    y0a = y1a
+    y0b = y1b
+  })
+  return out
+}
+
 const land = buildLandMask()
+const landByKey = new Map(land.map((t) => [`${t.col},${t.row}`, t]))
 const landKeys = new Set(land.map((t) => `${t.col},${t.row}`))
 const interior = land.filter((t) => {
   const cx = (GRID_COLS - 1) / 2
@@ -116,6 +177,25 @@ function pickMarkerTiles(total: number): LandTile[] {
 const markerTiles = pickMarkerTiles(props.courses.length)
 const markerTileKeys = new Set(markerTiles.map((t) => `${t.col},${t.row}`))
 
+function seededShuffle<T>(arr: T[], salt: number): T[] {
+  const out = [...arr]
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(hash(i, salt, 41) * (i + 1))
+    ;[out[i], out[j]] = [out[j]!, out[i]!]
+  }
+  return out
+}
+
+// One unique icon per slot, assigned once up front (not per-tile hash) —
+// picking independently per tile risked duplicates whenever two tiles'
+// hashes landed near the same TECH_ICONS index. Shuffle the eligible
+// tiles, then hand out icons 1:1 from the start of TECH_ICONS so no icon
+// repeats unless there are literally more icon slots than icons defined.
+const ICON_TILE_COUNT = Math.min(TECH_ICONS.length, 8)
+const decorableTiles = land.filter((t) => !markerTileKeys.has(`${t.col},${t.row}`))
+const iconTiles = seededShuffle(decorableTiles, 11).slice(0, ICON_TILE_COUNT)
+const iconAssignment = new Map(iconTiles.map((t, i) => [`${t.col},${t.row}`, TECH_ICONS[i]!]))
+
 function firstLessonId(course: Course): string | null {
   return [...course.lessons].sort((a, b) => a.order - b.order)[0]?.id ?? null
 }
@@ -123,6 +203,15 @@ function firstLessonId(course: Course): string | null {
 function goToCourse(course: Course) {
   const lessonId = firstLessonId(course)
   navigateTo(lessonId ? `/courses/${lessonId}` : '/courses')
+}
+
+// Tech icons link to the course browser, not a deep link per technology —
+// every course this platform actually has today is TypeScript content
+// (see the roadmap note in mindspace-web's history), so a Python/Go/Docker
+// icon has no matching course page to send someone to yet. Sending it
+// somewhere real (course list) beats a fabricated per-tech URL that 404s.
+function goToCourses() {
+  navigateTo('/courses')
 }
 
 const items = computed<DrawItem[]>(() => {
@@ -134,60 +223,59 @@ const items = computed<DrawItem[]>(() => {
     const color = palette[Math.floor(hash(tile.col, tile.row, 4) * palette.length)]!
     list.push({ kind: 'top', depth: tile.depth, points: pts(tile.top, tile.right, tile.bottom, tile.left), color })
 
-    const hasEast = landKeys.has(`${tile.col + 1},${tile.row}`)
-    const hasWest = landKeys.has(`${tile.col},${tile.row + 1}`)
-    if (!hasEast) {
-      let y0 = tile.right.y
-      let y0b = tile.bottom.y
-      CLIFF_BAND.forEach((band, i) => {
-        const y1 = y0 + band
-        const y1b = y0b + band
-        list.push({
-          kind: 'cliff',
-          depth: tile.depth - 0.1,
-          points: pts({ x: tile.right.x, y: y0 }, { x: tile.bottom.x, y: y0b }, { x: tile.bottom.x, y: y1b }, { x: tile.right.x, y: y1 }),
-          color: CLIFF_EAST[i]!
-        })
-        y0 = y1
-        y0b = y1b
-      })
+    const east = landByKey.get(`${tile.col + 1},${tile.row}`)
+    const west = landByKey.get(`${tile.col},${tile.row + 1}`)
+
+    if (!east) {
+      list.push(...buildCliffBands(
+        tile.right, tile.bottom,
+        [tile.elevation * LEVEL_HEIGHT + CLIFF_BAND[0]!, CLIFF_BAND[1]!],
+        CLIFF_EAST,
+        tile.depth - 0.1
+      ))
+    } else if (east.elevation < tile.elevation) {
+      list.push(...buildCliffBands(
+        tile.right, tile.bottom,
+        [(tile.elevation - east.elevation) * LEVEL_HEIGHT],
+        [CLIFF_EAST[0]!],
+        tile.depth - 0.1
+      ))
     }
-    if (!hasWest) {
-      let y0 = tile.bottom.y
-      let y0l = tile.left.y
-      CLIFF_BAND.forEach((band, i) => {
-        const y1 = y0 + band
-        const y1l = y0l + band
-        list.push({
-          kind: 'cliff',
-          depth: tile.depth - 0.1,
-          points: pts({ x: tile.bottom.x, y: y0 }, { x: tile.left.x, y: y0l }, { x: tile.left.x, y: y1l }, { x: tile.bottom.x, y: y1 }),
-          color: CLIFF_WEST[i]!
-        })
-        y0 = y1
-        y0l = y1l
-      })
+    if (!west) {
+      list.push(...buildCliffBands(
+        tile.bottom, tile.left,
+        [tile.elevation * LEVEL_HEIGHT + CLIFF_BAND[0]!, CLIFF_BAND[1]!],
+        CLIFF_WEST,
+        tile.depth - 0.1
+      ))
+    } else if (west.elevation < tile.elevation) {
+      list.push(...buildCliffBands(
+        tile.bottom, tile.left,
+        [(tile.elevation - west.elevation) * LEVEL_HEIGHT],
+        [CLIFF_WEST[0]!],
+        tile.depth - 0.1
+      ))
     }
 
     const key = `${tile.col},${tile.row}`
     if (markerTileKeys.has(key)) return
-    const deco = hash(tile.col, tile.row, 5)
-    if (deco < 0.24) {
+    const center = tileCenter(tile)
+    const assignedIcon = iconAssignment.get(key)
+    if (assignedIcon) {
       list.push({
-        kind: 'tree',
+        kind: 'icon',
         depth: tile.depth + 0.3,
-        x: tile.top.x + (tile.bottom.x - tile.top.x) / 2,
-        y: tile.top.y + HH,
-        scale: 0.75 + hash(tile.col, tile.row, 6) * 0.55,
-        color: TREE_GREENS[Math.floor(hash(tile.col, tile.row, 7) * TREE_GREENS.length)]!,
-        type: hash(tile.col, tile.row, 8) < 0.65 ? 'pine' : 'round'
+        x: center.x,
+        y: center.y,
+        scale: 0.85 + hash(tile.col, tile.row, 6) * 0.35,
+        icon: assignedIcon
       })
-    } else if (deco > 0.92) {
+    } else if (hash(tile.col, tile.row, 5) > 0.92) {
       list.push({
         kind: 'rock',
         depth: tile.depth + 0.2,
-        x: project(tile.col, tile.row).x,
-        y: project(tile.col, tile.row).y,
+        x: center.x,
+        y: center.y,
         scale: 0.8 + hash(tile.col, tile.row, 9) * 0.5
       })
     }
@@ -196,11 +284,12 @@ const items = computed<DrawItem[]>(() => {
   markerTiles.forEach((tile, i) => {
     const course = props.courses[i]
     if (!course) return
+    const center = tileCenter(tile)
     list.push({
       kind: 'marker',
       depth: tile.depth + 0.5,
-      x: project(tile.col, tile.row).x,
-      y: project(tile.col, tile.row).y,
+      x: center.x,
+      y: center.y,
       color: LEVEL_COLOR[getCourseLevel(course)],
       index: i
     })
@@ -212,7 +301,7 @@ const items = computed<DrawItem[]>(() => {
 // Small detached chunk, separated from the main landmass — matches the
 // reference's broken-off rock piece near the bottom. Gets the same cliff
 // treatment as a boundary tile (all four sides are "coastline" here).
-const chunkTile = tileCorners(0, 0)
+const chunkTile = tileCorners(0, 0, 0)
 const chunkOffset = { x: GRID_COLS * 0.42 * (HW * 2), y: GRID_ROWS * 0.58 * (HH * 2) + 46 }
 const chunkTop = { x: chunkTile.top.x + chunkOffset.x, y: chunkTile.top.y + chunkOffset.y }
 const chunkRight = { x: chunkTile.right.x + chunkOffset.x, y: chunkTile.right.y + chunkOffset.y }
@@ -240,9 +329,10 @@ const bounds = computed(() => {
   const allX: number[] = []
   const allY: number[] = []
   land.forEach((t) => {
+    const drop = t.elevation * LEVEL_HEIGHT + CLIFF_BAND[0]! + CLIFF_BAND[1]!
     ;[t.top, t.right, t.bottom, t.left].forEach((p) => {
       allX.push(p.x)
-      allY.push(p.y + CLIFF_BAND[0]! + CLIFF_BAND[1]!)
+      allY.push(p.y + drop)
     })
   })
   allX.push(chunkOffset.x - HW, chunkOffset.x + HW)
@@ -259,7 +349,7 @@ const bounds = computed(() => {
 function markerScreenPercent(index: number) {
   const tile = markerTiles[index]
   if (!tile) return { left: '50%', top: '50%' }
-  const p = project(tile.col, tile.row)
+  const p = tileCenter(tile)
   const b = bounds.value
   return {
     left: `${((p.x - b.minX) / b.width) * 100}%`,
@@ -290,14 +380,14 @@ const selectedGlowPoints = computed<string | null>(() => {
 const selectedGlowCenter = computed<Point | null>(() => {
   if (selectedIndex.value === null) return null
   const tile = markerTiles[selectedIndex.value]
-  return tile ? project(tile.col, tile.row) : null
+  return tile ? tileCenter(tile) : null
 })
 
 // Soft background clouds, hand-placed (not hashed) for a considered
 // composition — a couple tucked behind the island, a couple drifting
 // past the edges. Positioned via cx/cy on the ellipses themselves so the
 // wrapping <g> has no `transform` attribute for the CSS drift animation
-// to conflict with (see the tree-sway comment in <style> for why that
+// to conflict with (see the icon-bob comment in <style> for why that
 // matters here).
 const CLOUDS = [
   { x: -210, y: -85, scale: 1.15, drift: '22s', opacity: 0.5 },
@@ -398,22 +488,44 @@ const CLOUDS = [
           />
         </template>
 
-        <g v-else-if="item.kind === 'tree'" :transform="`translate(${item.x}, ${item.y}) scale(${item.scale})`">
-          <ellipse cx="0" cy="1" rx="9" ry="3" fill="black" opacity="0.18" />
-          <g class="tree-sway">
-            <rect x="-2" y="-11" width="4" height="11" fill="#6b4a2b" rx="1" />
-            <template v-if="item.type === 'pine'">
-              <circle cx="-6" cy="-26" r="9" :fill="item.color" opacity="0.92" />
-              <circle cx="7" cy="-25" r="8" :fill="item.color" opacity="0.92" />
-              <circle cx="0" cy="-32" r="11" :fill="item.color" />
-              <circle cx="-3" cy="-35" r="4.5" fill="white" opacity="0.12" />
-            </template>
-            <template v-else>
-              <circle cx="-8" cy="-22" r="10" :fill="item.color" opacity="0.9" />
-              <circle cx="8" cy="-21" r="10.5" :fill="item.color" opacity="0.9" />
-              <circle cx="0" cy="-30" r="13" :fill="item.color" />
-              <circle cx="-4" cy="-34" r="5.5" fill="white" opacity="0.14" />
-            </template>
+        <g
+          v-else-if="item.kind === 'icon'"
+          :transform="`translate(${item.x}, ${item.y}) scale(${item.scale})`"
+          role="link"
+          tabindex="0"
+          :aria-label="`Browse ${item.icon.label} courses`"
+          style="cursor: pointer"
+          @click="goToCourses"
+          @keydown.enter="goToCourses"
+        >
+          <ellipse cx="0" cy="1" rx="13" ry="4.5" fill="black" opacity="0.2" />
+          <g class="icon-bob">
+            <rect x="-2.5" y="-13" width="5" height="13" fill="#5b6472" rx="1.2" />
+            <!-- Badge "sits" on a short post like the course pins — a
+                 3D-block plaque (drop shadow + border) rather than a flat
+                 sticker, so it reads as a prop standing on the tile. Sized
+                 well past the label's own footprint (41x31, vs. a ~16pt
+                 label) specifically for legibility at map scale — a
+                 previous, tighter size read as illegible noise. Whole
+                 group is clickable (role="link", not an <a> — SVG <a>
+                 forces a full page reload; a click handler calling
+                 navigateTo() gets the same SPA transition NuxtLink would
+                 give an HTML element). -->
+            <rect x="-20.5" y="-43" width="41" height="31" rx="7" fill="black" opacity="0.18" />
+            <rect x="-19.5" y="-44" width="41" height="31" rx="7" :fill="techLogoPlate(item.icon.id)" stroke="white" stroke-width="2" stroke-opacity="0.55" />
+            <!-- The official logo, fitted (preserveAspectRatio "meet") into a
+                 33x23 box centered on the plaque, so wide marks (Go) and tall
+                 ones (Node) both fit without distortion. Static vendored
+                 markup, so v-html is safe. -->
+            <svg
+              x="-15.5"
+              y="-40"
+              width="33"
+              height="23"
+              :viewBox="`0 0 ${TECH_LOGOS[item.icon.id].width} ${TECH_LOGOS[item.icon.id].height}`"
+              preserveAspectRatio="xMidYMid meet"
+              v-html="TECH_LOGOS[item.icon.id].body"
+            />
           </g>
         </g>
 
@@ -446,7 +558,7 @@ const CLOUDS = [
 
     <div
       v-if="selectedCourse"
-      class="pointer-events-none absolute z-10 w-60 -translate-x-1/2 -translate-y-[calc(100%+30px)] rounded-2xl bg-white p-4 text-left shadow-2xl shadow-black/30"
+      class="pointer-events-none absolute z-10 w-48 -translate-x-1/2 -translate-y-[calc(100%+26px)] rounded-xl bg-white p-3 text-left shadow-2xl shadow-black/30"
       :style="markerScreenPercent(selectedIndex!)"
     >
       <!-- The card itself ignores pointer events (only the button below
@@ -454,16 +566,16 @@ const CLOUDS = [
            on top of a neighboring pin, and without this a user couldn't
            click that pin to switch selection until closing this one first. -->
       <div class="absolute left-1/2 top-full h-3 w-3 -translate-x-1/2 -translate-y-1.5 rotate-45 bg-white" aria-hidden="true" />
-      <span class="flex size-9 items-center justify-center rounded-full bg-ai-50">
-        <MapPin :size="16" :stroke-width="2" class="text-ai-600" />
+      <span class="flex size-7 items-center justify-center rounded-full bg-ai-50">
+        <MapPin :size="14" :stroke-width="2" class="text-ai-600" />
       </span>
-      <p class="font-display mt-2.5 text-sm font-bold leading-snug text-zinc-900">{{ selectedCourse.title }}</p>
+      <p class="font-display mt-2 text-[13px] font-bold leading-snug text-zinc-900">{{ selectedCourse.title }}</p>
       <p class="mt-1 line-clamp-1 text-xs text-zinc-500">
         {{ selectedCourse.lessons.length }} {{ t(selectedCourse.lessons.length === 1 ? 'common.lesson' : 'common.lessons') }}
       </p>
       <button
         type="button"
-        class="pointer-events-auto mt-3 w-full rounded-lg bg-zinc-900 py-2 text-sm font-semibold text-white transition-colors hover:bg-zinc-800"
+        class="pointer-events-auto mt-2.5 w-full rounded-md bg-zinc-900 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-zinc-800"
         @click="goToCourse(selectedCourse)"
       >
         {{ t('landing.startCourse') }}
@@ -473,12 +585,15 @@ const CLOUDS = [
 </template>
 
 <style scoped>
-.tree-sway {
-  animation: tree-sway 3.5s ease-in-out infinite;
+/* Inner <g> only — the outer <g> carries the positioning
+   translate+scale, same split as .cloud-drift/.tile-glow-pulse, so this
+   transform animation can't collide with it. */
+.icon-bob {
+  animation: icon-bob 3.2s ease-in-out infinite;
 }
-@keyframes tree-sway {
-  0%, 100% { transform: rotate(0deg); }
-  50% { transform: rotate(1.5deg); }
+@keyframes icon-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-1.5px); }
 }
 
 /* Opacity-only pulse — no `transform` here on purpose: this polygon has no

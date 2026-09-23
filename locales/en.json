@@ -2,7 +2,9 @@
   "common": {
     "brand": "Mindspace",
     "lesson": "lesson",
-    "lessons": "lessons"
+    "lessons": "lessons",
+    "course": "course",
+    "courses": "courses"
   },
   "auth": {
     "logIn": "Log In",
@@ -18,26 +20,31 @@
     "signupSubtitle": "Start learning TypeScript with your AI tutor.",
     "noAccount": "Don't have an account?",
     "haveAccount": "Already have an account?",
-    "demoNotice": "Demo mode — no account is created on a server, this just remembers your name in this browser.",
     "greeting": "Hi, {name}",
     "notLoggedIn": "You're not signed in",
     "notLoggedInBody": "Log in or create a free account to save your progress across visits.",
     "passwordMismatch": "Passwords don't match",
     "roleAdmin": "Admin",
     "roleUser": "User",
-    "demoRoleToggle": "Simulate admin (demo)",
     "orRegisterUsing": "Or register using",
     "orLogInUsing": "Or log in using",
     "continueWithGoogle": "Continue with Google",
     "continueWithFacebook": "Continue with Facebook",
     "continueWithApple": "Continue with Apple",
-    "socialComingSoon": "{provider} sign-in isn't connected yet — use email for now."
+    "socialComingSoon": "{provider} sign-in isn't connected yet — use email for now.",
+    "slowServer": "Waking up the server — the first request can take up to a minute.",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "error": {
+      "invalid_credentials": "Incorrect email or password.",
+      "email_taken": "An account with this email already exists — try logging in instead.",
+      "invalid_input": "Please check your details — the password needs at least 6 characters.",
+      "network": "Couldn't reach the server. Check your connection and try again.",
+      "unknown": "Something went wrong. Please try again."
+    }
   },
   "nav": {
     "searchPlaceholder": "Search lessons, or ask the AI…",
-    "focus": "Focus",
-    "exitFocusMode": "Exit focus mode",
-    "hideSidebar": "Hide sidebar to focus on reading",
     "assistant": "Assistant",
     "openAssistant": "Open AI Assistant",
     "closeAssistant": "Close AI Assistant",
@@ -52,6 +59,7 @@
   },
   "sidebar": {
     "coursesHeading": "Courses",
+    "backToCourses": "All courses",
     "noCourses": "No courses yet.",
     "reconnect": "Reconnect API",
     "reconnecting": "Reconnecting…",
@@ -59,8 +67,7 @@
     "completed": "Completed"
   },
   "progress": {
-    "lessonsCompleted": "{done}/{total} lessons completed",
-    "resetProgress": "Reset progress"
+    "lessonsCompleted": "{done}/{total} lessons completed"
   },
   "aiAssistant": {
     "title": "AI Assistant",
@@ -133,14 +140,56 @@
     "subtitleSuffix": "to jump straight to a lesson.",
     "noCourses": "No courses yet.",
     "cantReach": "Can't reach mindspace-api",
-    "loadError": "The course list couldn't load. Make sure mindspace-api is running on port 8080, then try again."
+    "loadError": "The course list couldn't load. Make sure mindspace-api is running on port 8080, then try again.",
+    "searchPlaceholder": "Search courses by name or topic…",
+    "searchLabel": "Search courses",
+    "categoryLabel": "Category",
+    "levelLabel": "Level",
+    "all": "All",
+    "categoryFrontend": "Frontend",
+    "categoryBackend": "Backend",
+    "categoryDevops": "DevOps",
+    "categoryLanguages": "Languages",
+    "categoryAi": "AI Agents",
+    "levelBeginner": "Beginner",
+    "levelIntermediate": "Intermediate",
+    "levelAdvanced": "Advanced",
+    "resultCount": "{count} of {total} courses",
+    "clearFilters": "Clear filters",
+    "noMatches": "No courses match your search",
+    "noMatchesBody": "Try a different keyword, or clear the filters.",
+    "duration": "~{minutes} min",
+    "durationHours": "~{hours} h {minutes} min",
+    "durationHoursOnly": "~{hours} h"
   },
   "lesson": {
     "minRead": "{count} min read",
+    "markAsRead": "Mark as Read",
+    "markedAsRead": "Marked as read",
     "previous": "Previous",
     "next": "Next",
     "loadError": "Couldn't load this lesson",
     "loadErrorBody": "It may not exist, or mindspace-api isn't running on port 8080."
+  },
+  "lab": {
+    "title": "Code Lab",
+    "labProgress": "Lab {current} of {total}",
+    "goToLab": "Go to lab {n}",
+    "runCode": "Run Code",
+    "submitAnswer": "Submit Answer",
+    "running": "Running…",
+    "allPassed": "All tests passed — you can mark this lesson as read now.",
+    "somePassed": "{passed}/{total} tests passed",
+    "expected": "Expected",
+    "actual": "Actual",
+    "errorTitle": "Your code didn't run",
+    "timeout": "Your code took too long to run — check for an infinite loop.",
+    "gateNotice": "This lesson has a Code Lab — pass every lab's tests to unlock \"Mark as Read\".",
+    "viewHint": "View Hint (-{cost} pts)",
+    "consoleOutput": "Console Output",
+    "noOutput": "Code ran with no console output.",
+    "hideInstructions": "Hide instructions",
+    "showInstructions": "Show instructions"
   },
   "error": {
     "errorCode": "Error {code}",
@@ -164,10 +213,68 @@
   },
   "admin": {
     "title": "User management",
-    "subtitle": "SYSTEM_ADMIN only. Backed by the API's User table once it ships — this is a preview of the UI.",
+    "subtitle": "SYSTEM_ADMIN only. There's no admin users API yet, so for now this lists just your own account.",
     "colName": "Name",
     "colEmail": "Email",
     "colRole": "Role",
-    "pendingApiNotice": "Not wired to mindspace-api yet — showing your local demo session only."
+    "pendingApiNotice": "No admin users endpoint in mindspace-api yet — showing only your own account."
+  },
+  "myCourses": {
+    "title": "My Courses",
+    "subtitle": "Everything you've started, in one place.",
+    "emptyTitle": "You haven't started a course yet",
+    "emptyBody": "Once you begin a lesson, it'll show up here so you can pick it back up any time."
+  },
+  "dashboard": {
+    "navDashboard": "Home",
+    "navExplore": "Explore Courses",
+    "navMyCourses": "My Courses",
+    "title": "Welcome back, {name}",
+    "subtitle": "Pick up right where you left off, or find something new to explore.",
+    "continueLearning": "Continue learning",
+    "lessonPosition": "Lesson {current} of {total}",
+    "contentType": {
+      "article": "Article",
+      "video": "Video",
+      "advlab": "Interactive lab",
+      "ctf": "Challenge"
+    },
+    "pathHeading": "Your learning path",
+    "pathSubtitle": "Where you've been, and what's next in {course}.",
+    "pathCurrentCaption": "Up next",
+    "pathBadgeCaption": "Earn this by finishing the lesson above",
+    "pathBadgeLabel": "Badge",
+    "pathViewFull": "View full skill map",
+    "myActivity": "My Activity",
+    "dailyStreak": "Daily streak",
+    "totalPoints": "Total points",
+    "latestBadge": "Latest badge",
+    "nextBadge": "Next badge",
+    "noBadgeYet": "No badges yet — finish your first lesson to earn one.",
+    "allBadgesEarned": "You've earned every badge!",
+    "badgeHintCount": "Complete {count} more {noun} to unlock",
+    "badgeHintStreak": "Reach a {days}-day streak to unlock",
+    "yourProgress": "Your progress",
+    "statLessonsCompleted": "Lessons completed",
+    "allCaughtUpTitle": "You're all caught up!",
+    "allCaughtUpBody": "You've finished every lesson in every course. Nice work — check back for new content soon.",
+    "emptyStateTitle": "Ready to start learning?",
+    "emptyStateBody": "Pick a course below and take your first lesson.",
+    "browseCourses": "Browse all courses",
+    "exploreHeading": "Keep exploring",
+    "exploreSubtitle": "Courses worth trying next, based on what you've started.",
+    "continue": "Continue",
+    "start": "Start",
+    "review": "Review",
+    "loginPromptTitle": "Sign in to continue your learning",
+    "loginPromptBody": "Your lesson progress lives in this browser — log in to attach it to an account and pick up right where you left off."
+  },
+  "badges": {
+    "first-lesson": { "title": "First Lesson", "description": "Complete your first lesson" },
+    "getting-started": { "title": "Getting Started", "description": "Complete 5 lessons" },
+    "three-day-streak": { "title": "3-Day Streak", "description": "Study 3 days in a row" },
+    "dedicated-learner": { "title": "Dedicated Learner", "description": "Complete 10 lessons" },
+    "course-champion": { "title": "Course Champion", "description": "Finish a full course" },
+    "week-streak": { "title": "Week-Long Streak", "description": "Study 7 days in a row" }
   }
 }

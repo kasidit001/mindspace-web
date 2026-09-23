@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowLeft, ArrowRight, BookOpen, Unplug } from '@lucide/vue'
+import { ArrowLeft, ArrowRight, BookOpen, Check, Unplug } from '@lucide/vue'
 
 definePageMeta({ layout: 'course' })
 
@@ -9,7 +9,7 @@ const lessonId = computed(() => route.params.lessonId as string)
 const { data: lesson, status, error } = useLesson(lessonId)
 const { data: courses } = useCourses()
 const progress = useProgressStore()
-const focusMode = useFocusMode()
+const sidebarCollapsed = useSidebarCollapsed()
 const { t, lang } = useLanguage()
 
 // Thai is a partial translation layered on English — fall back whenever a
@@ -21,13 +21,22 @@ const lessonContent = computed(() =>
   lesson.value ? pickLocalized(lesson.value.contentEn, lesson.value.contentTh, lang.value) : ''
 )
 
-watch(
-  lesson,
-  (l) => {
-    if (l) progress.markCompleted(l.id)
-  },
-  { immediate: true }
-)
+// Completion is an explicit action (the "Mark as Read" button below the
+// content) — it used to fire automatically the instant a lesson loaded,
+// which counted a lesson as done whether or not anyone actually read it.
+function markAsRead() {
+  if (lesson.value) progress.markCompleted(lesson.value.id)
+}
+
+const hasLab = computed(() => !!lesson.value?.labs?.length)
+const labPassed = ref(false)
+// A lesson with a lab can only be marked read once its tests pass; one
+// without a lab keeps the old self-reported behavior.
+const canMarkAsRead = computed(() => !hasLab.value || labPassed.value)
+
+watch(lessonId, () => {
+  labPassed.value = false
+})
 
 const siblingLessons = computed(() => {
   const course = courses.value?.find((c) => c.id === lesson.value?.courseId)
@@ -56,6 +65,13 @@ const readingMinutes = computed(() => {
   return Math.max(1, Math.round(words / 200))
 })
 
+// Avoid a hydration mismatch: progress is localStorage-backed and only
+// known once mounted on the client.
+const mounted = ref(false)
+onMounted(() => {
+  mounted.value = true
+})
+
 const rootEl = ref<HTMLElement | null>(null)
 
 // Scroll the reading pane back to the top whenever navigating between lessons.
@@ -68,7 +84,7 @@ watch(lessonId, () => {
   <div
     ref="rootEl"
     class="mx-auto px-4 py-10 transition-[max-width] duration-200 sm:px-6"
-    :class="focusMode ? 'max-w-[960px]' : 'max-w-[820px]'"
+    :class="sidebarCollapsed ? 'max-w-[960px]' : 'max-w-[820px]'"
   >
     <!-- Reader card, floating over the workspace canvas -->
     <div class="card p-6 sm:p-10">
@@ -107,12 +123,46 @@ watch(lessonId, () => {
           <MDC :value="lessonContent" tag="div" />
         </div>
 
+        <!-- Code Lab: a real exercise (or several) to solve, not just prose
+             to skim. Every lab's tests must pass before "Mark as Read"
+             unlocks below. -->
+        <CodeLab
+          v-if="hasLab"
+          class="mt-6"
+          :labs="lesson.labs!"
+          @passed="labPassed = true"
+        />
+
+        <!-- Explicit completion — the only way a lesson gets marked done,
+             so "completed" actually reflects the learner's own judgment
+             (and, for lessons with a lab, actually solving it) rather than
+             the page merely having loaded. -->
+        <div class="mt-8 border-t border-divider pt-6 text-center dark:border-divider-dark">
+          <button
+            v-if="!(mounted && progress.isCompleted(lesson.id))"
+            type="button"
+            class="btn-primary inline-flex items-center gap-2 rounded-md px-5 py-2.5 text-sm font-semibold disabled:opacity-40"
+            :disabled="!canMarkAsRead"
+            @click="markAsRead"
+          >
+            <Check :size="16" :stroke-width="2" />
+            {{ t('lesson.markAsRead') }}
+          </button>
+          <p v-else class="inline-flex items-center gap-2 text-sm font-medium text-success-700 dark:text-success-400">
+            <Check :size="16" :stroke-width="2" />
+            {{ t('lesson.markedAsRead') }}
+          </p>
+          <p v-if="hasLab && !canMarkAsRead" class="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+            {{ t('lab.gateNotice') }}
+          </p>
+        </div>
+
         <!-- Previous / next lesson navigation -->
         <nav class="mt-10 flex items-stretch gap-4 border-t border-divider pt-6 dark:border-divider-dark">
           <NuxtLink
             v-if="previousLesson"
             :to="`/courses/${previousLesson.id}`"
-            class="group flex-1 rounded-md border border-divider p-3 text-left transition-colors hover:border-accent-600 dark:border-divider-dark dark:hover:border-accent-400"
+            class="group min-w-0 flex-1 rounded-md border border-divider p-3 text-left transition-colors hover:border-accent-600 dark:border-divider-dark dark:hover:border-accent-400"
           >
             <span class="flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400">
               <ArrowLeft :size="12" :stroke-width="1.75" />
@@ -127,7 +177,7 @@ watch(lessonId, () => {
           <NuxtLink
             v-if="nextLesson"
             :to="`/courses/${nextLesson.id}`"
-            class="group flex-1 rounded-md border border-divider p-3 text-right transition-colors hover:border-accent-600 dark:border-divider-dark dark:hover:border-accent-400"
+            class="group min-w-0 flex-1 rounded-md border border-divider p-3 text-right transition-colors hover:border-accent-600 dark:border-divider-dark dark:hover:border-accent-400"
           >
             <span class="flex items-center justify-end gap-1 text-xs text-zinc-500 dark:text-zinc-400">
               {{ t('lesson.next') }}
