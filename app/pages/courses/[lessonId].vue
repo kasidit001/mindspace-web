@@ -162,7 +162,7 @@ watch(lessonId, () => {
           <NuxtLink
             v-if="previousLesson"
             :to="`/courses/${previousLesson.id}`"
-            class="group flex-1 rounded-md border border-divider p-3 text-left transition-colors hover:border-accent-600 dark:border-divider-dark dark:hover:border-accent-400"
+            class="group min-w-0 flex-1 rounded-md border border-divider p-3 text-left transition-colors hover:border-accent-600 dark:border-divider-dark dark:hover:border-accent-400"
           >
             <span class="flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400">
               <ArrowLeft :size="12" :stroke-width="1.75" />
@@ -177,7 +177,7 @@ watch(lessonId, () => {
           <NuxtLink
             v-if="nextLesson"
             :to="`/courses/${nextLesson.id}`"
-            class="group flex-1 rounded-md border border-divider p-3 text-right transition-colors hover:border-accent-600 dark:border-divider-dark dark:hover:border-accent-400"
+            class="group min-w-0 flex-1 rounded-md border border-divider p-3 text-right transition-colors hover:border-accent-600 dark:border-divider-dark dark:hover:border-accent-400"
           >
             <span class="flex items-center justify-end gap-1 text-xs text-zinc-500 dark:text-zinc-400">
               {{ t('lesson.next') }}

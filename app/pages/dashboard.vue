@@ -350,10 +350,10 @@ const exploreCourses = computed(() => {
             <TechLogo
               :tech="getCourseTech(continueCourse)"
               :size="128"
-              class="pointer-events-none absolute -right-6 -top-6 rotate-[8deg] opacity-95"
+              class="pointer-events-none absolute -right-6 -top-6 origin-top-right scale-[0.6] rotate-[8deg] opacity-95 sm:scale-100"
             />
 
-            <div class="relative min-w-0">
+            <div class="relative min-w-0 pr-16 sm:pr-0">
               <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">{{ t('dashboard.continueLearning') }}</p>
               <h2 class="mt-2 truncate font-display text-xl font-bold tracking-tight sm:text-2xl">{{ continueCourse.title }}</h2>
               <p class="mt-1.5 flex items-center gap-1.5 text-sm text-zinc-400">

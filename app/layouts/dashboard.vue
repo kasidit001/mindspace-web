@@ -42,17 +42,17 @@ watch(() => route.fullPath, () => { profileOpen.value = false })
 <template>
   <div class="min-h-screen bg-canvas text-zinc-900 dark:bg-canvas-dark dark:text-zinc-100">
     <header class="sticky top-0 z-30 border-b border-divider bg-surface dark:border-divider-dark dark:bg-surface-dark">
-      <div class="mx-auto flex h-16 max-w-6xl items-center gap-1 px-6">
-        <NuxtLink to="/" class="mr-4 flex shrink-0 items-center">
-          <AppLogo />
+      <div class="mx-auto flex h-16 max-w-6xl items-center gap-1 px-3 sm:px-6">
+        <NuxtLink to="/" class="mr-2 flex shrink-0 items-center sm:mr-4">
+          <AppLogo size="sm" />
         </NuxtLink>
 
-        <nav class="flex items-center gap-1">
+        <nav class="flex items-center gap-0.5 sm:gap-1">
           <NuxtLink
             v-for="item in navItems"
             :key="item.to"
             :to="item.to"
-            class="flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-medium transition-colors"
+            class="flex items-center gap-1.5 rounded-full px-2 py-2 text-sm font-medium transition-colors sm:px-3.5"
             :class="isActive(item.to)
               ? 'bg-accent-50 text-accent-700 dark:bg-accent-400/10 dark:text-accent-400'
               : 'text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-white/[0.06] dark:hover:text-white'"
@@ -62,7 +62,7 @@ watch(() => route.fullPath, () => { profileOpen.value = false })
           </NuxtLink>
         </nav>
 
-        <div class="ml-auto flex shrink-0 items-center gap-3">
+        <div class="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
           <button
             type="button"
             class="shrink-0 rounded-lg border border-divider p-1.5 text-sm text-zinc-600 transition-colors hover:border-zinc-300 dark:border-divider-dark dark:text-zinc-300 dark:hover:border-white/20"

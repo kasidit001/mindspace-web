@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowRight, Bot, Check, Code2, Command, Moon, Rocket, Search, Sprout, Sun, Zap } from '@lucide/vue'
+import { ArrowRight, Bot, Check, Code2, Command, Menu, Moon, Rocket, Search, Sprout, Sun, X, Zap } from '@lucide/vue'
 
 // Landing page has no shared layout (no sidebar/chat chrome) — it's the
 // public entry point; /courses is where the actual app lives.
@@ -14,6 +14,10 @@ const { data: courses } = useCourses()
 const { t } = useLanguage()
 const { user, logout } = useAuth()
 const paletteOpen = useCommandPaletteOpen()
+// Nav links (Courses/Skill Map/Dashboard) and the Log In link are hidden
+// below md/sm on the desktop header row — this is the mobile stand-in so
+// they're still reachable on phones, not just via the hero CTA buttons.
+const mobileMenuOpen = ref(false)
 
 const levelIcon = {
   Beginner: Sprout,
@@ -69,6 +73,15 @@ const ecosystem = ['TypeScript', 'JavaScript', 'React', 'Node.js', 'Next.js', 'V
          to learn?" bar. -->
     <header class="sticky top-0 z-20 border-b border-divider bg-canvas/85 backdrop-blur-md dark:border-divider-dark dark:bg-canvas-dark/85">
       <div class="mx-auto flex max-w-6xl items-center gap-3 px-6 py-3.5 sm:gap-5">
+        <button
+          type="button"
+          class="shrink-0 rounded-md border border-divider p-1.5 text-zinc-600 transition-colors hover:border-zinc-300 dark:border-divider-dark dark:text-zinc-300 dark:hover:border-white/20 md:hidden"
+          :aria-label="mobileMenuOpen ? t('nav.closeSidebar') : t('nav.openSidebar')"
+          @click="mobileMenuOpen = !mobileMenuOpen"
+        >
+          <component :is="mobileMenuOpen ? X : Menu" :size="18" :stroke-width="1.75" />
+        </button>
+
         <AppLogo class="shrink-0" />
 
         <nav class="hidden shrink-0 items-center gap-5 text-sm font-medium text-zinc-600 dark:text-zinc-300 md:flex">
@@ -123,6 +136,47 @@ const ecosystem = ['TypeScript', 'JavaScript', 'React', 'Node.js', 'Next.js', 'V
               {{ t('auth.signUp') }}
             </NuxtLink>
           </template>
+        </div>
+      </div>
+
+      <!-- Mobile nav panel — the md:flex nav and sm:inline Log In link above
+           have no other way to reach a phone visitor, so this is their
+           stand-in below md. -->
+      <div v-if="mobileMenuOpen" class="border-t border-divider px-6 py-4 dark:border-divider-dark md:hidden">
+        <nav class="flex flex-col gap-1 text-sm font-medium text-zinc-600 dark:text-zinc-300">
+          <NuxtLink
+            v-if="user"
+            to="/dashboard"
+            class="rounded-md px-2.5 py-2 transition-colors hover:bg-zinc-100 dark:hover:bg-white/[0.06]"
+            @click="mobileMenuOpen = false"
+          >
+            {{ t('dashboard.navDashboard') }}
+          </NuxtLink>
+          <NuxtLink
+            to="/courses"
+            class="rounded-md px-2.5 py-2 transition-colors hover:bg-zinc-100 dark:hover:bg-white/[0.06]"
+            @click="mobileMenuOpen = false"
+          >
+            {{ t('nav.courses') }}
+          </NuxtLink>
+          <NuxtLink
+            to="/map"
+            class="rounded-md px-2.5 py-2 transition-colors hover:bg-zinc-100 dark:hover:bg-white/[0.06]"
+            @click="mobileMenuOpen = false"
+          >
+            {{ t('nav.skillMap') }}
+          </NuxtLink>
+          <NuxtLink
+            v-if="!user"
+            to="/login"
+            class="rounded-md px-2.5 py-2 transition-colors hover:bg-zinc-100 dark:hover:bg-white/[0.06]"
+            @click="mobileMenuOpen = false"
+          >
+            {{ t('auth.logIn') }}
+          </NuxtLink>
+        </nav>
+        <div class="mt-3 flex items-center justify-between border-t border-divider pt-3 dark:border-divider-dark sm:hidden">
+          <LanguageSwitcher />
         </div>
       </div>
     </header>
