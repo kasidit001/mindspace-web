@@ -176,5 +176,5 @@ export function useAuth() {
     }
   }
 
-  return { user, isAdmin, signup, login, logout, hydrate, syncFromStorage }
+  return { user, token, isAdmin, signup, login, logout, hydrate, syncFromStorage }
 }
