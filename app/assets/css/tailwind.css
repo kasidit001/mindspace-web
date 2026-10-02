@@ -117,6 +117,12 @@ body {
   width: var(--pct, 0%);
   border-radius: 9999px;
   background-color: var(--bar-color, #A1A1AA);
+  transition: width 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .dossier-bar-track::after {
+    transition: none;
+  }
 }
 
 /* HUD — the reference's persistent "BAR 19.4 · 90 BPM · 50.9s" telemetry
@@ -182,6 +188,17 @@ body {
   .reveal {
     animation: none;
   }
+}
+
+/* Crossfade used by the "How it works" stepper's Transition (name="fade")
+   when swapping between steps. */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.25s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 
 /* ---------------------------------------------------------------------

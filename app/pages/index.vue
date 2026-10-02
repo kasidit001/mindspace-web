@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ArrowRight, Bot, Check, Code2, Command, Menu, Moon, Rocket, Search, Sprout, Sun, X, Zap } from '@lucide/vue'
+import { TECH_LABELS, type TechId } from '~/utils/courseTech'
 
 // Landing page has no shared layout (no sidebar/chat chrome) — it's the
 // public entry point; /courses is where the actual app lives.
@@ -61,9 +62,46 @@ const features = computed(() => [
   { icon: Command, title: t('features.search.title'), body: t('features.search.body') }
 ])
 
-// Ecosystem strip — the actual JS/TS tooling learners end up using, not
-// fabricated customer logos.
-const ecosystem = ['TypeScript', 'JavaScript', 'React', 'Node.js', 'Next.js', 'Vue']
+// Ecosystem cloud — the reference's "plugin cloud" scene (small cards
+// scattered at varied depth/rotation rather than a flat chip row),
+// recreated with the real logos this platform teaches. Rotation/offset
+// pairs are hardcoded per slot (not Math.random()) so the layout is
+// identical between server and client render — a random value here would
+// hydration-mismatch on every load.
+const ecosystem: TechId[] = ['ts', 'js', 'python', 'node', 'go', 'docker', 'react', 'vue', 'nuxt', 'claude']
+const CLOUD_OFFSETS = [
+  { rotate: -6, y: 4 }, { rotate: 4, y: -10 }, { rotate: -3, y: 12 }, { rotate: 7, y: -2 },
+  { rotate: -8, y: -6 }, { rotate: 5, y: 8 }, { rotate: -4, y: -12 }, { rotate: 8, y: 2 },
+  { rotate: -5, y: 10 }, { rotate: 3, y: -4 }
+]
+
+// "How it works" stepper — the reference's "01/07" numbered-sequence
+// pattern paired with a floating (no IDE chrome) code snippet, recreated
+// with the platform's own real, documented endpoints (see CLAUDE.md) —
+// not invented API shapes.
+interface MethodStep { title: string; method: string; path: string; body?: string }
+const methodSteps: MethodStep[] = [
+  { title: 'Ask anything, get a grounded answer.', method: 'POST', path: '/api/chat/ask', body: '{ "question": "...", "stream": true }' },
+  { title: 'Every answer cites its source.', method: 'SSE', path: 'event: done', body: 'data: { "citations": ["..."] }' },
+  { title: 'Progress checks itself off.', method: 'POST', path: '/api/lessons/:id/complete' },
+  { title: '⌘K finds it in under a second.', method: 'GET', path: '/api/search?q=...' }
+]
+const activeStep = ref(0)
+let stepTimer: ReturnType<typeof setInterval> | undefined
+onMounted(() => {
+  if (prefersReducedMotion()) return
+  stepTimer = setInterval(() => {
+    activeStep.value = (activeStep.value + 1) % methodSteps.length
+  }, 3400)
+})
+onBeforeUnmount(() => {
+  if (stepTimer) clearInterval(stepTimer)
+})
+
+// Scroll-triggered bar growth for the dossier stat cards below — the
+// reference's benchmark bars climb as the scene plays rather than sitting
+// pre-filled on the first frame.
+const { target: statsTarget, isInView: statsInView } = useInView()
 
 // "Dossier" stat cards — the reference's literal benchmark-card look
 // (FILE NUMBER + tag + one giant stat + a bar-chart comparison), built from
@@ -281,26 +319,67 @@ const levelCounts = computed(() => {
       </div>
     </section>
 
-    <!-- Ecosystem strip — the real tooling learners end up using, rendered
-         as chips instead of a flat text list. Pulled close to the hero
-         (small top padding, no separating rule/background change) so it
-         reads as the hero's closing line, not a new section starting. -->
-    <section class="mx-auto max-w-4xl px-6 pb-4 pt-5 sm:pt-6">
+    <!-- Ecosystem cloud — the reference's "plugin cloud" scene: cards at
+         varied depth/rotation instead of a flat chip row. Real logos,
+         scattered with fixed (not random) offsets per slot. -->
+    <section class="relative mx-auto max-w-4xl px-6 pb-10 pt-10 sm:pt-14">
+      <p class="hud absolute right-6 top-2 text-zinc-300 dark:text-zinc-700">02 — STACK</p>
       <p class="text-center text-[11px] font-medium uppercase tracking-[0.15em] text-zinc-400 dark:text-zinc-600">
         {{ t('landing.ecosystemLabel') }}
       </p>
-      <ul class="mt-5 flex flex-wrap items-center justify-center gap-2.5">
-        <li v-for="tech in ecosystem" :key="tech">
-          <span class="inline-block rounded-full border border-divider bg-surface px-4 py-1.5 font-display text-sm font-semibold tracking-tight text-zinc-600 shadow-sm transition-all hover:-translate-y-0.5 hover:border-accent-200 hover:text-accent-700 dark:border-divider-dark dark:bg-surface-dark dark:text-zinc-300 dark:hover:border-accent-400/40 dark:hover:text-accent-400">
-            {{ tech }}
+      <ul class="mt-8 flex flex-wrap items-center justify-center gap-x-5 gap-y-7">
+        <li
+          v-for="(tech, i) in ecosystem"
+          :key="tech"
+          class="transition-transform duration-200 hover:z-10 hover:!rotate-0 hover:!translate-y-0 hover:scale-110"
+          :style="{ transform: `rotate(${CLOUD_OFFSETS[i]!.rotate}deg) translateY(${CLOUD_OFFSETS[i]!.y}px)` }"
+        >
+          <span class="flex flex-col items-center gap-1.5">
+            <TechLogo :tech="tech" :size="40" />
+            <span class="text-[11px] font-medium text-zinc-500 dark:text-zinc-500">{{ TECH_LABELS[tech] }}</span>
           </span>
         </li>
       </ul>
     </section>
 
+    <!-- How it works — the reference's "01/07" numbered-sequence +
+         floating code-snippet pattern: a step counter, one confident
+         claim, and a real endpoint shown bare (no IDE chrome), cycling
+         automatically. Built from this API's own documented routes. -->
+    <section class="relative overflow-hidden bg-canvas-dark px-6 py-16 sm:py-20">
+      <p class="hud absolute right-6 top-5 text-white/30">03 — METHOD</p>
+      <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+        <div class="absolute left-1/3 top-1/2 size-[20rem] -translate-y-1/2 rounded-full bg-accent-500/10 blur-[100px]" />
+      </div>
+      <div class="relative mx-auto max-w-2xl text-center">
+        <p class="hud text-accent-400">{{ String(activeStep + 1).padStart(2, '0') }} / {{ String(methodSteps.length).padStart(2, '0') }}</p>
+        <Transition name="fade" mode="out-in">
+          <div :key="activeStep">
+            <h2 class="font-display mt-4 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
+              {{ methodSteps[activeStep]!.title }}
+            </h2>
+            <pre class="mt-6 overflow-x-auto whitespace-pre-wrap break-all text-left font-mono text-sm text-zinc-300"><span class="text-accent-400">{{ methodSteps[activeStep]!.method }}</span> {{ methodSteps[activeStep]!.path }}<template v-if="methodSteps[activeStep]!.body">
+{{ methodSteps[activeStep]!.body }}</template></pre>
+          </div>
+        </Transition>
+        <div class="mt-7 flex items-center justify-center gap-2">
+          <button
+            v-for="(step, i) in methodSteps"
+            :key="step.title"
+            type="button"
+            class="h-1.5 rounded-full transition-all"
+            :class="i === activeStep ? 'w-6 bg-accent-400' : 'w-1.5 bg-white/20 hover:bg-white/35'"
+            :aria-label="`Step ${i + 1}: ${step.title}`"
+            @click="activeStep = i"
+          />
+        </div>
+      </div>
+    </section>
+
     <!-- Course grid — Coursera's "New and popular" pattern: a level-filter
          pill bar over a real, filterable course grid. -->
-    <section v-if="courses?.length" class="mx-auto max-w-6xl px-6 pb-20 pt-14">
+    <section v-if="courses?.length" class="relative mx-auto max-w-6xl px-6 pb-20 pt-14">
+      <p class="hud absolute right-6 top-6 text-zinc-300 dark:text-zinc-700">04 — CATALOG</p>
       <div class="mb-6 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <h2 class="font-display text-2xl font-bold tracking-tight sm:text-3xl">{{ t('landing.startWithACourse') }}</h2>
         <NuxtLink to="/courses" class="inline-flex shrink-0 items-center gap-1 text-sm font-medium text-accent-700 hover:underline dark:text-accent-400">
@@ -370,7 +449,8 @@ const levelCounts = computed(() => {
          and a bar-chart comparison underneath with the single relevant row
          tinted pink. Built from this catalog's own real numbers — no
          invented competitor comparisons. -->
-    <section class="mx-auto max-w-6xl px-6 pb-16">
+    <section ref="statsTarget" class="relative mx-auto max-w-6xl px-6 pb-16">
+      <p class="hud absolute right-6 top-0 text-zinc-300 dark:text-zinc-700">05 — DOSSIER</p>
       <h2 class="font-display mb-8 text-center text-2xl font-bold tracking-tight sm:text-3xl">{{ t('landing.whyMindspace') }}</h2>
       <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <article class="dossier-card p-6">
@@ -385,7 +465,7 @@ const levelCounts = computed(() => {
               <span class="w-24 shrink-0 font-medium text-zinc-600">{{ row.level }}</span>
               <span
                 class="dossier-bar-track flex-1"
-                :style="{ '--pct': row.pct + '%', '--bar-color': row.level === 'Advanced' ? '#EC0063' : undefined }"
+                :style="{ '--pct': (statsInView ? row.pct : 0) + '%', '--bar-color': row.level === 'Advanced' ? '#EC0063' : undefined }"
               />
               <span class="w-6 shrink-0 text-right font-mono text-xs text-zinc-500">{{ row.count }}</span>
             </div>
@@ -404,7 +484,7 @@ const levelCounts = computed(() => {
               <span class="w-24 shrink-0 truncate font-medium text-zinc-600">{{ row.title }}</span>
               <span
                 class="dossier-bar-track flex-1"
-                :style="{ '--pct': row.pct + '%', '--bar-color': i === 0 ? '#EC0063' : undefined }"
+                :style="{ '--pct': (statsInView ? row.pct : 0) + '%', '--bar-color': i === 0 ? '#EC0063' : undefined }"
               />
               <span class="w-6 shrink-0 text-right font-mono text-xs text-zinc-500">{{ row.count }}</span>
             </div>
@@ -413,27 +493,32 @@ const levelCounts = computed(() => {
       </div>
     </section>
 
-    <!-- Feature grid — plain cards, kept separate from the dossier stats
-         above so the one loud pink accent stays reserved for the single
-         highlighted bar per chart, not spread across every tile. -->
-    <section class="mx-auto max-w-6xl px-6 pb-24">
-      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <article
-          v-for="feature in features"
-          :key="feature.title"
-          class="card p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
-        >
-          <div class="flex size-10 items-center justify-center rounded-lg bg-accent-50 text-accent-600 dark:bg-accent-400/10 dark:text-accent-400">
-            <component :is="feature.icon" :size="18" :stroke-width="1.75" />
-          </div>
-          <h3 class="mt-3.5 font-semibold">{{ feature.title }}</h3>
-          <p class="mt-1.5 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">{{ feature.body }}</p>
-        </article>
-      </div>
+    <!-- Feature sequence — the reference's "FIG.0X — <one bold claim>"
+         figure-caption pattern, recreated directly rather than as a
+         generic icon-card grid: a small monospace figure number, one
+         confident oversized statement (the feature's existing real copy,
+         not a new tagline), and the supporting sentence given real room to
+         breathe underneath. One per full-width row so each claim gets the
+         same "one idea, fully stated" weight the reference gives every
+         scene — not four equally-small tiles competing for attention. -->
+    <section class="relative mx-auto max-w-4xl divide-y divide-divider border-y border-divider px-6 dark:divide-divider-dark dark:border-divider-dark">
+      <p class="hud absolute -top-6 right-6 text-zinc-300 dark:text-zinc-700">06 — FEATURES</p>
+      <article
+        v-for="(feature, i) in features"
+        :key="feature.title"
+        class="grid grid-cols-1 gap-3 py-10 sm:grid-cols-[6rem_1fr] sm:gap-8 sm:py-12"
+      >
+        <p class="hud text-zinc-400 dark:text-zinc-600">FIG. 0{{ i + 1 }}</p>
+        <div>
+          <h3 class="font-display text-2xl font-extrabold tracking-tight sm:text-3xl">{{ feature.title }}</h3>
+          <p class="mt-2.5 max-w-xl text-base leading-relaxed text-zinc-600 dark:text-zinc-400">{{ feature.body }}</p>
+        </div>
+      </article>
     </section>
 
     <!-- Closing promo banner -->
-    <section class="mx-auto max-w-6xl px-6 pb-20">
+    <section class="relative mx-auto max-w-6xl px-6 pb-20">
+      <p class="hud absolute right-6 top-2 text-zinc-300 dark:text-zinc-700">07 — START</p>
       <div class="flex flex-col items-center gap-5 rounded-3xl border border-accent-100 bg-accent-50 px-6 py-10 text-center dark:border-accent-400/20 dark:bg-accent-400/[0.06] sm:flex-row sm:justify-between sm:px-10 sm:text-left">
         <div>
           <p class="text-[11px] font-semibold uppercase tracking-[0.15em] text-accent-700 dark:text-accent-400">{{ t('landing.ctaEyebrow') }}</p>
