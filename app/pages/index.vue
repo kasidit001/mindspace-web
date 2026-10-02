@@ -346,7 +346,7 @@ const levelCounts = computed(() => {
          varied depth/rotation instead of a flat chip row. Real logos,
          scattered with fixed (not random) offsets per slot. -->
     <section class="relative mx-auto max-w-4xl px-6 pb-10 pt-10 sm:pt-14">
-      <p class="hud absolute right-6 top-2 text-zinc-300 dark:text-zinc-700">02 — STACK</p>
+      <p class="hud absolute right-6 top-2 text-zinc-300 dark:text-zinc-700" aria-hidden="true">02 — STACK</p>
       <p class="text-center text-[11px] font-medium uppercase tracking-[0.15em] text-zinc-400 dark:text-zinc-600">
         {{ t('landing.ecosystemLabel') }}
       </p>
@@ -370,7 +370,7 @@ const levelCounts = computed(() => {
          claim, and a real endpoint shown bare (no IDE chrome), cycling
          automatically. Built from this API's own documented routes. -->
     <section class="relative overflow-hidden bg-canvas-dark px-6 py-16 sm:py-20">
-      <p class="hud absolute right-6 top-5 text-white/30">03 — METHOD</p>
+      <p class="hud absolute right-6 top-5 text-white/40" aria-hidden="true">03 — METHOD</p>
       <div class="pointer-events-none absolute inset-0" aria-hidden="true">
         <div class="absolute left-1/3 top-1/2 size-[20rem] -translate-y-1/2 rounded-full bg-accent-500/10 blur-[100px]" />
       </div>
@@ -413,7 +413,7 @@ const levelCounts = computed(() => {
         class="pointer-events-none absolute inset-0 opacity-50 dark:opacity-20"
         style="background-image: linear-gradient(#1E2A6E22 1px, transparent 1px), linear-gradient(90deg, #1E2A6E22 1px, transparent 1px); background-size: 28px 28px;"
       />
-      <p class="hud absolute right-6 top-6 text-[#1E2A6E]/40 dark:text-white/30">04 — ANATOMY</p>
+      <p class="hud absolute right-6 top-6 text-[#1E2A6E]/40 dark:text-white/40" aria-hidden="true">04 — ANATOMY</p>
 
       <div class="relative mx-auto max-w-3xl">
         <p class="hud text-accent-600 dark:text-accent-400">FIG. 05 — ROUTE</p>
@@ -465,7 +465,7 @@ const levelCounts = computed(() => {
     <!-- Course grid — Coursera's "New and popular" pattern: a level-filter
          pill bar over a real, filterable course grid. -->
     <section v-if="courses?.length" class="relative mx-auto max-w-6xl px-6 pb-20 pt-14">
-      <p class="hud absolute right-6 top-6 text-zinc-300 dark:text-zinc-700">05 — CATALOG</p>
+      <p class="hud absolute right-6 top-6 text-zinc-300 dark:text-zinc-700" aria-hidden="true">05 — CATALOG</p>
       <div class="mb-6 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <h2 class="font-display text-2xl font-bold tracking-tight sm:text-3xl">{{ t('landing.startWithACourse') }}</h2>
         <NuxtLink to="/courses" class="inline-flex shrink-0 items-center gap-1 text-sm font-medium text-accent-700 hover:underline dark:text-accent-400">
@@ -550,7 +550,7 @@ const levelCounts = computed(() => {
          tinted pink. Built from this catalog's own real numbers — no
          invented competitor comparisons. -->
     <section ref="statsTarget" class="relative w-full overflow-hidden bg-canvas-dark px-6 py-16 sm:py-20">
-      <p class="hud absolute right-6 top-6 text-white/30">06 — DOSSIER</p>
+      <p class="hud absolute right-6 top-6 text-white/40" aria-hidden="true">06 — DOSSIER</p>
       <div class="pointer-events-none absolute inset-0" aria-hidden="true">
         <div class="absolute -bottom-24 right-1/3 size-[24rem] rounded-full bg-accent-500/10 blur-[110px]" />
       </div>
@@ -607,7 +607,7 @@ const levelCounts = computed(() => {
          same "one idea, fully stated" weight the reference gives every
          scene — not four equally-small tiles competing for attention. -->
     <section class="relative mx-auto max-w-4xl divide-y divide-divider border-y border-divider px-6 dark:divide-divider-dark dark:border-divider-dark">
-      <p class="hud absolute -top-6 right-6 text-zinc-300 dark:text-zinc-700">07 — FEATURES</p>
+      <p class="hud absolute -top-6 right-6 text-zinc-300 dark:text-zinc-700" aria-hidden="true">07 — FEATURES</p>
       <article
         v-for="(feature, i) in features"
         :key="feature.title"
@@ -623,7 +623,7 @@ const levelCounts = computed(() => {
 
     <!-- Closing promo banner -->
     <section class="relative mx-auto max-w-6xl px-6 pb-20">
-      <p class="hud absolute right-6 top-2 text-zinc-300 dark:text-zinc-700">08 — START</p>
+      <p class="hud absolute right-6 top-2 text-zinc-300 dark:text-zinc-700" aria-hidden="true">08 — START</p>
       <div class="flex flex-col items-center gap-5 rounded-3xl border border-accent-100 bg-accent-50 px-6 py-10 text-center dark:border-accent-400/20 dark:bg-accent-400/[0.06] sm:flex-row sm:justify-between sm:px-10 sm:text-left">
         <div>
           <p class="text-[11px] font-semibold uppercase tracking-[0.15em] text-accent-700 dark:text-accent-400">{{ t('landing.ctaEyebrow') }}</p>
