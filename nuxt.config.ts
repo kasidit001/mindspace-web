@@ -31,20 +31,23 @@ export default defineNuxtConfig({
    * `font-family` text in compiled CSS — which never reliably sees fonts
    * referenced only via Tailwind's JS config (tailwind.config.ts).
    *
-   * "Studio Dashboard": Plus Jakarta Sans covers sans + display (see
-   * tailwind.config.ts) — a clean, warm grotesk instead of the previous
-   * all-monospace terminal look. JetBrains Mono stays, but only for `mono`
-   * (code blocks, inline code). IBM Plex Sans Thai is the Thai fallback in
-   * every stack (see tailwind.config.ts) — Plus Jakarta Sans/JetBrains Mono
-   * have no Thai glyphs on their own — but it's loaded via the `<link>` in
-   * `app.head` above, not listed here (see the comment there for why).
-   * Picked over Noto Sans Thai for a more formal/corporate look (loopless,
-   * closer to the geometric-grotesk character of Plus Jakarta Sans) —
-   * matches the reference typography brief.
+   * "Dossier": Plus Jakarta Sans stays as `sans` (body/UI text). Bricolage
+   * Grotesque is new — the bold, slightly irregular display grotesk used
+   * for headlines/wordmark (see tailwind.config.ts for the full rationale).
+   * Instrument Serif is also new — an italic editorial serif reserved for
+   * short accent phrases inside a headline, never body copy. JetBrains
+   * Mono stays for `mono` — both real code AND the new small-caps "HUD"
+   * meta-strip treatment (see `.hud` in tailwind.css). IBM Plex Sans Thai
+   * is the Thai fallback in every stack (see tailwind.config.ts) — none of
+   * the four Latin faces above have Thai glyphs of their own — but it's
+   * loaded via the `<link>` in `app.head` above, not listed here (see the
+   * comment there for why).
    */
   fonts: {
     families: [
       { name: 'Plus Jakarta Sans', provider: 'google', weights: [400, 500, 600, 700, 800], global: true },
+      { name: 'Bricolage Grotesque', provider: 'google', weights: [500, 600, 700, 800], global: true },
+      { name: 'Instrument Serif', provider: 'google', weights: [400], styles: ['italic'], global: true },
       { name: 'JetBrains Mono', provider: 'google', weights: [400, 500, 600, 700], global: true }
     ]
   },

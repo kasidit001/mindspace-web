@@ -3,8 +3,9 @@
 // dense glow-dust, a full set of nodes with size hierarchy and a layered
 // transparent "glow" halo per node, small pulses drifting between them,
 // and cursor parallax that tilts the whole scene toward the pointer. In
-// the same indigo/violet palette as the hero's own gradient — echoing the
-// real course-network visual on /map. Purely decorative (no raycasting/
+// the same hot-pink/violet palette as the hero's own glow blob ("Dossier"
+// identity) — echoing the real course-network visual on /map. Purely
+// decorative (no raycasting/
 // click handling — HeroGameMap's pins still own all the click interaction
 // in this hero), so pointer-events stay off the canvas itself; the
 // parallax listens on window instead so it doesn't block clicks reaching
@@ -26,9 +27,10 @@ const canvasEl = ref<HTMLCanvasElement | null>(null)
 
 let dispose: (() => void) | null = null
 
-// accent-400 / accent-300 / ai-400 / ai-300 — the same indigo/violet pair
-// the hero's own gradient and glow blobs already use.
-const PARTICLE_COLORS = [0x818cf8, 0xa5b4fc, 0xc084fc, 0xd8b4fe]
+// accent-400 / accent-300 (hot pink — "Dossier" identity) / ai-400 / ai-300
+// (violet, unchanged) — the same pair the hero's own glow blob and the AI
+// chat chrome already use.
+const PARTICLE_COLORS = [0xff5fa0, 0xff9ac4, 0xc084fc, 0xd8b4fe]
 const NODE_COUNT = 16
 const HERO_NODE_EVERY = 4 // every 4th node is a larger "hero" node
 const DUST_COUNT = 220

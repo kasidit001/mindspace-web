@@ -64,6 +64,32 @@ const features = computed(() => [
 // Ecosystem strip — the actual JS/TS tooling learners end up using, not
 // fabricated customer logos.
 const ecosystem = ['TypeScript', 'JavaScript', 'React', 'Node.js', 'Next.js', 'Vue']
+
+// "Dossier" stat cards — the reference's literal benchmark-card look
+// (FILE NUMBER + tag + one giant stat + a bar-chart comparison), built from
+// the platform's own real numbers rather than invented competitor
+// comparisons. Top 5 by lesson count so the bar chart has a real spread
+// without becoming an unreadable wall of bars.
+const totalCourses = computed(() => courses.value?.length ?? 0)
+const totalLessons = computed(() => (courses.value ?? []).reduce((sum, c) => sum + c.lessons.length, 0))
+
+const topCoursesByLessons = computed(() => {
+  const list = [...(courses.value ?? [])].sort((a, b) => b.lessons.length - a.lessons.length).slice(0, 5)
+  const max = list[0]?.lessons.length || 1
+  return list.map((c) => ({ title: c.title, count: c.lessons.length, pct: Math.max(8, Math.round((c.lessons.length / max) * 100)) }))
+})
+
+const levelCounts = computed(() => {
+  const list = courses.value ?? []
+  const counts = { Beginner: 0, Intermediate: 0, Advanced: 0 } as Record<ReturnType<typeof getCourseLevel>, number>
+  for (const c of list) counts[getCourseLevel(c)]++
+  const max = Math.max(counts.Beginner, counts.Intermediate, counts.Advanced) || 1
+  return (['Beginner', 'Intermediate', 'Advanced'] as const).map((level) => ({
+    level,
+    count: counts[level],
+    pct: Math.max(8, Math.round((counts[level] / max) * 100))
+  }))
+})
 </script>
 
 <template>
@@ -182,46 +208,55 @@ const ecosystem = ['TypeScript', 'JavaScript', 'React', 'Node.js', 'Next.js', 'V
     </header>
 
     <!-- Hero — the first thing anyone sees, so it carries the most design
-         weight on the page. Premium-SaaS conventions over the earlier
-         "promo banner" treatment: one confident typographic move instead of
-         several competing decorative ones (dot-grid pattern, two equal
-         pill buttons), a lot more resting space around every element, and a
-         restrained two-tone gradient with a soft vignette instead of a flat
-         fill — the kind of quiet polish that reads as considered rather
-         than templated. -->
+         weight on the page. "Dossier" identity: a near-black field (not a
+         colored gradient) so the one hot-pink accent glow and the HUD strip
+         actually read as "the loud thing" against it, a bold display
+         headline with one italic-serif accent phrase, and sharper corners
+         than the old identity's rounded-pill banner. -->
     <section class="px-6 pt-8 sm:pt-12">
       <div
-        class="reveal relative mx-auto max-w-6xl overflow-hidden rounded-[1.75rem] bg-gradient-to-b from-accent-600 to-ai-900 px-6 py-12 dark:from-accent-700 dark:to-ai-900 sm:px-10 sm:py-14"
-        style="--delay: 0s; box-shadow: 0 40px 80px -32px rgb(49 46 129 / 0.45), 0 1px 0 0 rgb(255 255 255 / 0.08) inset;"
+        class="reveal relative mx-auto max-w-6xl overflow-hidden rounded-2xl bg-canvas-dark px-6 py-16 sm:px-10 sm:py-20"
+        style="--delay: 0s; box-shadow: 0 40px 80px -32px rgb(0 0 0 / 0.55), 0 1px 0 0 rgb(255 255 255 / 0.06) inset;"
       >
         <!-- Decorative layer only, clipped to the banner's own corners so
-             it never interferes with the content/shadow layer below. Two
-             soft, low-opacity glows and a faint top vignette read as
-             ambient light rather than a "pattern" — no dot-grid texture,
-             which skewed more playful/gamified than premium-corporate. -->
-        <div class="pointer-events-none absolute inset-0 overflow-hidden rounded-[1.75rem]" aria-hidden="true">
-          <div class="absolute -top-20 left-1/4 size-[20rem] rounded-full bg-white/[0.07] blur-[90px]" />
-          <div class="absolute -bottom-32 -right-20 size-[24rem] rounded-full bg-ai-300/20 blur-[100px]" />
-          <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
+             it never interferes with the content/shadow layer below. One
+             pink glow (the reference's single loud accent) + a faint top
+             vignette + a touch of film grain (the reference's footage
+             never reads as a flat vector fill) — no dot-grid texture, no
+             second competing hue. -->
+        <div class="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl" aria-hidden="true">
+          <div class="absolute -top-24 right-1/4 size-[26rem] rounded-full bg-accent-500/25 blur-[110px]" />
+          <div class="absolute -bottom-32 -left-20 size-[22rem] rounded-full bg-white/[0.05] blur-[90px]" />
+          <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+          <div
+            class="absolute inset-0 opacity-[0.05] mix-blend-overlay"
+            style="background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E&quot;);"
+          />
         </div>
+
+        <!-- HUD strip — the reference's "BAR 19.4 · 90 BPM · 50.9s" telemetry
+             line made literal, pinned to the banner's top-right corner. -->
+        <p class="hud pointer-events-none absolute right-6 top-5 hidden text-white/40 sm:block" aria-hidden="true">
+          01 — MINDSPACE · {{ courses?.length ?? 0 }} COURSES · LIVE
+        </p>
 
         <div class="relative z-10 grid items-center gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:gap-8">
           <div class="text-center lg:text-left">
-            <span class="inline-flex items-center gap-2 rounded-full bg-white/10 py-1 pl-2 pr-3 text-xs font-medium text-indigo-50 ring-1 ring-inset ring-white/15">
+            <span class="inline-flex items-center gap-2 rounded-full bg-white/10 py-1 pl-2 pr-3 text-xs font-medium text-zinc-200 ring-1 ring-inset ring-white/15">
               <span class="size-1.5 shrink-0 rounded-full bg-success-400" />
               {{ t('landing.badgeVerb') }} <span class="text-white/60">{{ t('landing.badgeTerm') }}</span>
             </span>
-            <h1 class="font-display text-balance mt-5 text-[1.9rem] font-semibold leading-[1.2] tracking-normal text-white sm:text-4xl lg:text-[2.5rem]">
-              {{ t('landing.heroTitle') }}
+            <h1 class="font-display text-balance mt-5 text-[2.25rem] font-extrabold leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-[3.25rem]">
+              {{ t('landing.heroTitle') }} <span class="accent-phrase text-accent-400">for humans.</span>
             </h1>
-            <p class="mx-auto mt-4 max-w-[30rem] text-balance text-base leading-relaxed text-indigo-100/80 lg:mx-0">
+            <p class="mx-auto mt-5 max-w-[30rem] text-balance text-base leading-relaxed text-zinc-300 lg:mx-0">
               {{ t('landing.heroBody') }}
             </p>
 
             <div class="mt-7 flex flex-col items-center gap-4 sm:flex-row sm:justify-center lg:justify-start">
               <NuxtLink
                 to="/courses"
-                class="w-full rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-accent-700 shadow-[0_1px_2px_rgb(0_0_0/0.06),0_10px_24px_-8px_rgb(0_0_0/0.35)] transition-all hover:-translate-y-0.5 hover:shadow-[0_1px_2px_rgb(0_0_0/0.06),0_14px_30px_-8px_rgb(0_0_0/0.4)] sm:w-auto"
+                class="w-full rounded-lg bg-accent-500 px-5 py-2.5 text-sm font-semibold text-white shadow-[0_1px_2px_rgb(0_0_0/0.2),0_10px_28px_-8px_rgb(236_0_99/0.5)] transition-all hover:-translate-y-0.5 hover:bg-accent-400 hover:shadow-[0_1px_2px_rgb(0_0_0/0.2),0_14px_32px_-8px_rgb(236_0_99/0.6)] sm:w-auto"
               >
                 {{ t('landing.startLearningFree') }}
               </NuxtLink>
@@ -238,7 +273,7 @@ const ecosystem = ['TypeScript', 'JavaScript', 'React', 'Node.js', 'Next.js', 'V
           <div class="relative h-[17rem] overflow-visible rounded-2xl sm:h-[20rem]">
             <HeroAmbientScene />
             <HeroGameMap :courses="courses ?? []" />
-            <p class="pointer-events-none absolute -bottom-6 left-1/2 w-full -translate-x-1/2 text-center text-xs font-medium text-indigo-100/50">
+            <p class="pointer-events-none absolute -bottom-6 left-1/2 w-full -translate-x-1/2 text-center text-xs font-medium text-zinc-400">
               {{ t('landing.mapHint') }}
             </p>
           </div>
@@ -305,7 +340,7 @@ const ecosystem = ['TypeScript', 'JavaScript', 'React', 'Node.js', 'Next.js', 'V
               <component :is="levelIcon[getCourseLevel(course)]" :size="13" :stroke-width="2" />
               {{ t(levelLabelKey[getCourseLevel(course)]) }}
             </span>
-            <span class="shrink-0 text-xs font-medium text-zinc-400 dark:text-zinc-500">
+            <span class="hud shrink-0 text-zinc-400 dark:text-zinc-500">
               {{ course.lessons.length }} {{ t(course.lessons.length === 1 ? 'common.lesson' : 'common.lessons') }}
             </span>
           </div>
@@ -328,9 +363,60 @@ const ecosystem = ['TypeScript', 'JavaScript', 'React', 'Node.js', 'Next.js', 'V
       </p>
     </section>
 
-    <!-- Feature grid -->
-    <section class="mx-auto max-w-6xl px-6 pb-24">
+    <!-- Stat dossier — the reference's literal "FILE NUMBER: BEN-00x"
+         benchmark card, borrowed as closely as the content allows: a fixed
+         pale card-stock surface regardless of site theme, a monospace file
+         number top-left, a color-coded tag top-right, one giant real stat,
+         and a bar-chart comparison underneath with the single relevant row
+         tinted pink. Built from this catalog's own real numbers — no
+         invented competitor comparisons. -->
+    <section class="mx-auto max-w-6xl px-6 pb-16">
       <h2 class="font-display mb-8 text-center text-2xl font-bold tracking-tight sm:text-3xl">{{ t('landing.whyMindspace') }}</h2>
+      <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+        <article class="dossier-card p-6">
+          <div class="flex items-center justify-between">
+            <p class="dossier-label">FILE NUMBER: CRS-01</p>
+            <span class="dossier-tag bg-accent-100 text-accent-700">CATALOG</span>
+          </div>
+          <p class="mt-4 text-4xl font-extrabold tracking-tight">{{ totalCourses }} courses.</p>
+          <p class="mt-1 text-sm text-zinc-500">Spread Beginner → Advanced, by level.</p>
+          <div class="mt-5 space-y-2.5">
+            <div v-for="row in levelCounts" :key="row.level" class="flex items-center gap-3 text-sm">
+              <span class="w-24 shrink-0 font-medium text-zinc-600">{{ row.level }}</span>
+              <span
+                class="dossier-bar-track flex-1"
+                :style="{ '--pct': row.pct + '%', '--bar-color': row.level === 'Advanced' ? '#EC0063' : undefined }"
+              />
+              <span class="w-6 shrink-0 text-right font-mono text-xs text-zinc-500">{{ row.count }}</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="dossier-card p-6">
+          <div class="flex items-center justify-between">
+            <p class="dossier-label">FILE NUMBER: LSN-01</p>
+            <span class="dossier-tag bg-ai-100 text-ai-700">DEPTH</span>
+          </div>
+          <p class="mt-4 text-4xl font-extrabold tracking-tight">{{ totalLessons }} lessons.</p>
+          <p class="mt-1 text-sm text-zinc-500">The 5 deepest courses in the catalog, by lesson count.</p>
+          <div class="mt-5 space-y-2.5">
+            <div v-for="(row, i) in topCoursesByLessons" :key="row.title" class="flex items-center gap-3 text-sm">
+              <span class="w-24 shrink-0 truncate font-medium text-zinc-600">{{ row.title }}</span>
+              <span
+                class="dossier-bar-track flex-1"
+                :style="{ '--pct': row.pct + '%', '--bar-color': i === 0 ? '#EC0063' : undefined }"
+              />
+              <span class="w-6 shrink-0 text-right font-mono text-xs text-zinc-500">{{ row.count }}</span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Feature grid — plain cards, kept separate from the dossier stats
+         above so the one loud pink accent stays reserved for the single
+         highlighted bar per chart, not spread across every tile. -->
+    <section class="mx-auto max-w-6xl px-6 pb-24">
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <article
           v-for="feature in features"
