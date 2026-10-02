@@ -6,61 +6,73 @@ export default <Partial<Config>>{
   theme: {
     extend: {
       /**
-       * "Studio Dashboard": the site's third identity this project — moving
-       * off the JetBrains Mono / neon-terminal look entirely in favor of a
-       * clean SaaS-product look (white cards, soft shadows, rounded
-       * corners, one clean grotesk typeface). Plus Jakarta Sans covers both
-       * UI text and headlines (weight does the differentiation, not a
-       * second typeface — a dashboard reads as a tool, not an editorial
-       * piece). JetBrains Mono is kept, but demoted to actual code only.
+       * "Dossier": the site's fourth identity — moving off "Studio
+       * Dashboard"'s quiet indigo SaaS look toward a bolder, editorial,
+       * benchmark-report aesthetic (reference: a framework's own motion-
+       * graphics showreel — stark black/white, one loud accent, big
+       * confident display type, monospace used as a deliberate "live
+       * telemetry" texture rather than just a code font). Bricolage
+       * Grotesque is the new display face — a bold, slightly irregular
+       * grotesk with real personality instead of a generic geometric sans
+       * — reserved for headlines/wordmark. Instrument Serif is new too: an
+       * italic editorial serif used ONLY for short accent phrases inside a
+       * headline (the reference's cursive "...humans." treatment), never
+       * for UI text or body copy. Plus Jakarta Sans stays as the actual
+       * body/UI workhorse — swapping it out everywhere would hurt
+       * readability for no aesthetic gain. JetBrains Mono is promoted
+       * beyond code: it's now also the "HUD" face for small uppercase
+       * meta strips (see `.hud` in tailwind.css) — the reference's
+       * BPM/timer counter made literal as a reusable UI pattern.
        *
-       * Plus Jakarta Sans has no Thai glyphs, so Thai copy was silently
-       * falling back to whatever sans-serif the OS ships — inconsistent
-       * weight/x-height next to the Latin type. IBM Plex Sans Thai is added
-       * as the Thai fallback in every stack: a loopless, formal, corporate-
-       * tech face (the earlier pick, Noto Sans Thai, is more neutral/generic;
-       * Plex reads more deliberately "designed" and pairs better with Plus
-       * Jakarta Sans's own geometric character — @nuxt/fonts' Google
-       * provider can't serve its Thai subset correctly, so it's loaded via
-       * a direct Google Fonts <link> in nuxt.config.ts instead, same
-       * workaround, different font). The browser picks per-character
-       * automatically from stack order — no lang-specific CSS needed.
+       * Plus Jakarta Sans/Bricolage Grotesque have no Thai glyphs, so Thai
+       * copy was silently falling back to whatever sans-serif the OS
+       * ships — inconsistent weight/x-height next to the Latin type. IBM
+       * Plex Sans Thai is the Thai fallback in every stack: a loopless,
+       * formal, corporate-tech face that pairs better with a geometric
+       * grotesk than a more neutral pick like Noto Sans Thai would
+       * (@nuxt/fonts' Google provider can't serve its Thai subset
+       * correctly, so it's loaded via a direct Google Fonts <link> in
+       * nuxt.config.ts instead, same workaround, different font). The
+       * browser picks per-character automatically from stack order — no
+       * lang-specific CSS needed.
        */
       fontFamily: {
         sans: ['"Plus Jakarta Sans"', '"IBM Plex Sans Thai"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        display: ['"Plus Jakarta Sans"', '"IBM Plex Sans Thai"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['"Bricolage Grotesque"', '"IBM Plex Sans Thai"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        serif: ['"Instrument Serif"', '"IBM Plex Sans Thai"', 'ui-serif', 'Georgia', 'serif'],
         mono: ['"JetBrains Mono"', '"IBM Plex Sans Thai"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace']
       },
       colors: {
-        // Near-white canvas / pure-white surface by day, deep slate-navy by
-        // night — cards are separated from the page mostly by shadow, not a
-        // strong border, so `divider` stays a faint hairline.
+        // Near-white canvas / pure-white surface by day, near-black by
+        // night — pushed closer to true black/white than the old slate-navy
+        // dark mode, matching the reference's stark high-contrast scenes.
+        // Cards lean on a hairline border as much as shadow now (the old
+        // "shadow-only" signal read as too soft/quiet for this identity).
         canvas: {
-          DEFAULT: '#F6F7FB',
-          dark: '#0B0E16'
+          DEFAULT: '#FAFAFA',
+          dark: '#0A0A0A'
         },
         surface: {
           DEFAULT: '#FFFFFF',
-          dark: '#12151F'
+          dark: '#141414'
         },
         divider: {
-          DEFAULT: '#E7E9F0',
-          dark: '#232838'
+          DEFAULT: '#E5E5E5',
+          dark: '#2A2A2A'
         },
-        // Indigo (`accent`) is the primary brand/action color — buttons,
-        // links, focus rings, primary nav state. Replaces the old neon
-        // yellow; needs WHITE text on filled chips/buttons now (400/500/600
-        // are all mid-saturation, unlike the old bright-yellow chip that
-        // needed black text).
+        // Hot pink/magenta (`accent`) replaces the old indigo — the
+        // reference's one loud accent color against an otherwise
+        // black/white/gray palette. Still needs WHITE text on filled
+        // chips/buttons (400/500/600 are all mid-to-high saturation).
         accent: {
-          50: '#EEF2FF',
-          100: '#E0E7FF',
-          300: '#A5B4FC',
-          400: '#818CF8',
-          500: '#6366F1',
-          600: '#4F46E5',
-          700: '#4338CA',
-          900: '#312E81'
+          50: '#FFF0F6',
+          100: '#FFE0EE',
+          300: '#FF9AC4',
+          400: '#FF5FA0',
+          500: '#FF2D7F',
+          600: '#EC0063',
+          700: '#C2004F',
+          900: '#780033'
         },
         // Violet (`ai`) marks anything AI/tutor-related — badges, the chat
         // chrome, the "AI Brain" mark — kept a distinct hue from the
