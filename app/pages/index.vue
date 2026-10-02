@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowRight, Bot, Check, Code2, Command, Menu, Moon, Rocket, Search, Sprout, Sun, X, Zap } from '@lucide/vue'
+import { ArrowRight, Bot, Check, Code2, Command, Menu, Moon, Rocket, Search, Send, Sprout, Sun, X, Zap } from '@lucide/vue'
 import { TECH_LABELS, type TechId } from '~/utils/courseTech'
 
 // Landing page has no shared layout (no sidebar/chat chrome) — it's the
@@ -97,6 +97,29 @@ onMounted(() => {
 onBeforeUnmount(() => {
   if (stepTimer) clearInterval(stepTimer)
 })
+
+// Real shiki syntax highlighting for the active step, via the same `<MDC>`
+// rendering path lesson content already uses (see courses/[lessonId].vue) —
+// a markdown fence string in, real tokenized `<ProsePre>` output out. Flat
+// mono text (the earlier version of this section) never looked like the
+// reference's own colored code.
+const activeStepCodeMd = computed(() => {
+  const step = methodSteps[activeStep.value]!
+  const lines = [`${step.method} ${step.path}`, ...(step.body ? [step.body] : [])]
+  return '```bash\n' + lines.join('\n') + '\n```'
+})
+
+// Paper-airplane drift — the reference's "Less boilerplate. More
+// daydreaming." breathing moment: a few icons drifting slowly, a soft
+// pause between two content-heavy scenes rather than another claim or
+// stat. Fixed per-icon timing/position (not random) for the same
+// hydration-safety reason as CLOUD_OFFSETS above.
+const AIRPLANES = [
+  { top: '18%', left: '12%', size: 22, duration: 14, delay: 0 },
+  { top: '55%', left: '82%', size: 16, duration: 18, delay: -4 },
+  { top: '75%', left: '22%', size: 14, duration: 16, delay: -9 },
+  { top: '30%', left: '68%', size: 20, duration: 20, delay: -2 }
+]
 
 // Scroll-triggered bar growth for the dossier stat cards below — the
 // reference's benchmark bars climb as the scene plays rather than sitting
@@ -358,8 +381,9 @@ const levelCounts = computed(() => {
             <h2 class="font-display mt-4 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
               {{ methodSteps[activeStep]!.title }}
             </h2>
-            <pre class="mt-6 overflow-x-auto whitespace-pre-wrap break-all text-left font-mono text-sm text-zinc-300"><span class="text-accent-400">{{ methodSteps[activeStep]!.method }}</span> {{ methodSteps[activeStep]!.path }}<template v-if="methodSteps[activeStep]!.body">
-{{ methodSteps[activeStep]!.body }}</template></pre>
+            <div class="mt-6 text-left text-sm [&_.border-ai-500]:border-t-accent-500">
+              <MDC :value="activeStepCodeMd" tag="div" />
+            </div>
           </div>
         </Transition>
         <div class="mt-7 flex items-center justify-center gap-2">
@@ -442,6 +466,20 @@ const levelCounts = computed(() => {
       </p>
     </section>
 
+    <!-- Breathing room — the reference's drifting-paper-airplanes scene: a
+         quiet pause between the course grid and the data-heavy dossier
+         section below, not another claim competing for attention. -->
+    <section class="relative h-28 overflow-hidden sm:h-36" aria-hidden="true">
+      <Send
+        v-for="(plane, i) in AIRPLANES"
+        :key="i"
+        :size="plane.size"
+        :stroke-width="1.25"
+        class="drift absolute text-zinc-300 dark:text-zinc-700"
+        :style="{ top: plane.top, left: plane.left, '--drift-duration': plane.duration + 's', '--drift-delay': plane.delay + 's' }"
+      />
+    </section>
+
     <!-- Stat dossier — the reference's literal "FILE NUMBER: BEN-00x"
          benchmark card, borrowed as closely as the content allows: a fixed
          pale card-stock surface regardless of site theme, a monospace file
@@ -449,9 +487,13 @@ const levelCounts = computed(() => {
          and a bar-chart comparison underneath with the single relevant row
          tinted pink. Built from this catalog's own real numbers — no
          invented competitor comparisons. -->
-    <section ref="statsTarget" class="relative mx-auto max-w-6xl px-6 pb-16">
-      <p class="hud absolute right-6 top-0 text-zinc-300 dark:text-zinc-700">05 — DOSSIER</p>
-      <h2 class="font-display mb-8 text-center text-2xl font-bold tracking-tight sm:text-3xl">{{ t('landing.whyMindspace') }}</h2>
+    <section ref="statsTarget" class="relative w-full overflow-hidden bg-canvas-dark px-6 py-16 sm:py-20">
+      <p class="hud absolute right-6 top-6 text-white/30">05 — DOSSIER</p>
+      <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+        <div class="absolute -bottom-24 right-1/3 size-[24rem] rounded-full bg-accent-500/10 blur-[110px]" />
+      </div>
+      <div class="relative mx-auto max-w-6xl">
+      <h2 class="font-display mb-8 text-center text-2xl font-bold tracking-tight text-white sm:text-3xl">{{ t('landing.whyMindspace') }}</h2>
       <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <article class="dossier-card p-6">
           <div class="flex items-center justify-between">
@@ -491,6 +533,7 @@ const levelCounts = computed(() => {
           </div>
         </article>
       </div>
+      </div>
     </section>
 
     <!-- Feature sequence — the reference's "FIG.0X — <one bold claim>"
@@ -529,6 +572,13 @@ const levelCounts = computed(() => {
           {{ t('landing.ctaButton') }}
         </NuxtLink>
       </div>
+    </section>
+
+    <!-- Closing mark — the reference's own abstract, non-literal 3D shape
+         at the very end of the clip: a quiet visual full stop, not another
+         scene with a claim to make. -->
+    <section class="relative h-48 overflow-hidden sm:h-64" aria-hidden="true">
+      <AbstractClosingMark />
     </section>
 
     <!-- Footer -->
