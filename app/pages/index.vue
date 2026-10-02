@@ -413,23 +413,26 @@ const levelCounts = computed(() => {
       </div>
     </section>
 
-    <!-- Feature grid — plain cards, kept separate from the dossier stats
-         above so the one loud pink accent stays reserved for the single
-         highlighted bar per chart, not spread across every tile. -->
-    <section class="mx-auto max-w-6xl px-6 pb-24">
-      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <article
-          v-for="feature in features"
-          :key="feature.title"
-          class="card p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
-        >
-          <div class="flex size-10 items-center justify-center rounded-lg bg-accent-50 text-accent-600 dark:bg-accent-400/10 dark:text-accent-400">
-            <component :is="feature.icon" :size="18" :stroke-width="1.75" />
-          </div>
-          <h3 class="mt-3.5 font-semibold">{{ feature.title }}</h3>
-          <p class="mt-1.5 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">{{ feature.body }}</p>
-        </article>
-      </div>
+    <!-- Feature sequence — the reference's "FIG.0X — <one bold claim>"
+         figure-caption pattern, recreated directly rather than as a
+         generic icon-card grid: a small monospace figure number, one
+         confident oversized statement (the feature's existing real copy,
+         not a new tagline), and the supporting sentence given real room to
+         breathe underneath. One per full-width row so each claim gets the
+         same "one idea, fully stated" weight the reference gives every
+         scene — not four equally-small tiles competing for attention. -->
+    <section class="mx-auto max-w-4xl divide-y divide-divider border-y border-divider px-6 dark:divide-divider-dark dark:border-divider-dark">
+      <article
+        v-for="(feature, i) in features"
+        :key="feature.title"
+        class="grid grid-cols-1 gap-3 py-10 sm:grid-cols-[6rem_1fr] sm:gap-8 sm:py-12"
+      >
+        <p class="hud text-zinc-400 dark:text-zinc-600">FIG. 0{{ i + 1 }}</p>
+        <div>
+          <h3 class="font-display text-2xl font-extrabold tracking-tight sm:text-3xl">{{ feature.title }}</h3>
+          <p class="mt-2.5 max-w-xl text-base leading-relaxed text-zinc-600 dark:text-zinc-400">{{ feature.body }}</p>
+        </div>
+      </article>
     </section>
 
     <!-- Closing promo banner -->
