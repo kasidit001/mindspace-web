@@ -14,9 +14,17 @@ useHead({
 
 const { syncFromDom } = useTheme()
 const { syncFromStorage } = useAuth()
-onMounted(() => {
+onMounted(async () => {
   syncFromDom()
-  syncFromStorage()
+  // Every page's own useFetch (useCourses, useLesson, ...) already ran in
+  // setup() by the time this fires — before syncFromStorage's synchronous
+  // hydrate() has restored the auth token from localStorage. A SYSTEM_ADMIN's
+  // very first paint of any page would otherwise permanently miss their
+  // Authorization header (useFetch doesn't reliably re-trigger just because
+  // a `headers` computed re-evaluates). Force one explicit refetch of
+  // everything on the page once the real session state is known.
+  await syncFromStorage()
+  refreshNuxtData()
 })
 </script>
 
