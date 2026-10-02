@@ -369,14 +369,12 @@ const selectedCourse = computed<Course | null>(() =>
   selectedIndex.value !== null ? props.courses[selectedIndex.value] ?? null : null
 )
 
-// White-outlined glow diamond under the selected pin's tile — the same
-// "you are here" highlight as the reference's Plant-a-Tree callout.
-const selectedGlowPoints = computed<string | null>(() => {
-  if (selectedIndex.value === null) return null
-  const tile = markerTiles[selectedIndex.value]
-  if (!tile) return null
-  return pts(tile.top, tile.right, tile.bottom, tile.left)
-})
+// Soft blurred glow under the selected pin's tile — the same "you are
+// here" highlight as the reference's Plant-a-Tree callout. (The crisp
+// white diamond outline this used to pair with was dropped: interleaved
+// with the tile-polygon draw order, most of its 4 edges ended up
+// occluded by later tiles/pins, so it only ever showed as a stray
+// partial line fragment rather than a clean diamond.)
 const selectedGlowCenter = computed<Point | null>(() => {
   if (selectedIndex.value === null) return null
   const tile = markerTiles[selectedIndex.value]
@@ -477,15 +475,6 @@ const CLOUDS = [
         <template v-if="item.kind === 'top' || item.kind === 'cliff'">
           <polygon :points="item.points" :fill="item.color" />
           <polygon :points="item.points" :fill="item.kind === 'top' ? 'url(#lightSheen)' : 'url(#cliffShade)'" />
-          <polygon
-            v-if="item.kind === 'top' && selectedGlowPoints === item.points"
-            :points="item.points"
-            fill="white"
-            fill-opacity="0.3"
-            stroke="white"
-            stroke-width="2.5"
-            class="tile-glow-pulse"
-          />
         </template>
 
         <g
