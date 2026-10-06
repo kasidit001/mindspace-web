@@ -17,6 +17,11 @@ export interface LessonSummary {
   order: number
   contentType: LessonContentType
   readingMinutes: number
+  /** Optional sidebar group label (e.g. "The Layer Chain") — null on nearly
+   *  every course, which renders its lessons flat; only a course with a
+   *  long, undifferentiated list sets this. */
+  sectionEn: string | null
+  sectionTh: string | null
 }
 
 /** A real, curated label attached to a course (mindspace-api's Tag model) —
