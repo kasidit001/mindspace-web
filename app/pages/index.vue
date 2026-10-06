@@ -577,13 +577,6 @@ const levelCounts = computed(() => {
       </div>
     </section>
 
-    <!-- Closing mark — the reference's own abstract, non-literal 3D shape
-         at the very end of the clip: a quiet visual full stop, not another
-         scene with a claim to make. -->
-    <section class="relative h-48 overflow-hidden sm:h-64" aria-hidden="true">
-      <AbstractClosingMark />
-    </section>
-
     <!-- Footer -->
     <footer class="border-t border-divider px-6 py-8 text-center dark:border-divider-dark">
       <p class="text-sm text-zinc-500 dark:text-zinc-400">
