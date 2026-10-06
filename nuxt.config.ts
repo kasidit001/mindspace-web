@@ -7,17 +7,22 @@ export default defineNuxtConfig({
       link: [
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
         { rel: 'alternate icon', href: '/favicon.ico' },
-        // IBM Plex Sans Thai loaded directly from Google, not via `fonts:`
-        // below — @nuxt/fonts' self-hosting provider only recognizes a
-        // hardcoded list of Latin/Cyrillic/Greek/Vietnamese subsets (see
-        // module.mjs `subsets` array); it has no notion of a "thai" subset,
-        // so it mislabels the Thai-glyph file as "latin" and drops it in a
+        // Sarabun loaded directly from Google, not via `fonts:` below —
+        // @nuxt/fonts' self-hosting provider only recognizes a hardcoded
+        // list of Latin/Cyrillic/Greek/Vietnamese subsets (see module.mjs
+        // `subsets` array); it has no notion of a "thai" subset, so it
+        // mislabels the Thai-glyph file as "latin" and drops it in a
         // collision with the real latin file (confirmed by inspecting the
         // generated @font-face rules — no `unicode-range` ever covered
         // U+0E00). Fetching Google's own CSS here sidesteps that bug.
+        // (Was IBM Plex Sans Thai — switched after real readability
+        // feedback: its loopless letterforms read as harder to scan than a
+        // looped Thai face at body-text sizes. Sarabun is the standard for
+        // long-form/formal Thai reading, so it also addresses the "more
+        // formal" half of the same feedback.)
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
-        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap' }
+        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap' }
       ]
     }
   },
@@ -37,11 +42,11 @@ export default defineNuxtConfig({
    * Instrument Serif is also new — an italic editorial serif reserved for
    * short accent phrases inside a headline, never body copy. JetBrains
    * Mono stays for `mono` — both real code AND the new small-caps "HUD"
-   * meta-strip treatment (see `.hud` in tailwind.css). IBM Plex Sans Thai
-   * is the Thai fallback in every stack (see tailwind.config.ts) — none of
-   * the four Latin faces above have Thai glyphs of their own — but it's
-   * loaded via the `<link>` in `app.head` above, not listed here (see the
-   * comment there for why).
+   * meta-strip treatment (see `.hud` in tailwind.css). Sarabun is the Thai
+   * fallback in every stack (see tailwind.config.ts) — none of the four
+   * Latin faces above have Thai glyphs of their own — but it's loaded via
+   * the `<link>` in `app.head` above, not listed here (see the comment
+   * there for why).
    */
   fonts: {
     families: [
