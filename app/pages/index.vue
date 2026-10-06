@@ -338,7 +338,6 @@ const levelCounts = computed(() => {
           </div>
 
           <div class="relative h-[17rem] overflow-visible rounded-2xl sm:h-[20rem]">
-            <HeroAmbientScene />
             <HeroGameMap :courses="courses ?? []" />
             <p class="pointer-events-none absolute -bottom-6 left-1/2 w-full -translate-x-1/2 text-center text-xs font-medium text-zinc-400">
               {{ t('landing.mapHint') }}
@@ -576,13 +575,6 @@ const levelCounts = computed(() => {
           {{ t('landing.ctaButton') }}
         </NuxtLink>
       </div>
-    </section>
-
-    <!-- Closing mark — the reference's own abstract, non-literal 3D shape
-         at the very end of the clip: a quiet visual full stop, not another
-         scene with a claim to make. -->
-    <section class="relative h-48 overflow-hidden sm:h-64" aria-hidden="true">
-      <AbstractClosingMark />
     </section>
 
     <!-- Footer -->

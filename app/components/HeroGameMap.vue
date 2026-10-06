@@ -32,6 +32,18 @@ const DIRT = ['#e0954f', '#d9814a', '#c97a3e']
 const CLIFF_EAST = ['#cfa876', '#8b5e34']
 const CLIFF_WEST = ['#b8925f', '#74491f']
 
+// Small low-poly buildings standing on a portion of the plain tiles — gives
+// the island a "campus" skyline instead of flat grass/dirt everywhere. East
+// wall (right-facing) stays a shade lighter than the west wall (left-
+// facing), same light-from-the-left logic the cliff bands already use.
+// Roof uses the DIRT family so it reads as part of the same terracotta
+// palette rather than a clashing new hue; windows are a warm lit-glass
+// yellow, the one spot of "night light" color on the whole island.
+const BUILDING_WALL_EAST = ['#5b6478', '#6c7690']
+const BUILDING_WALL_WEST = ['#434b5e', '#505a70']
+const BUILDING_ROOF = ['#c97a3e', '#d9814a']
+const BUILDING_WINDOW = '#ffe39a'
+
 // Each prop is the technology's official logo (vendored — see
 // ~/utils/techLogos) on a small plaque. Sized generously past the typical
 // number of icon slots on the map (see `ICON_TILE_COUNT` below) so every
@@ -129,6 +141,9 @@ type DrawItem =
   | { kind: 'icon'; depth: number; x: number; y: number; scale: number; icon: (typeof TECH_ICONS)[number] }
   | { kind: 'rock'; depth: number; x: number; y: number; scale: number }
   | { kind: 'marker'; depth: number; x: number; y: number; color: string; index: number }
+  | { kind: 'buildingWall'; depth: number; points: string; color: string }
+  | { kind: 'buildingRoof'; depth: number; points: string; color: string }
+  | { kind: 'buildingWindow'; depth: number; x: number; y: number }
 
 /** Builds the tan+dark-brown strata for one cliff edge, from its two top
  * corners down through `heights` (one polygon per band). Coastal edges
@@ -152,6 +167,64 @@ function buildCliffBands(aTop: Point, bTop: Point, heights: number[], colors: st
     y0a = y1a
     y0b = y1b
   })
+  return out
+}
+
+/** A small building extruded upward from a tile's own footprint — two
+ * slanted wall faces (same quad shape the cliff bands use, just rising
+ * instead of dropping) plus a flat roof diamond, with a column of lit
+ * windows per wall scaled to its height. */
+function buildBuilding(tile: LandTile, height: number, salt: number): DrawItem[] {
+  const lift = (p: Point): Point => ({ x: p.x, y: p.y - height })
+  const roofTop = lift(tile.top)
+  const roofRight = lift(tile.right)
+  const roofBottom = lift(tile.bottom)
+  const roofLeft = lift(tile.left)
+
+  const out: DrawItem[] = [
+    {
+      kind: 'buildingWall',
+      depth: tile.depth + 0.15,
+      points: pts(tile.right, tile.bottom, roofBottom, roofRight),
+      color: BUILDING_WALL_EAST[Math.floor(hash(tile.col, tile.row, salt) * BUILDING_WALL_EAST.length)]!
+    },
+    {
+      kind: 'buildingWall',
+      depth: tile.depth + 0.16,
+      points: pts(tile.bottom, tile.left, roofLeft, roofBottom),
+      color: BUILDING_WALL_WEST[Math.floor(hash(tile.col, tile.row, salt + 1) * BUILDING_WALL_WEST.length)]!
+    },
+    {
+      kind: 'buildingRoof',
+      depth: tile.depth + 0.4,
+      points: pts(roofTop, roofRight, roofBottom, roofLeft),
+      color: BUILDING_ROOF[Math.floor(hash(tile.col, tile.row, salt + 2) * BUILDING_ROOF.length)]!
+    }
+  ]
+
+  const rows = Math.max(1, Math.round(height / 15))
+  const eastBottom = { x: (tile.right.x + tile.bottom.x) / 2, y: (tile.right.y + tile.bottom.y) / 2 }
+  const eastTop = { x: (roofRight.x + roofBottom.x) / 2, y: (roofRight.y + roofBottom.y) / 2 }
+  const westBottom = { x: (tile.bottom.x + tile.left.x) / 2, y: (tile.bottom.y + tile.left.y) / 2 }
+  const westTop = { x: (roofBottom.x + roofLeft.x) / 2, y: (roofBottom.y + roofLeft.y) / 2 }
+  for (let r = 0; r < rows; r++) {
+    const t = (r + 0.9) / (rows + 0.6)
+    out.push({
+      kind: 'buildingWindow',
+      depth: tile.depth + 0.25,
+      x: eastBottom.x + (eastTop.x - eastBottom.x) * t,
+      y: eastBottom.y + (eastTop.y - eastBottom.y) * t
+    })
+    if (hash(tile.col, tile.row, salt + 3 + r) > 0.3) {
+      out.push({
+        kind: 'buildingWindow',
+        depth: tile.depth + 0.25,
+        x: westBottom.x + (westTop.x - westBottom.x) * t,
+        y: westBottom.y + (westTop.y - westBottom.y) * t
+      })
+    }
+  }
+
   return out
 }
 
@@ -278,6 +351,9 @@ const items = computed<DrawItem[]>(() => {
         y: center.y,
         scale: 0.8 + hash(tile.col, tile.row, 9) * 0.5
       })
+    } else if (hash(tile.col, tile.row, 12) > 0.48) {
+      const height = 18 + hash(tile.col, tile.row, 13) * 26
+      list.push(...buildBuilding(tile, height, 14))
     }
   })
 
@@ -476,6 +552,19 @@ const CLOUDS = [
           <polygon :points="item.points" :fill="item.color" />
           <polygon :points="item.points" :fill="item.kind === 'top' ? 'url(#lightSheen)' : 'url(#cliffShade)'" />
         </template>
+
+        <template v-else-if="item.kind === 'buildingWall' || item.kind === 'buildingRoof'">
+          <polygon :points="item.points" :fill="item.color" />
+          <polygon :points="item.points" :fill="item.kind === 'buildingRoof' ? 'url(#lightSheen)' : 'url(#cliffShade)'" />
+        </template>
+
+        <circle
+          v-else-if="item.kind === 'buildingWindow'"
+          :cx="item.x"
+          :cy="item.y"
+          r="2.1"
+          fill="#ffe39a"
+        />
 
         <g
           v-else-if="item.kind === 'icon'"

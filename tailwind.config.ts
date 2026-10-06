@@ -26,10 +26,12 @@ export default <Partial<Config>>{
        *
        * Plus Jakarta Sans/Bricolage Grotesque have no Thai glyphs, so Thai
        * copy was silently falling back to whatever sans-serif the OS
-       * ships — inconsistent weight/x-height next to the Latin type. IBM
-       * Plex Sans Thai is the Thai fallback in every stack: a loopless,
-       * formal, corporate-tech face that pairs better with a geometric
-       * grotesk than a more neutral pick like Noto Sans Thai would
+       * ships — inconsistent weight/x-height next to the Latin type.
+       * Sarabun is the Thai fallback in every stack: the standard
+       * long-form/formal Thai reading face (used across Thai government
+       * and business documents), with real loops for letter
+       * differentiation — read as noticeably easier to scan than a
+       * loopless pick like IBM Plex Sans Thai at body-text sizes
        * (@nuxt/fonts' Google provider can't serve its Thai subset
        * correctly, so it's loaded via a direct Google Fonts <link> in
        * nuxt.config.ts instead, same workaround, different font). The
@@ -37,10 +39,10 @@ export default <Partial<Config>>{
        * lang-specific CSS needed.
        */
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', '"IBM Plex Sans Thai"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        display: ['"Bricolage Grotesque"', '"IBM Plex Sans Thai"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        serif: ['"Instrument Serif"', '"IBM Plex Sans Thai"', 'ui-serif', 'Georgia', 'serif'],
-        mono: ['"JetBrains Mono"', '"IBM Plex Sans Thai"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace']
+        sans: ['"Plus Jakarta Sans"', '"Sarabun"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['"Bricolage Grotesque"', '"Sarabun"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        serif: ['"Instrument Serif"', '"Sarabun"', 'ui-serif', 'Georgia', 'serif'],
+        mono: ['"JetBrains Mono"', '"Sarabun"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace']
       },
       colors: {
         // Near-white canvas / pure-white surface by day, near-black by

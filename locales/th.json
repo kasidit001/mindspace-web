@@ -20,7 +20,7 @@
     "signupSubtitle": "เริ่มเรียน TypeScript พร้อมติวเตอร์ AI ของคุณ",
     "noAccount": "ยังไม่มีบัญชี?",
     "haveAccount": "มีบัญชีอยู่แล้ว?",
-    "greeting": "สวัสดี, {name}",
+    "greeting": "{name}",
     "notLoggedIn": "คุณยังไม่ได้เข้าสู่ระบบ",
     "notLoggedInBody": "กรุณาเข้าสู่ระบบหรือสมัครสมาชิกโดยไม่มีค่าใช้จ่าย เพื่อบันทึกความคืบหน้าของคุณในทุกการใช้งาน",
     "passwordMismatch": "รหัสผ่านไม่ตรงกัน",
@@ -55,7 +55,7 @@
     "closeSidebar": "ปิดแถบด้านข้าง",
     "language": "ภาษา",
     "skillMap": "แผนที่ทักษะ",
-    "courses": "คอร์สเรียน"
+    "courses": "สำรวจคอร์สเรียน"
   },
   "sidebar": {
     "coursesHeading": "คอร์สเรียน",
