@@ -98,16 +98,22 @@ onBeforeUnmount(() => {
   if (stepTimer) clearInterval(stepTimer)
 })
 
-// Real shiki syntax highlighting for the active step, via the same `<MDC>`
+// Real shiki syntax highlighting for every step, via the same `<MDC>`
 // rendering path lesson content already uses (see courses/[lessonId].vue) —
-// a markdown fence string in, real tokenized `<ProsePre>` output out. Flat
-// mono text (the earlier version of this section) never looked like the
-// reference's own colored code.
-const activeStepCodeMd = computed(() => {
-  const step = methodSteps[activeStep.value]!
-  const lines = [`${step.method} ${step.path}`, ...(step.body ? [step.body] : [])]
-  return '```bash\n' + lines.join('\n') + '\n```'
-})
+// a markdown fence string in, real tokenized `<ProsePre>` output out. All 4
+// are computed up front (not just the active one) and all 4 stay mounted
+// in the template via v-show — switching steps only toggles visibility.
+// Keying a single <MDC> to the active step and swapping its `:value`
+// looked right on paper but re-triggers MDC's async parse/highlight on
+// every step change, so the step counter above (which changes instantly)
+// and the code block (which pops in only once shiki finishes re-parsing)
+// visibly fell out of sync — the "glitchy" look this replaces.
+const stepCodeMds = computed(() =>
+  methodSteps.map((step) => {
+    const lines = [`${step.method} ${step.path}`, ...(step.body ? [step.body] : [])]
+    return '```bash\n' + lines.join('\n') + '\n```'
+  })
+)
 
 // Paper-airplane drift — the reference's "Less boilerplate. More
 // daydreaming." breathing moment: a few icons drifting slowly, a soft
@@ -376,16 +382,14 @@ const levelCounts = computed(() => {
       </div>
       <div class="relative mx-auto max-w-2xl text-center">
         <p class="hud text-accent-400">{{ String(activeStep + 1).padStart(2, '0') }} / {{ String(methodSteps.length).padStart(2, '0') }}</p>
-        <Transition name="fade" mode="out-in">
-          <div :key="activeStep">
-            <h2 class="font-display mt-4 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
-              {{ methodSteps[activeStep]!.title }}
-            </h2>
-            <div class="mt-6 text-left text-sm [&_.border-ai-500]:border-t-accent-500">
-              <MDC :value="activeStepCodeMd" tag="div" />
-            </div>
+        <div v-for="(step, i) in methodSteps" v-show="i === activeStep" :key="step.title">
+          <h2 class="font-display mt-4 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
+            {{ step.title }}
+          </h2>
+          <div class="mt-6 text-left text-sm [&_.border-ai-500]:border-t-accent-500">
+            <MDC :value="stepCodeMds[i]!" tag="div" />
           </div>
-        </Transition>
+        </div>
         <div class="mt-7 flex items-center justify-center gap-2">
           <button
             v-for="(step, i) in methodSteps"
@@ -400,72 +404,10 @@ const levelCounts = computed(() => {
       </div>
     </section>
 
-    <!-- Route anatomy — the reference's technical-blueprint scene (grid
-         paper, line-art diagram, numbered callouts, a drafting title
-         block, a circular "validated" stamp) recreated with this API's
-         own real, documented behavior: GET /api/lessons/:id's shape
-         check at the controller boundary and the enumeration-safe 404 a
-         draft lesson gets from lesson.repository.ts's inner join on
-         `published: true` (see CLAUDE.md's Publishing section) — not an
-         invented validation flow. -->
-    <section class="relative w-full overflow-hidden border-y border-divider bg-[#EEF1FA] px-6 py-16 dark:border-divider-dark dark:bg-[#0C1022] sm:py-20">
-      <div
-        class="pointer-events-none absolute inset-0 opacity-50 dark:opacity-20"
-        style="background-image: linear-gradient(#1E2A6E22 1px, transparent 1px), linear-gradient(90deg, #1E2A6E22 1px, transparent 1px); background-size: 28px 28px;"
-      />
-      <p class="hud absolute right-6 top-6 text-[#1E2A6E]/40 dark:text-white/40" aria-hidden="true">04 — ANATOMY</p>
-
-      <div class="relative mx-auto max-w-3xl">
-        <p class="hud text-accent-600 dark:text-accent-400">FIG. 05 — ROUTE</p>
-        <h2 class="font-display mt-3 text-2xl font-extrabold leading-tight tracking-tight text-[#1E2A6E] dark:text-white sm:text-3xl">
-          Validated at the boundary.<br>Enumeration-safe by design.
-        </h2>
-
-        <div class="relative mt-10 grid grid-cols-1 gap-5 sm:grid-cols-3 sm:gap-3">
-          <div class="relative rounded border border-[#1E2A6E]/25 bg-white/70 p-4 font-mono text-sm text-[#1E2A6E] dark:border-white/15 dark:bg-white/[0.04] dark:text-zinc-200">
-            <span class="absolute -left-2.5 -top-2.5 flex size-5 items-center justify-center rounded-full border border-accent-500 bg-white text-[10px] font-bold text-accent-600 dark:bg-canvas-dark">1</span>
-            /api/lessons/<span class="text-accent-600 dark:text-accent-400">:id</span>
-            <p class="hud mt-2 text-[#1E2A6E]/50 dark:text-zinc-500">PATH PARAMETER</p>
-          </div>
-          <div class="relative rounded border border-[#1E2A6E]/25 bg-white/70 p-4 font-mono text-sm text-[#1E2A6E] dark:border-white/15 dark:bg-white/[0.04] dark:text-zinc-200">
-            <span class="absolute -left-2.5 -top-2.5 flex size-5 items-center justify-center rounded-full border border-accent-500 bg-white text-[10px] font-bold text-accent-600 dark:bg-canvas-dark">2</span>
-            BadRequestError
-            <p class="hud mt-2 text-[#1E2A6E]/50 dark:text-zinc-500">SHAPE CHECKED AT CONTROLLER</p>
-          </div>
-          <div class="relative rounded border border-[#1E2A6E]/25 bg-white/70 p-4 font-mono text-sm text-[#1E2A6E] dark:border-white/15 dark:bg-white/[0.04] dark:text-zinc-200">
-            <span class="absolute -left-2.5 -top-2.5 flex size-5 items-center justify-center rounded-full border border-accent-500 bg-white text-[10px] font-bold text-accent-600 dark:bg-canvas-dark">3</span>
-            published: true
-            <p class="hud mt-2 text-[#1E2A6E]/50 dark:text-zinc-500">404s LIKE A MISSING LESSON</p>
-          </div>
-        </div>
-
-        <div class="mt-6 rounded border border-[#1E2A6E]/25 bg-white/70 p-4 font-mono text-xs text-[#1E2A6E] dark:border-white/15 dark:bg-white/[0.04] dark:text-zinc-300 sm:text-sm">
-          <p class="hud mb-2 text-[#1E2A6E]/50 dark:text-zinc-500">CODE</p>
-          GET /api/lessons/:id → optionalAuth → LessonController.getById → LessonRepository.findByIdWithCourse({ published: true })
-        </div>
-
-        <div class="mt-8 flex flex-col items-center gap-6 sm:flex-row sm:items-end sm:justify-between">
-          <div
-            class="flex size-20 shrink-0 rotate-[-10deg] items-center justify-center rounded-full border-2 border-dashed border-accent-500 text-center font-display text-[9px] font-bold uppercase leading-tight tracking-wide text-accent-600 dark:text-accent-400"
-          >
-            Safe<br>at runtime
-          </div>
-          <div class="w-full border border-[#1E2A6E]/25 bg-white/70 px-4 py-2.5 font-mono text-[10px] uppercase tracking-wide text-[#1E2A6E]/70 dark:border-white/15 dark:bg-white/[0.04] dark:text-zinc-400 sm:w-auto">
-            <p>MINDSPACE · ROUTE ANATOMY</p>
-            <div class="mt-1 flex gap-5">
-              <span>FILE: LSN-GET</span>
-              <span>SCALE 1:1</span>
-              <span>REV 01</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- Course grid — Coursera's "New and popular" pattern: a level-filter
          pill bar over a real, filterable course grid. -->
     <section v-if="courses?.length" class="relative mx-auto max-w-6xl px-6 pb-20 pt-14">
-      <p class="hud absolute right-6 top-6 text-zinc-300 dark:text-zinc-700" aria-hidden="true">05 — CATALOG</p>
+      <p class="hud absolute right-6 top-6 text-zinc-300 dark:text-zinc-700" aria-hidden="true">04 — CATALOG</p>
       <div class="mb-6 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <h2 class="font-display text-2xl font-bold tracking-tight sm:text-3xl">{{ t('landing.startWithACourse') }}</h2>
         <NuxtLink to="/courses" class="inline-flex shrink-0 items-center gap-1 text-sm font-medium text-accent-700 hover:underline dark:text-accent-400">
@@ -550,7 +492,7 @@ const levelCounts = computed(() => {
          tinted pink. Built from this catalog's own real numbers — no
          invented competitor comparisons. -->
     <section ref="statsTarget" class="relative w-full overflow-hidden bg-canvas-dark px-6 py-16 sm:py-20">
-      <p class="hud absolute right-6 top-6 text-white/40" aria-hidden="true">06 — DOSSIER</p>
+      <p class="hud absolute right-6 top-6 text-white/40" aria-hidden="true">05 — DOSSIER</p>
       <div class="pointer-events-none absolute inset-0" aria-hidden="true">
         <div class="absolute -bottom-24 right-1/3 size-[24rem] rounded-full bg-accent-500/10 blur-[110px]" />
       </div>
@@ -607,7 +549,7 @@ const levelCounts = computed(() => {
          same "one idea, fully stated" weight the reference gives every
          scene — not four equally-small tiles competing for attention. -->
     <section class="relative mx-auto max-w-4xl divide-y divide-divider border-y border-divider px-6 dark:divide-divider-dark dark:border-divider-dark">
-      <p class="hud absolute -top-6 right-6 text-zinc-300 dark:text-zinc-700" aria-hidden="true">07 — FEATURES</p>
+      <p class="hud absolute -top-6 right-6 text-zinc-300 dark:text-zinc-700" aria-hidden="true">06 — FEATURES</p>
       <article
         v-for="(feature, i) in features"
         :key="feature.title"
@@ -623,7 +565,7 @@ const levelCounts = computed(() => {
 
     <!-- Closing promo banner -->
     <section class="relative mx-auto max-w-6xl px-6 pb-20">
-      <p class="hud absolute right-6 top-2 text-zinc-300 dark:text-zinc-700" aria-hidden="true">08 — START</p>
+      <p class="hud absolute right-6 top-2 text-zinc-300 dark:text-zinc-700" aria-hidden="true">07 — START</p>
       <div class="flex flex-col items-center gap-5 rounded-3xl border border-accent-100 bg-accent-50 px-6 py-10 text-center dark:border-accent-400/20 dark:bg-accent-400/[0.06] sm:flex-row sm:justify-between sm:px-10 sm:text-left">
         <div>
           <p class="text-[11px] font-semibold uppercase tracking-[0.15em] text-accent-700 dark:text-accent-400">{{ t('landing.ctaEyebrow') }}</p>
