@@ -86,7 +86,7 @@ const groups = computed<LessonGroup[]>(() => {
                 :aria-label="t(`dashboard.contentType.${lesson.contentType}`)"
               />
             </span>
-            <span class="flex-1 truncate">{{ pickLocalized(lesson.titleEn, lesson.titleTh, lang) }}</span>
+            <span class="flex-1 truncate"><FormattedTitle :text="pickLocalized(lesson.titleEn, lesson.titleTh, lang)" /></span>
           </NuxtLink>
         </li>
       </ul>
