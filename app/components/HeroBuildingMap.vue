@@ -1,11 +1,7 @@
 <script setup lang="ts">
-// Hand-illustrated isometric skyscraper (pure SVG, no WebGL) — one tower,
-// one floor per course, standing on a small plaza. Replaces the old
-// scattered-island map: the "island" metaphor read as a loose archipelago,
-// not something you could point at and call a building. Floor height
-// adapts to the course count so the tower reads as a consistent, pleasant
-// height whether there are 6 courses or 20. Pure SVG + CSS, same as the
-// map it replaces — renders fine on the server, no per-frame JS loop, and
+// Hand-illustrated isometric skyline (pure SVG, no WebGL) — one building per
+// course, varying height by lesson count, standing on a small plaza.
+// Pure SVG + CSS: renders fine on the server, no per-frame JS loop, and
 // every element's screen position is a percentage of the SVG's own
 // viewBox, so it stays correct across any container size for free.
 import { MapPin } from '@lucide/vue'
@@ -26,7 +22,7 @@ const LEVEL_COLOR: Record<CourseLevel, string> = {
 }
 
 // Lit-window tint per level — pastel versions of LEVEL_COLOR, so the
-// facade itself quietly encodes "this floor is a Beginner/Intermediate/
+// facade itself quietly encodes "this building is a Beginner/Intermediate/
 // Advanced course" without needing a legend.
 const WINDOW_COLOR: Record<CourseLevel, string> = {
   Beginner: '#9df2cf',
@@ -43,20 +39,15 @@ const WALL_WEST = ['#434b5e', '#4a5265']
 const ROOF_COLOR = '#2f3648'
 const ACCENT = '#ec4899'
 
-const HW = 70
-const HH = 36
-const CLIFF_BAND: [number, number] = [16, 20]
-const PLAZA_SIZE = 3
-const BUILDING_COL = 1
-const BUILDING_ROW = 1
-// Total shaft height stays roughly constant regardless of course count —
-// more courses means shorter floors, not an ever-taller tower.
-const TARGET_SHAFT_HEIGHT = 460
-
-const floorHeight = computed(() => {
-  const n = Math.max(1, props.courses.length)
-  return Math.min(34, Math.max(17, TARGET_SHAFT_HEIGHT / n))
-})
+const HW = 46
+const HH = 24
+const CLIFF_BAND: [number, number] = [14, 18]
+const MAX_BUILDINGS = 16
+// Building height varies with lesson count (not a fixed/uniform skyline) —
+// capped so one unusually long course doesn't tower absurdly over the rest.
+const BASE_HEIGHT = 90
+const PER_LESSON_HEIGHT = 9
+const LESSON_CAP = 16
 
 function hash(x: number, y: number, salt: number): number {
   const v = Math.sin(x * 127.1 + y * 311.7 + salt * 74.7) * 43758.5453
@@ -87,19 +78,42 @@ function lift(p: Point, amount: number): Point {
   return { x: p.x, y: p.y - amount }
 }
 
-function centroid(points: Point[]): Point {
-  return {
-    x: points.reduce((s, p) => s + p.x, 0) / points.length,
-    y: points.reduce((s, p) => s + p.y, 0) / points.length
-  }
+function mid(a: Point, b: Point): Point {
+  return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }
 }
+
+function lerp(a: Point, b: Point, t: number): Point {
+  return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t }
+}
+
+/** A building sits on a footprint inset from its full ground tile, not
+ *  flush with it — otherwise adjacent buildings' walls touch directly and
+ *  the skyline reads as one fused block instead of several distinct
+ *  towers with daylight between them. */
+function footprint(tile: LandTile, scale: number): LandTile {
+  const cx = (tile.top.x + tile.bottom.x) / 2
+  const cy = (tile.top.y + tile.bottom.y) / 2
+  const shrink = (p: Point): Point => ({ x: cx + (p.x - cx) * scale, y: cy + (p.y - cy) * scale })
+  return { ...tile, top: shrink(tile.top), right: shrink(tile.right), bottom: shrink(tile.bottom), left: shrink(tile.left) }
+}
+
+const BUILDING_FOOTPRINT_SCALE = 0.68
 
 function pts(...points: Point[]): string {
   return points.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')
 }
 
-/** Builds the tan+dark-brown strata for one plaza edge, same technique the
- *  old island used for its coastline. */
+type DrawItem =
+  | { kind: 'top'; depth: number; points: string; color: string }
+  | { kind: 'cliff'; depth: number; points: string; color: string }
+  | { kind: 'rock'; depth: number; x: number; y: number; scale: number }
+  | { kind: 'tree'; depth: number; x: number; y: number; scale: number }
+  | { kind: 'wall'; depth: number; points: string; color: string; index: number }
+  | { kind: 'roof'; depth: number; points: string; index: number }
+  | { kind: 'window'; depth: number; x: number; y: number; color: string; delay: number }
+  | { kind: 'marker'; depth: number; x: number; y: number; stickTo: Point; color: string; index: number }
+
+/** Builds the tan+dark-brown strata for one plaza edge. */
 function buildCliffBands(aTop: Point, bTop: Point, colors: string[], depth: number): DrawItem[] {
   const out: DrawItem[] = []
   let ya = aTop.y
@@ -119,36 +133,106 @@ function buildCliffBands(aTop: Point, bTop: Point, colors: string[], depth: numb
   return out
 }
 
-type DrawItem =
-  | { kind: 'top'; depth: number; points: string; color: string }
-  | { kind: 'cliff'; depth: number; points: string; color: string }
-  | { kind: 'rock'; depth: number; x: number; y: number; scale: number }
-  | { kind: 'tree'; depth: number; x: number; y: number; scale: number }
-  | { kind: 'wall'; depth: number; points: string; color: string; index: number }
-  | { kind: 'roof'; depth: number; points: string }
-  | { kind: 'window'; depth: number; x: number; y: number; color: string; delay: number }
-  | { kind: 'marker'; depth: number; x: number; y: number; stickTo: Point; color: string; index: number }
-
-// 3x3 plaza, flat — the tower itself (not terrain variation) is the thing
-// doing the visual work now, so the ground stays simple and uncluttered.
-const plazaTiles: LandTile[] = []
-for (let row = 0; row < PLAZA_SIZE; row++) {
-  for (let col = 0; col < PLAZA_SIZE; col++) {
-    plazaTiles.push(tileCorners(col, row))
-  }
+function buildingHeight(course: Course): number {
+  return BASE_HEIGHT + Math.min(course.lessons.length, LESSON_CAP) * PER_LESSON_HEIGHT
 }
-const plazaByKey = new Map(plazaTiles.map((t) => [`${t.col},${t.row}`, t]))
-const buildingTile = plazaByKey.get(`${BUILDING_COL},${BUILDING_ROW}`)!
 
-// Hand-placed plaza props on the four corner tiles — a controlled
-// composition (like the old map's hand-placed clouds) rather than noise,
-// since there are only 8 non-building tiles to work with.
-const PLAZA_PROPS: Array<{ col: number; row: number; kind: 'rock' | 'tree' }> = [
-  { col: 0, row: 0, kind: 'tree' },
-  { col: 2, row: 0, kind: 'rock' },
-  { col: 0, row: 2, kind: 'rock' },
-  { col: 2, row: 2, kind: 'tree' }
-]
+const buildingCount = computed(() => Math.min(props.courses.length, MAX_BUILDINGS))
+const gridCols = computed(() => Math.max(1, Math.ceil(Math.sqrt(buildingCount.value))))
+const gridRows = computed(() => Math.max(1, Math.ceil(buildingCount.value / gridCols.value)))
+// A 1-tile plaza border all around the building grid.
+const plazaCols = computed(() => gridCols.value + 2)
+const plazaRows = computed(() => gridRows.value + 2)
+
+const plazaTiles = computed<LandTile[]>(() => {
+  const tiles: LandTile[] = []
+  for (let row = 0; row < plazaRows.value; row++) {
+    for (let col = 0; col < plazaCols.value; col++) {
+      tiles.push(tileCorners(col, row))
+    }
+  }
+  return tiles
+})
+const plazaByKey = computed(() => new Map(plazaTiles.value.map((t) => [`${t.col},${t.row}`, t])))
+
+interface BuildingPlacement { tile: LandTile; course: Course; index: number; height: number; level: CourseLevel }
+
+const buildings = computed<BuildingPlacement[]>(() => {
+  const cols = gridCols.value
+  return props.courses.slice(0, buildingCount.value).map((course, i) => {
+    const gridCol = (i % cols) + 1
+    const gridRow = Math.floor(i / cols) + 1
+    const tile = plazaByKey.value.get(`${gridCol},${gridRow}`)!
+    return { tile, course, index: i, height: buildingHeight(course), level: getCourseLevel(course) }
+  })
+})
+const buildingTileKeys = computed(() => new Set(buildings.value.map((b) => `${b.tile.col},${b.tile.row}`)))
+
+const tallestIndex = computed(() => {
+  let best = 0
+  let bestHeight = -1
+  buildings.value.forEach((b) => {
+    if (b.height > bestHeight) {
+      bestHeight = b.height
+      best = b.index
+    }
+  })
+  return best
+})
+
+interface MarkerPoint { x: number; y: number }
+
+const markerPoints = computed<MarkerPoint[]>(() =>
+  buildings.value.map((b) => {
+    const roofTop = lift(footprint(b.tile, BUILDING_FOOTPRINT_SCALE).top, b.height)
+    return { x: roofTop.x, y: roofTop.y - 24 }
+  })
+)
+
+function buildingItems(b: BuildingPlacement): DrawItem[] {
+  const out: DrawItem[] = []
+  const t = footprint(b.tile, BUILDING_FOOTPRINT_SCALE)
+  const roofTop = lift(t.top, b.height)
+  const roofRight = lift(t.right, b.height)
+  const roofBottom = lift(t.bottom, b.height)
+  const roofLeft = lift(t.left, b.height)
+
+  const eastPts = [t.right, t.bottom, roofBottom, roofRight]
+  const westPts = [t.bottom, t.left, roofLeft, roofBottom]
+
+  out.push({ kind: 'wall', depth: t.depth + 0.1, points: pts(...eastPts), color: WALL_EAST[b.index % WALL_EAST.length]!, index: b.index })
+  out.push({ kind: 'wall', depth: t.depth + 0.11, points: pts(...westPts), color: WALL_WEST[b.index % WALL_WEST.length]!, index: b.index })
+
+  const windowRows = Math.max(2, Math.round(b.height / 26))
+  const eastBottomMid = mid(t.right, t.bottom)
+  const eastTopMid = mid(roofRight, roofBottom)
+  const westBottomMid = mid(t.bottom, t.left)
+  const westTopMid = mid(roofBottom, roofLeft)
+  for (let r = 0; r < windowRows; r++) {
+    const tt = (r + 0.6) / (windowRows + 0.3)
+    const eastPoint = lerp(eastBottomMid, eastTopMid, tt)
+    out.push({ kind: 'window', depth: t.depth + 0.5, x: eastPoint.x, y: eastPoint.y, color: WINDOW_COLOR[b.level], delay: hash(b.index, r, 30) * 2.4 })
+    if (hash(b.index, r, 31) > 0.25) {
+      const westPoint = lerp(westBottomMid, westTopMid, tt)
+      out.push({ kind: 'window', depth: t.depth + 0.5, x: westPoint.x, y: westPoint.y, color: WINDOW_COLOR[b.level], delay: hash(b.index, r, 32) * 2.4 })
+    }
+  }
+
+  out.push({ kind: 'roof', depth: t.depth + 0.4, points: pts(roofTop, roofRight, roofBottom, roofLeft), index: b.index })
+
+  const marker = markerPoints.value[b.index]!
+  out.push({
+    kind: 'marker',
+    depth: t.depth + 0.6,
+    x: marker.x,
+    y: marker.y,
+    stickTo: roofTop,
+    color: LEVEL_COLOR[b.level],
+    index: b.index
+  })
+
+  return out
+}
 
 function firstLessonId(course: Course): string | null {
   return [...course.lessons].sort((a, b) => a.order - b.order)[0]?.id ?? null
@@ -159,100 +243,66 @@ function goToCourse(course: Course) {
   navigateTo(lessonId ? `/courses/${lessonId}` : '/courses')
 }
 
-interface MarkerPoint { x: number; y: number }
-
-const markerPoints = computed<MarkerPoint[]>(() => {
-  const fh = floorHeight.value
-  return props.courses.map((_, i) => {
-    const front = lift(buildingTile.bottom, (i + 0.5) * fh)
-    return { x: front.x + 26, y: front.y + 2 }
-  })
-})
+// Hand-illustrated prop density on the plaza border — deterministic (not
+// random), scales naturally with however large the border ring is.
+function plazaProp(tile: LandTile): 'rock' | 'tree' | null {
+  const h = hash(tile.col, tile.row, 5)
+  if (h > 0.88) return 'tree'
+  if (h > 0.78) return 'rock'
+  return null
+}
 
 const items = computed<DrawItem[]>(() => {
   const list: DrawItem[] = []
-  const fh = floorHeight.value
-  const floorCount = Math.max(1, props.courses.length)
 
-  plazaTiles.forEach((tile) => {
-    const isBuilding = tile.col === BUILDING_COL && tile.row === BUILDING_ROW
+  plazaTiles.value.forEach((tile) => {
+    const key = `${tile.col},${tile.row}`
+    const isBuilding = buildingTileKeys.value.has(key)
     const isDirt = hash(tile.col, tile.row, 3) < 0.3
     const palette = isDirt ? DIRT : GRASS
     const color = palette[Math.floor(hash(tile.col, tile.row, 4) * palette.length)]!
     list.push({ kind: 'top', depth: tile.depth, points: pts(tile.top, tile.right, tile.bottom, tile.left), color })
 
-    const east = plazaByKey.get(`${tile.col + 1},${tile.row}`)
-    const west = plazaByKey.get(`${tile.col},${tile.row + 1}`)
+    const east = plazaByKey.value.get(`${tile.col + 1},${tile.row}`)
+    const west = plazaByKey.value.get(`${tile.col},${tile.row + 1}`)
     if (!east) list.push(...buildCliffBands(tile.right, tile.bottom, CLIFF_EAST, tile.depth - 0.1))
     if (!west) list.push(...buildCliffBands(tile.bottom, tile.left, CLIFF_WEST, tile.depth - 0.1))
 
     if (isBuilding) return
-    const prop = PLAZA_PROPS.find((p) => p.col === tile.col && p.row === tile.row)
+    const prop = plazaProp(tile)
     const center = { x: tile.top.x, y: tile.top.y + HH }
-    if (prop?.kind === 'rock') {
-      list.push({ kind: 'rock', depth: tile.depth + 0.2, x: center.x, y: center.y, scale: 1 })
-    } else if (prop?.kind === 'tree') {
-      list.push({ kind: 'tree', depth: tile.depth + 0.2, x: center.x, y: center.y, scale: 1 })
+    if (prop === 'rock') {
+      list.push({ kind: 'rock', depth: tile.depth + 0.2, x: center.x, y: center.y, scale: 0.85 + hash(tile.col, tile.row, 6) * 0.3 })
+    } else if (prop === 'tree') {
+      list.push({ kind: 'tree', depth: tile.depth + 0.2, x: center.x, y: center.y, scale: 0.85 + hash(tile.col, tile.row, 7) * 0.3 })
     }
   })
 
-  const t = buildingTile
-  for (let i = 0; i < floorCount; i++) {
-    const course = props.courses[i]
-    const level = course ? getCourseLevel(course) : 'Intermediate'
-    const eastPts = [lift(t.right, i * fh), lift(t.bottom, i * fh), lift(t.bottom, (i + 1) * fh), lift(t.right, (i + 1) * fh)]
-    const westPts = [lift(t.bottom, i * fh), lift(t.left, i * fh), lift(t.left, (i + 1) * fh), lift(t.bottom, (i + 1) * fh)]
-
-    list.push({ kind: 'wall', depth: t.depth + 0.1 + i * 0.001, points: pts(...eastPts), color: WALL_EAST[i % WALL_EAST.length]!, index: i })
-    list.push({ kind: 'wall', depth: t.depth + 0.11 + i * 0.001, points: pts(...westPts), color: WALL_WEST[i % WALL_WEST.length]!, index: i })
-
-    const windowCount = fh > 24 ? 2 : 1
-    const eastCenter = centroid(eastPts)
-    const westCenter = centroid(westPts)
-    for (let w = 0; w < windowCount; w++) {
-      const spread = windowCount > 1 ? (w === 0 ? -6 : 6) : 0
-      list.push({ kind: 'window', depth: t.depth + 0.5, x: eastCenter.x + spread, y: eastCenter.y, color: WINDOW_COLOR[level], delay: hash(i, w, 30) * 2.4 })
-      if (hash(i, w, 31) > 0.25) {
-        list.push({ kind: 'window', depth: t.depth + 0.5, x: westCenter.x + spread, y: westCenter.y, color: WINDOW_COLOR[level], delay: hash(i, w, 32) * 2.4 })
-      }
-    }
-
-    if (course) {
-      const marker = markerPoints.value[i]!
-      list.push({
-        kind: 'marker',
-        depth: t.depth + 0.6 + i * 0.001,
-        x: marker.x,
-        y: marker.y,
-        stickTo: lift(t.bottom, (i + 0.5) * fh),
-        color: LEVEL_COLOR[level],
-        index: i
-      })
-    }
-  }
-
-  const roofTop = lift(t.top, floorCount * fh)
-  const roofRight = lift(t.right, floorCount * fh)
-  const roofBottom = lift(t.bottom, floorCount * fh)
-  const roofLeft = lift(t.left, floorCount * fh)
-  list.push({ kind: 'roof', depth: t.depth + 10, points: pts(roofTop, roofRight, roofBottom, roofLeft) })
+  buildings.value.forEach((b) => list.push(...buildingItems(b)))
 
   return list.sort((a, b) => a.depth - b.depth)
 })
 
-const roofApex = computed<Point>(() => lift(buildingTile.top, Math.max(1, props.courses.length) * floorHeight.value))
+const tallestMarker = computed<Point>(() => {
+  const tallest = buildings.value[tallestIndex.value]
+  if (!tallest) return { x: 0, y: 0 }
+  return lift(footprint(tallest.tile, BUILDING_FOOTPRINT_SCALE).top, tallest.height)
+})
 
 const bounds = computed(() => {
   const allX: number[] = []
   const allY: number[] = []
-  plazaTiles.forEach((tile) => {
+  plazaTiles.value.forEach((tile) => {
     ;[tile.top, tile.right, tile.bottom, tile.left].forEach((p) => {
       allX.push(p.x)
       allY.push(p.y + CLIFF_BAND[0] + CLIFF_BAND[1])
     })
   })
-  markerPoints.value.forEach((m) => allX.push(m.x))
-  allY.push(roofApex.value.y - 34)
+  markerPoints.value.forEach((m) => {
+    allX.push(m.x)
+    allY.push(m.y)
+  })
+  allY.push(tallestMarker.value.y - 34)
   const padTop = 20
   const padSide = 24
   const minX = Math.min(...allX) - padSide
@@ -272,6 +322,16 @@ function markerScreenPercent(index: number) {
   }
 }
 
+// A building near the plaza's right edge would otherwise push the card
+// past the hero panel's own rounded edge and clip — flip it to the left
+// of the marker instead.
+function isMarkerOnRightSide(index: number): boolean {
+  const p = markerPoints.value[index]
+  if (!p) return false
+  const b = bounds.value
+  return (p.x - b.minX) / b.width > 0.62
+}
+
 onMounted(() => {
   if (props.courses.length > 0) selectedIndex.value = 0
 })
@@ -283,6 +343,8 @@ watch(() => props.courses, () => {
 const selectedCourse = computed<Course | null>(() =>
   selectedIndex.value !== null ? props.courses[selectedIndex.value] ?? null : null
 )
+
+const cardFlipped = computed(() => selectedIndex.value !== null && isMarkerOnRightSide(selectedIndex.value))
 
 const selectedGlowCenter = computed<Point | null>(() => {
   if (selectedIndex.value === null) return null
@@ -340,7 +402,7 @@ const CLOUDS = [
         </g>
       </g>
 
-      <ellipse :cx="buildingTile.top.x" :cy="buildingTile.bottom.y + CLIFF_BAND[0] + CLIFF_BAND[1] + 16" :rx="HW * 2.1" ry="16" fill="black" opacity="0.16" />
+      <ellipse :cx="(bounds.minX + bounds.minX + bounds.width) / 2" :cy="bounds.minY + bounds.height - 4" :rx="bounds.width * 0.42" ry="14" fill="black" opacity="0.16" />
 
       <template v-for="(item, i) in items" :key="i">
         <template v-if="item.kind === 'top' || item.kind === 'cliff'">
@@ -383,15 +445,15 @@ const CLOUDS = [
         />
 
         <template v-else-if="item.kind === 'roof'">
-          <polygon :points="item.points" :fill="ROOF_COLOR" />
-          <polygon :points="item.points" fill="url(#lightSheen)" />
+          <polygon :points="item.points" :fill="ROOF_COLOR" style="cursor: pointer" @click="selectedIndex = item.index" />
+          <polygon :points="item.points" fill="url(#lightSheen)" style="pointer-events: none" />
         </template>
 
         <circle
           v-else-if="item.kind === 'window'"
           :cx="item.x"
           :cy="item.y"
-          r="2.3"
+          r="2"
           :fill="item.color"
           class="window-twinkle"
           :style="{ animationDelay: `${item.delay}s` }"
@@ -402,7 +464,7 @@ const CLOUDS = [
           <circle
             :cx="item.x"
             :cy="item.y"
-            :r="hoveredIndex === item.index || selectedIndex === item.index ? 8.5 : 7"
+            :r="hoveredIndex === item.index || selectedIndex === item.index ? 8 : 6.5"
             :fill="item.color"
             stroke="white"
             stroke-width="2"
@@ -415,10 +477,10 @@ const CLOUDS = [
         </g>
       </template>
 
-      <!-- Rooftop flagpole — a small flourish marking the top of the
-           tower, swaying gently; the one spot of pure brand-accent color
-           in the whole illustration. -->
-      <g :transform="`translate(${roofApex.x}, ${roofApex.y})`">
+      <!-- Rooftop flagpole — one flourish on the tallest building only,
+           swaying gently; the one spot of pure brand-accent color in the
+           whole illustration. -->
+      <g :transform="`translate(${tallestMarker.x}, ${tallestMarker.y})`">
         <line x1="0" y1="0" x2="0" y2="-22" stroke="#cbd0dc" stroke-width="2" stroke-linecap="round" />
         <g class="flag-sway" style="transform-origin: 0px -22px;">
           <polygon points="0,-22 14,-18 0,-14" :fill="ACCENT" />
@@ -428,10 +490,15 @@ const CLOUDS = [
 
     <div
       v-if="selectedCourse"
-      class="pointer-events-none absolute z-10 w-48 translate-x-4 -translate-y-1/2 rounded-xl bg-white p-3 text-left shadow-2xl shadow-black/30"
+      class="pointer-events-none absolute z-10 w-48 -translate-y-1/2 rounded-xl bg-white p-3 text-left shadow-2xl shadow-black/30"
+      :class="cardFlipped ? '-translate-x-[calc(100%+16px)]' : 'translate-x-4'"
       :style="markerScreenPercent(selectedIndex!)"
     >
-      <div class="absolute right-full top-1/2 h-3 w-3 -translate-y-1.5 translate-x-1.5 rotate-45 bg-white" aria-hidden="true" />
+      <div
+        class="absolute top-1/2 h-3 w-3 -translate-y-1.5 rotate-45 bg-white"
+        :class="cardFlipped ? 'left-full -translate-x-1.5' : 'right-full translate-x-1.5'"
+        aria-hidden="true"
+      />
       <span class="flex size-7 items-center justify-center rounded-full bg-ai-50">
         <MapPin :size="14" :stroke-width="2" class="text-ai-600" />
       </span>
