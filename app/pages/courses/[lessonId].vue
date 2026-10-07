@@ -123,9 +123,9 @@ watch(lessonId, () => {
             {{ t('lesson.minRead', { count: readingMinutes }) }}
           </span>
         </div>
-        <h1 class="font-display text-2xl font-bold tracking-tight sm:text-3xl">{{ lessonTitle }}</h1>
+        <h1 class="font-display text-xl font-bold tracking-tight sm:text-2xl">{{ lessonTitle }}</h1>
 
-        <div class="prose prose-zinc mt-6 max-w-none dark:prose-invert">
+        <div class="prose prose-sm prose-zinc mt-6 max-w-none dark:prose-invert">
           <MDC :value="lessonContent" tag="div" />
         </div>
 
