@@ -338,7 +338,7 @@ const levelCounts = computed(() => {
           </div>
 
           <div class="relative h-[17rem] overflow-visible rounded-2xl sm:h-[20rem]">
-            <HeroCityscape :courses="courses ?? []" />
+            <HeroBuildingMap :courses="courses ?? []" />
             <p class="pointer-events-none absolute -bottom-6 left-1/2 w-full -translate-x-1/2 text-center text-xs font-medium text-zinc-400">
               {{ t('landing.mapHint') }}
             </p>
