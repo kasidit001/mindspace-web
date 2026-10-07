@@ -92,33 +92,6 @@ function buildWindowTexture(level: CourseLevel, seed: number): THREE.CanvasTextu
   return texture
 }
 
-/** A simple sidewalk-grid texture for the plaza ground, repeated across
- *  the whole circle rather than one texture per tile. */
-function buildGroundTexture(): THREE.CanvasTexture {
-  const canvas = document.createElement('canvas')
-  canvas.width = 128
-  canvas.height = 128
-  const ctx = canvas.getContext('2d')!
-  ctx.fillStyle = '#343b4a'
-  ctx.fillRect(0, 0, 128, 128)
-  ctx.strokeStyle = 'rgba(255,255,255,0.07)'
-  ctx.lineWidth = 2
-  for (let i = 0; i <= 128; i += 32) {
-    ctx.beginPath()
-    ctx.moveTo(i, 0)
-    ctx.lineTo(i, 128)
-    ctx.stroke()
-    ctx.beginPath()
-    ctx.moveTo(0, i)
-    ctx.lineTo(128, i)
-    ctx.stroke()
-  }
-  const texture = new THREE.CanvasTexture(canvas)
-  texture.wrapS = texture.wrapT = THREE.RepeatWrapping
-  texture.colorSpace = THREE.SRGBColorSpace
-  return texture
-}
-
 interface BuildingEntry {
   group: THREE.Group
   box: THREE.Mesh
@@ -141,15 +114,6 @@ function buildScene(container: HTMLElement, canvas: HTMLCanvasElement, list: Cou
   sun.position.set(6, 10, 4)
   stage.scene.add(sun)
   stage.scene.add(new THREE.AmbientLight(0xffffff, 0.12))
-
-  const groundTexture = buildGroundTexture()
-  groundTexture.repeat.set(cols * 2, cols * 2)
-  const ground = new THREE.Mesh(
-    new THREE.CircleGeometry(cols * spacing * 1.15, 48),
-    new THREE.MeshStandardMaterial({ map: groundTexture, roughness: 1 })
-  )
-  ground.rotation.x = -Math.PI / 2
-  stage.scene.add(ground)
 
   const buildings: BuildingEntry[] = []
   let tallestIndex = 0
