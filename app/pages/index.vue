@@ -252,28 +252,23 @@ const sparklinePoints = computed(() => {
       </div>
     </header>
 
-    <!-- Hero — forced dark (the "Theme: Dark mode" identity's primary
-         surface, regardless of the site's light/dark toggle elsewhere),
-         headline + CTAs on the left, a real bento-grid dashboard-preview
-         panel on the right instead of an illustration: this catalog's own
-         numbers, rendered the way the brief asks for — metric cards, a
-         real-data sparkline, micro badges. -->
+    <!-- Hero — light-first, same card language as the rest of the app
+         (dashboard.vue/course.vue): headline + CTAs on the left, a real
+         bento-grid dashboard-preview panel on the right instead of an
+         illustration — this catalog's own numbers, rendered as metric
+         cards, a real-data sparkline, micro badges. -->
     <section class="px-6 pt-8 sm:pt-12">
-      <div class="reveal relative mx-auto max-w-6xl overflow-hidden rounded-2xl bg-canvas-dark px-6 py-16 sm:px-10 sm:py-20" style="--delay: 0s">
-        <div class="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl" aria-hidden="true">
-          <div class="absolute -top-24 right-1/4 size-[26rem] rounded-full bg-accent-500/20 blur-[120px]" />
-        </div>
-
+      <div class="reveal relative mx-auto max-w-6xl overflow-hidden rounded-2xl border border-divider bg-surface px-6 py-16 dark:border-divider-dark dark:bg-surface-dark sm:px-10 sm:py-20" style="--delay: 0s">
         <div class="relative z-10 grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-8">
           <div class="text-center lg:text-left">
-            <span class="badge border border-white/10 bg-white/5 text-zinc-300">
-              <span class="size-1.5 shrink-0 rounded-full bg-lime-400" />
-              {{ t('landing.badgeVerb') }} <span class="text-white/50">{{ t('landing.badgeTerm') }}</span>
+            <span class="badge border border-divider bg-zinc-50 text-zinc-600 dark:border-divider-dark dark:bg-white/5 dark:text-zinc-300">
+              <span class="size-1.5 shrink-0 rounded-full bg-lime-500" />
+              {{ t('landing.badgeVerb') }} <span class="text-zinc-400 dark:text-white/50">{{ t('landing.badgeTerm') }}</span>
             </span>
-            <h1 class="font-display text-balance mt-5 text-[2.25rem] font-extrabold leading-[1.1] tracking-tight text-white sm:text-5xl lg:text-[3.1rem]">
-              {{ t('landing.heroTitle') }} <span class="text-accent-400">for humans.</span>
+            <h1 class="font-display text-balance mt-5 text-[2.25rem] font-extrabold leading-[1.1] tracking-tight sm:text-5xl lg:text-[3.1rem]">
+              {{ t('landing.heroTitle') }} <span class="text-accent-600 dark:text-accent-400">for humans.</span>
             </h1>
-            <p class="mx-auto mt-5 max-w-[30rem] text-balance text-base leading-relaxed text-slate-400 lg:mx-0">
+            <p class="mx-auto mt-5 max-w-[30rem] text-balance text-base leading-relaxed text-zinc-500 dark:text-zinc-400 lg:mx-0">
               {{ t('landing.heroBody') }}
             </p>
 
@@ -283,7 +278,7 @@ const sparklinePoints = computed(() => {
               </NuxtLink>
               <NuxtLink
                 to="/courses"
-                class="group inline-flex items-center gap-1.5 text-sm font-semibold text-white/90 transition-colors hover:text-white"
+                class="group inline-flex items-center gap-1.5 text-sm font-semibold text-zinc-700 transition-colors hover:text-zinc-900 dark:text-white/90 dark:hover:text-white"
               >
                 {{ t('landing.exploreCourses') }}
                 <ArrowRight :size="14" :stroke-width="2" class="transition-transform group-hover:translate-x-1" />
@@ -292,34 +287,34 @@ const sparklinePoints = computed(() => {
           </div>
 
           <!-- Bento-grid dashboard preview: two compact metric cards, one
-               wide "lesson depth" sparkline card. Dark surface, razor-thin
-               white/10 border, rounded-xl, per spec. -->
+               wide "lesson depth" sparkline card — same `.card` surface as
+               every other card in the app, just smaller padding. -->
           <div class="grid grid-cols-2 gap-3">
-            <div class="rounded-xl border border-white/10 bg-[#1A1C23] p-4">
+            <div class="card p-4">
               <div class="flex items-center justify-between">
-                <span class="text-xs text-slate-400">Courses</span>
-                <span class="badge bg-lime-400/10 text-lime-400">Live</span>
+                <span class="text-xs text-zinc-500 dark:text-zinc-400">Courses</span>
+                <span class="badge bg-lime-500/10 text-lime-700 dark:text-lime-400">Live</span>
               </div>
-              <p class="mt-2.5 text-3xl font-bold tracking-tight text-white">{{ totalCourses }}</p>
+              <p class="mt-2.5 text-3xl font-bold tracking-tight">{{ totalCourses }}</p>
             </div>
-            <div class="rounded-xl border border-white/10 bg-[#1A1C23] p-4">
+            <div class="card p-4">
               <div class="flex items-center justify-between">
-                <span class="text-xs text-slate-400">Lessons</span>
-                <span class="badge bg-accent-500/10 text-accent-400">{{ totalTech }} stacks</span>
+                <span class="text-xs text-zinc-500 dark:text-zinc-400">Lessons</span>
+                <span class="badge bg-accent-500/10 text-accent-700 dark:text-accent-400">{{ totalTech }} stacks</span>
               </div>
-              <p class="mt-2.5 text-3xl font-bold tracking-tight text-white">{{ totalLessons }}</p>
+              <p class="mt-2.5 text-3xl font-bold tracking-tight">{{ totalLessons }}</p>
             </div>
 
-            <div class="col-span-2 rounded-xl border border-white/10 bg-[#1A1C23] p-4">
+            <div class="card col-span-2 p-4">
               <div class="flex items-center justify-between">
-                <span class="text-xs text-slate-400">Lesson depth, top 5 courses</span>
-                <span class="badge bg-lime-400/10 text-lime-400">{{ topCoursesByLessons[0]?.count ?? 0 }} max</span>
+                <span class="text-xs text-zinc-500 dark:text-zinc-400">Lesson depth, top 5 courses</span>
+                <span class="badge bg-lime-500/10 text-lime-700 dark:text-lime-400">{{ topCoursesByLessons[0]?.count ?? 0 }} max</span>
               </div>
               <svg viewBox="0 0 100 32" class="mt-3 h-10 w-full overflow-visible" preserveAspectRatio="none">
                 <polyline
                   :points="sparklinePoints"
                   fill="none"
-                  stroke="#A3E635"
+                  class="stroke-lime-600 dark:stroke-lime-400"
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -350,16 +345,15 @@ const sparklinePoints = computed(() => {
       </ul>
     </section>
 
-    <!-- How it works — a bento card, forced dark: a step counter, one
-         confident claim, and a real endpoint shown bare, cycling
-         automatically. -->
+    <!-- How it works — a card: a step counter, one confident claim, and a
+         real endpoint shown bare, cycling automatically. -->
     <section class="px-6 pb-10 sm:pb-14">
-      <div class="relative mx-auto max-w-2xl overflow-hidden rounded-xl border border-white/10 bg-canvas-dark px-6 py-12 text-center sm:px-10">
-        <p class="font-mono text-xs font-medium tracking-[0.1em] text-accent-400">
+      <div class="card relative mx-auto max-w-2xl px-6 py-12 text-center sm:px-10">
+        <p class="font-mono text-xs font-medium tracking-[0.1em] text-accent-600 dark:text-accent-400">
           {{ String(activeStep + 1).padStart(2, '0') }} / {{ String(methodSteps.length).padStart(2, '0') }}
         </p>
         <div v-for="(step, i) in methodSteps" v-show="i === activeStep" :key="step.title">
-          <h2 class="font-display mt-4 text-xl font-bold tracking-tight text-white sm:text-2xl">
+          <h2 class="font-display mt-4 text-xl font-bold tracking-tight sm:text-2xl">
             {{ step.title }}
           </h2>
           <div class="mt-6 text-left text-sm [&_.border-ai-500]:border-t-accent-500">
@@ -372,7 +366,7 @@ const sparklinePoints = computed(() => {
             :key="step.title"
             type="button"
             class="h-1.5 rounded-full transition-all"
-            :class="i === activeStep ? 'w-6 bg-accent-500' : 'w-1.5 bg-white/15 hover:bg-white/25'"
+            :class="i === activeStep ? 'w-6 bg-accent-500' : 'w-1.5 bg-zinc-200 hover:bg-zinc-300 dark:bg-white/15 dark:hover:bg-white/25'"
             :aria-label="`Step ${i + 1}: ${step.title}`"
             @click="activeStep = i"
           />
@@ -442,46 +436,43 @@ const sparklinePoints = computed(() => {
       </p>
     </section>
 
-    <!-- Dashboard section — the brief's bento-grid metric dashboard, in
-         full: forced dark, four cards (2 metrics + a level-breakdown bar
-         card + a tech-stack badge card), all built from real catalog data. -->
-    <section ref="statsTarget" class="relative w-full overflow-hidden bg-canvas-dark px-6 py-16 sm:py-20">
-      <div class="pointer-events-none absolute inset-0" aria-hidden="true">
-        <div class="absolute -bottom-24 right-1/3 size-[24rem] rounded-full bg-accent-500/10 blur-[120px]" />
-      </div>
+    <!-- Dashboard section — a bento-grid metric dashboard: four cards (2
+         metrics + a level-breakdown bar card), all built from real catalog
+         data, same `.card` surface as everywhere else. -->
+    <section ref="statsTarget" class="relative w-full bg-zinc-50 px-6 py-16 dark:bg-white/[0.02] sm:py-20">
       <div class="relative mx-auto max-w-6xl">
-        <h2 class="font-display mb-8 text-center text-2xl font-bold tracking-tight text-white sm:text-3xl">{{ t('landing.whyMindspace') }}</h2>
+        <h2 class="font-display mb-8 text-center text-2xl font-bold tracking-tight sm:text-3xl">{{ t('landing.whyMindspace') }}</h2>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div class="rounded-xl border border-white/10 bg-[#1A1C23] p-5">
+          <div class="card p-5">
             <div class="flex items-center justify-between">
-              <span class="text-xs text-slate-400">Courses</span>
-              <span class="badge bg-lime-400/10 text-lime-400">Live</span>
+              <span class="text-xs text-zinc-500 dark:text-zinc-400">Courses</span>
+              <span class="badge bg-lime-500/10 text-lime-700 dark:text-lime-400">Live</span>
             </div>
-            <p class="mt-3 text-4xl font-extrabold tracking-tight text-white">{{ totalCourses }}</p>
-            <p class="mt-1 text-xs text-slate-400">Beginner → Advanced</p>
+            <p class="mt-3 text-4xl font-extrabold tracking-tight">{{ totalCourses }}</p>
+            <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Beginner → Advanced</p>
           </div>
 
-          <div class="rounded-xl border border-white/10 bg-[#1A1C23] p-5">
+          <div class="card p-5">
             <div class="flex items-center justify-between">
-              <span class="text-xs text-slate-400">Lessons</span>
-              <span class="badge bg-accent-500/10 text-accent-400">Depth</span>
+              <span class="text-xs text-zinc-500 dark:text-zinc-400">Lessons</span>
+              <span class="badge bg-accent-500/10 text-accent-700 dark:text-accent-400">Depth</span>
             </div>
-            <p class="mt-3 text-4xl font-extrabold tracking-tight text-white">{{ totalLessons }}</p>
-            <p class="mt-1 text-xs text-slate-400">Across the catalog</p>
+            <p class="mt-3 text-4xl font-extrabold tracking-tight">{{ totalLessons }}</p>
+            <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Across the catalog</p>
           </div>
 
-          <div class="rounded-xl border border-white/10 bg-[#1A1C23] p-5 lg:col-span-2">
-            <p class="text-xs text-slate-400">By level</p>
+          <div class="card p-5 lg:col-span-2">
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">By level</p>
             <div class="mt-3 space-y-2">
               <div v-for="row in levelCounts" :key="row.level" class="flex items-center gap-3 text-sm">
-                <span class="w-20 shrink-0 text-xs font-medium text-slate-400">{{ row.level }}</span>
-                <span class="relative h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">
+                <span class="w-20 shrink-0 text-xs font-medium text-zinc-500 dark:text-zinc-400">{{ row.level }}</span>
+                <span class="relative h-1.5 flex-1 overflow-hidden rounded-full bg-zinc-100 dark:bg-white/10">
                   <span
                     class="absolute inset-y-0 left-0 rounded-full bg-accent-500 transition-[width] duration-700"
                     :style="{ width: (statsInView ? row.pct : 0) + '%' }"
                   />
                 </span>
-                <span class="w-6 shrink-0 text-right font-mono text-xs text-slate-400">{{ row.count }}</span>
+                <span class="w-6 shrink-0 text-right font-mono text-xs text-zinc-500 dark:text-zinc-400">{{ row.count }}</span>
               </div>
             </div>
           </div>
@@ -503,13 +494,13 @@ const sparklinePoints = computed(() => {
       </div>
     </section>
 
-    <!-- Closing banner — a bento card, forced dark, indigo border glow. -->
+    <!-- Closing banner — a card with a subtle indigo-tinted border. -->
     <section class="relative mx-auto max-w-6xl px-6 pb-20">
-      <div class="flex flex-col items-center gap-5 rounded-2xl border border-accent-500/30 bg-canvas-dark px-6 py-10 text-center shadow-[0_0_0_1px_rgba(99,102,241,0.08),0_20px_60px_-20px_rgba(99,102,241,0.25)] sm:flex-row sm:justify-between sm:px-10 sm:text-left">
+      <div class="card flex flex-col items-center gap-5 border-accent-500/30 px-6 py-10 text-center sm:flex-row sm:justify-between sm:px-10 sm:text-left">
         <div>
-          <p class="badge bg-accent-500/10 text-accent-400">{{ t('landing.ctaEyebrow') }}</p>
-          <p class="font-display mt-2.5 text-xl font-bold tracking-tight text-white">{{ t('landing.ctaTitle') }}</p>
-          <p class="mt-1.5 max-w-md text-sm text-slate-400">{{ t('landing.ctaBody') }}</p>
+          <p class="badge bg-accent-500/10 text-accent-700 dark:text-accent-400">{{ t('landing.ctaEyebrow') }}</p>
+          <p class="font-display mt-2.5 text-xl font-bold tracking-tight">{{ t('landing.ctaTitle') }}</p>
+          <p class="mt-1.5 max-w-md text-sm text-zinc-500 dark:text-zinc-400">{{ t('landing.ctaBody') }}</p>
         </div>
         <NuxtLink to="/courses" class="btn-primary w-full shrink-0 rounded-full px-7 py-3 text-base font-semibold sm:w-auto">
           {{ t('landing.ctaButton') }}
