@@ -6,75 +6,61 @@ export default <Partial<Config>>{
   theme: {
     extend: {
       /**
-       * "Dossier": the site's fourth identity — moving off "Studio
-       * Dashboard"'s quiet indigo SaaS look toward a bolder, editorial,
-       * benchmark-report aesthetic (reference: a framework's own motion-
-       * graphics showreel — stark black/white, one loud accent, big
-       * confident display type, monospace used as a deliberate "live
-       * telemetry" texture rather than just a code font). Bricolage
-       * Grotesque is the new display face — a bold, slightly irregular
-       * grotesk with real personality instead of a generic geometric sans
-       * — reserved for headlines/wordmark. Instrument Serif is new too: an
-       * italic editorial serif used ONLY for short accent phrases inside a
-       * headline (the reference's cursive "...humans." treatment), never
-       * for UI text or body copy. Plus Jakarta Sans stays as the actual
-       * body/UI workhorse — swapping it out everywhere would hurt
-       * readability for no aesthetic gain. JetBrains Mono is promoted
-       * beyond code: it's now also the "HUD" face for small uppercase
-       * meta strips (see `.hud` in tailwind.css) — the reference's
-       * BPM/timer counter made literal as a reusable UI pattern.
+       * "Atelier": the site's fifth identity — moving off "Dossier"'s bold
+       * editorial-showreel look (stark black/white, hot pink, monospace
+       * HUD telemetry, grain texture, glow blobs) toward a quiet,
+       * unhurried, quality-over-noise aesthetic: warm paper tones instead
+       * of stark black/white, a single restrained oxblood accent instead
+       * of hot pink, one elegant soft-serif for every display/headline
+       * role instead of a bold grotesk, and no telemetry/gamified-card
+       * texture at all. Fraunces (a soft, slightly organic serif with real
+       * optical-size personality) is now the ONLY display face — headlines,
+       * the wordmark, and the editorial italic accent phrase all use it,
+       * rather than splitting that job across a grotesk + a separate
+       * accent serif. Manrope is the new body/UI workhorse — a quiet
+       * geometric sans with none of the "bold tech showreel" energy Plus
+       * Jakarta Sans carried. JetBrains Mono is demoted back to actual code
+       * only — the HUD meta-strip pattern is retired along with it.
        *
-       * Plus Jakarta Sans/Bricolage Grotesque have no Thai glyphs, so Thai
-       * copy was silently falling back to whatever sans-serif the OS
-       * ships — inconsistent weight/x-height next to the Latin type.
-       * Sarabun is the Thai fallback in every stack: the standard
-       * long-form/formal Thai reading face (used across Thai government
-       * and business documents), with real loops for letter
-       * differentiation — read as noticeably easier to scan than a
-       * loopless pick like IBM Plex Sans Thai at body-text sizes
-       * (@nuxt/fonts' Google provider can't serve its Thai subset
-       * correctly, so it's loaded via a direct Google Fonts <link> in
-       * nuxt.config.ts instead, same workaround, different font). The
-       * browser picks per-character automatically from stack order — no
-       * lang-specific CSS needed.
+       * Fraunces/Manrope have no Thai glyphs, so Thai copy still falls
+       * back to Sarabun in every stack (see nuxt.config.ts's app.head
+       * comment for why it's loaded via a direct Google Fonts <link>
+       * rather than through @nuxt/fonts like the others).
        */
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', '"Sarabun"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        display: ['"Bricolage Grotesque"', '"Sarabun"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        serif: ['"Instrument Serif"', '"Sarabun"', 'ui-serif', 'Georgia', 'serif'],
+        sans: ['"Manrope"', '"Sarabun"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['"Fraunces"', '"Sarabun"', 'ui-serif', 'Georgia', 'serif'],
+        serif: ['"Fraunces"', '"Sarabun"', 'ui-serif', 'Georgia', 'serif'],
         mono: ['"JetBrains Mono"', '"Sarabun"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace']
       },
       colors: {
-        // Near-white canvas / pure-white surface by day, near-black by
-        // night — pushed closer to true black/white than the old slate-navy
-        // dark mode, matching the reference's stark high-contrast scenes.
-        // Cards lean on a hairline border as much as shadow now (the old
-        // "shadow-only" signal read as too soft/quiet for this identity).
+        // Warm paper canvas / pure-white surface by day, warm near-black
+        // by night — a soft ivory rather than a stark cold white, so nothing
+        // reads as a clinical SaaS dashboard.
         canvas: {
-          DEFAULT: '#FAFAFA',
-          dark: '#0A0A0A'
+          DEFAULT: '#F7F5F1',
+          dark: '#121110'
         },
         surface: {
           DEFAULT: '#FFFFFF',
-          dark: '#141414'
+          dark: '#1B1917'
         },
         divider: {
-          DEFAULT: '#E5E5E5',
-          dark: '#2A2A2A'
+          DEFAULT: '#E8E3DA',
+          dark: '#2E2B27'
         },
-        // Hot pink/magenta (`accent`) replaces the old indigo — the
-        // reference's one loud accent color against an otherwise
-        // black/white/gray palette. Still needs WHITE text on filled
-        // chips/buttons (400/500/600 are all mid-to-high saturation).
+        // Oxblood (`accent`) replaces the old hot pink — a single quiet,
+        // confident color instead of a loud one; still needs WHITE text on
+        // filled chips/buttons (400/500/600 are all mid-to-high saturation).
         accent: {
-          50: '#FFF0F6',
-          100: '#FFE0EE',
-          300: '#FF9AC4',
-          400: '#FF5FA0',
-          500: '#FF2D7F',
-          600: '#EC0063',
-          700: '#C2004F',
-          900: '#780033'
+          50: '#FBF1F0',
+          100: '#F3DEDB',
+          300: '#D59C96',
+          400: '#AE645D',
+          500: '#8B3A35',
+          600: '#6E2C28',
+          700: '#55201D',
+          900: '#2E1210'
         },
         // Violet (`ai`) marks anything AI/tutor-related — badges, the chat
         // chrome, the "AI Brain" mark — kept a distinct hue from the

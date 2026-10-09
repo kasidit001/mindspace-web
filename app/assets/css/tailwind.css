@@ -3,13 +3,11 @@
 @tailwind utilities;
 
 /* ---------------------------------------------------------------------
-   Design tokens — "Dossier": stark near-black/near-white surfaces, a
-   hairline border as the primary "this is a card" signal (shadow is now
-   a secondary accent, not the whole signal), sharper corners than the old
-   identity, bold editorial display type (Bricolage Grotesque) instead of
-   a quiet geometric sans. Hot pink (`accent`) is the one loud color;
-   everything else stays near-monochrome + the semantic status colors
-   (critical/warning/info/success).
+   Design tokens — "Atelier": warm paper surfaces, a single restrained
+   oxblood accent, one soft editorial serif (Fraunces) for every display
+   role, generous whitespace over density. No telemetry strips, no
+   gamified benchmark cards, no grain/glow texture — those belonged to
+   the previous "Dossier" identity and are retired along with it.
    Colors: see tailwind.config.ts (canvas / surface / divider / accent / ai
    / critical / warning / info / success).
 --------------------------------------------------------------------- */
@@ -17,19 +15,19 @@ body {
   font-feature-settings: 'ss01' 1, 'cv01' 1;
 }
 
-/* Primary button — solid hot pink, white text, sharper corners than the
-   old pill-leaning shape read as "premium SaaS"; this identity wants a
-   firmer, more graphic edge. Reserve this class for a page's one primary
-   action — everything else is a plain bordered or ghost button. */
+/* Primary button — solid oxblood, white text, soft rounded corners; quiet
+   by design (a thin lift on hover, no glow). Reserve this class for a
+   page's one primary action — everything else is a plain bordered or
+   ghost button. */
 .btn-primary {
   background-color: theme('colors.accent.600');
   color: #FFFFFF;
-  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.1);
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.08);
   transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
 }
 .btn-primary:hover {
   background-color: theme('colors.accent.700');
-  box-shadow: 0 6px 20px -4px rgb(236 0 99 / 0.5);
+  box-shadow: 0 4px 14px -4px rgb(0 0 0 / 0.2);
 }
 .btn-primary:active {
   transform: scale(0.98);
@@ -39,112 +37,27 @@ body {
 }
 .dark .btn-primary:hover {
   background-color: theme('colors.accent.400');
-  box-shadow: 0 6px 22px -4px rgb(255 95 160 / 0.55);
+  box-shadow: 0 4px 16px -4px rgb(0 0 0 / 0.4);
 }
 
-/* Card — a hairline border carries the "this is a card" signal in BOTH
-   themes now (the old identity relied on shadow-only in light mode,
-   which read as too soft for this one); the soft shadow is still there
-   as a secondary lift cue, not the whole signal. */
+/* Card — a hairline border carries the "this is a card" signal in both
+   themes; the soft shadow is a secondary lift cue, not the whole signal. */
 .card {
   background-color: theme('colors.surface.DEFAULT');
   border: 1px solid theme('colors.divider.DEFAULT');
-  border-radius: 0.75rem;
+  border-radius: 0.875rem;
   box-shadow: theme('boxShadow.card');
 }
 .dark .card {
   background-color: theme('colors.surface.dark');
-  /* surface.dark (#141414) sits close in luminance to canvas.dark
-     (#0A0A0A), so shadow alone barely reads against a dark page — the
-     hairline border does the separation that contrast can't here. */
   border: 1px solid rgb(255 255 255 / 0.08);
   box-shadow: theme('boxShadow.card-dark');
 }
 
-/* Dossier card — the reference's literal "FILE NUMBER: BEN-00x" benchmark
-   card: a fixed white/near-black-text card-stock surface that does NOT
-   flip with the site's light/dark theme, exactly like the reference's
-   cards stay the same pale "file" color no matter what scene they float
-   over. Pair with `.dossier-tag` for the color-coded corner pill and
-   `.dossier-bar` for a comparison-chart row — see index.vue's stats
-   section for the full composition. Not a general-purpose card (use
-   `.card` for everything else); this is specifically for "here is one
-   real number, compared against a few others." */
-.dossier-card {
-  position: relative;
-  background-color: #FAFAF9;
-  color: #18181B;
-  border: 1px solid #E4E4E7;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.04), 0 12px 28px -12px rgb(0 0 0 / 0.18);
-}
-
-.dossier-label {
-  font-family: theme('fontFamily.mono');
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: #71717A;
-}
-
-.dossier-tag {
-  font-family: theme('fontFamily.mono');
-  font-size: 0.625rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  padding: 0.2rem 0.55rem;
-  border-radius: 9999px;
-}
-
-/* One comparison row in a dossier card's bar chart: a fixed-width label,
-   a track, and a right-aligned value — `--pct` (0–100) sets the fill
-   width, `--bar-color` the fill color (default: hairline gray; pass a
-   pink `--bar-color` on the one row being highlighted, matching the
-   reference's single tinted bar per chart). */
-.dossier-bar-track {
-  position: relative;
-  height: 0.5rem;
-  border-radius: 9999px;
-  background-color: #E4E4E7;
-  overflow: hidden;
-}
-.dossier-bar-track::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  width: var(--pct, 0%);
-  border-radius: 9999px;
-  background-color: var(--bar-color, #A1A1AA);
-  transition: width 0.9s cubic-bezier(0.16, 1, 0.3, 1);
-}
-@media (prefers-reduced-motion: reduce) {
-  .dossier-bar-track::after {
-    transition: none;
-  }
-}
-
-/* HUD — the reference's persistent "BAR 19.4 · 90 BPM · 50.9s" telemetry
-   strip, made into a reusable small-meta-info pattern: uppercase,
-   letter-spaced, monospace, low-contrast until it needs to call out a
-   live/changing value. Use sparingly — one per view at most, it's a
-   texture/accent, not a navigation or data-dense element. */
-.hud {
-  font-family: theme('fontFamily.mono');
-  font-size: 0.6875rem;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: theme('colors.zinc.500');
-}
-.dark .hud {
-  color: theme('colors.zinc.500');
-}
-
-/* Editorial accent phrase — the reference's cursive "...humans." flourish
-   inside an otherwise bold-sans headline. Apply to a <span> around a
-   short trailing phrase only, never a whole headline or body copy. */
+/* Editorial accent phrase — a short italic-serif flourish inside an
+   otherwise upright headline (the hero's "...for humans." treatment).
+   Apply to a <span> around a short trailing phrase only, never a whole
+   headline or body copy. */
 .accent-phrase {
   font-family: theme('fontFamily.serif');
   font-style: italic;
