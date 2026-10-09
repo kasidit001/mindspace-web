@@ -20,6 +20,22 @@ const paletteOpen = useCommandPaletteOpen()
 // they're still reachable on phones, not just via the hero CTA buttons.
 const mobileMenuOpen = ref(false)
 
+// A couple pixels of parallax on the hero's two background glows — scroll
+// moves them at a different rate than the content, the cheapest way to add
+// real depth to an otherwise flat gradient blur. Capped and skipped under
+// reduced-motion; the hero is short enough that the cap rarely engages.
+const heroScrollY = ref(0)
+function onHeroScroll() {
+  heroScrollY.value = Math.min(window.scrollY, 400)
+}
+onMounted(() => {
+  if (prefersReducedMotion()) return
+  window.addEventListener('scroll', onHeroScroll, { passive: true })
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', onHeroScroll)
+})
+
 const levelIcon = {
   Beginner: Sprout,
   Intermediate: Zap,
@@ -131,6 +147,24 @@ const AIRPLANES = [
 // reference's benchmark bars climb as the scene plays rather than sitting
 // pre-filled on the first frame.
 const { target: statsTarget, isInView: statsInView } = useInView()
+
+// Per-section scroll choreography: each major section below the hero fades
+// and slides up the first time it actually enters the viewport (via the
+// .scroll-reveal/is-visible CSS pair), instead of sitting static or having
+// everything already visible on load. One useInView() per section — cheap
+// (IntersectionObserver, one-shot) and keeps each section independent.
+const { target: stackTarget, isInView: stackInView } = useInView(0.3)
+const { target: methodTarget, isInView: methodInView } = useInView(0.3)
+const { target: catalogTarget, isInView: catalogInView } = useInView(0.15)
+const { target: featuresTarget, isInView: featuresInView } = useInView(0.2)
+const { target: closingTarget, isInView: closingInView } = useInView(0.4)
+
+// Shared stagger-delay helper for a section's children once it's in view —
+// capped so a long list (e.g. the course grid) doesn't end with a visibly
+// late straggler.
+function staggerDelay(i: number, step = 0.07, max = 0.42): string {
+  return `${Math.min(i * step, max)}s`
+}
 
 // "Dossier" stat cards — the reference's literal benchmark-card look
 // (FILE NUMBER + tag + one giant stat + a bar-chart comparison), built from
@@ -292,8 +326,14 @@ const levelCounts = computed(() => {
              never reads as a flat vector fill) — no dot-grid texture, no
              second competing hue. -->
         <div class="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl" aria-hidden="true">
-          <div class="absolute -top-24 right-1/4 size-[26rem] rounded-full bg-accent-500/25 blur-[110px]" />
-          <div class="absolute -bottom-32 -left-20 size-[22rem] rounded-full bg-white/[0.05] blur-[90px]" />
+          <div
+            class="absolute -top-24 right-1/4 size-[26rem] rounded-full bg-accent-500/25 blur-[110px]"
+            :style="{ transform: `translateY(${heroScrollY * 0.18}px)` }"
+          />
+          <div
+            class="absolute -bottom-32 -left-20 size-[22rem] rounded-full bg-white/[0.05] blur-[90px]"
+            :style="{ transform: `translateY(${heroScrollY * -0.12}px)` }"
+          />
           <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
           <div
             class="absolute inset-0 opacity-[0.05] mix-blend-overlay"
@@ -350,7 +390,7 @@ const levelCounts = computed(() => {
     <!-- Ecosystem cloud — the reference's "plugin cloud" scene: cards at
          varied depth/rotation instead of a flat chip row. Real logos,
          scattered with fixed (not random) offsets per slot. -->
-    <section class="relative mx-auto max-w-4xl px-6 pb-10 pt-10 sm:pt-14">
+    <section ref="stackTarget" class="relative mx-auto max-w-4xl px-6 pb-10 pt-10 sm:pt-14">
       <p class="hud absolute right-6 top-2 text-zinc-300 dark:text-zinc-700" aria-hidden="true">02 — STACK</p>
       <p class="text-center text-[11px] font-medium uppercase tracking-[0.15em] text-zinc-400 dark:text-zinc-600">
         {{ t('landing.ecosystemLabel') }}
@@ -359,8 +399,9 @@ const levelCounts = computed(() => {
         <li
           v-for="(tech, i) in ecosystem"
           :key="tech"
-          class="transition-transform duration-200 hover:z-10 hover:!rotate-0 hover:!translate-y-0 hover:scale-110"
-          :style="{ transform: `rotate(${CLOUD_OFFSETS[i]!.rotate}deg) translateY(${CLOUD_OFFSETS[i]!.y}px)` }"
+          class="scroll-reveal transition-transform duration-200 hover:z-10 hover:!rotate-0 hover:!translate-y-0 hover:scale-110"
+          :class="{ 'is-visible': stackInView }"
+          :style="{ transform: `rotate(${CLOUD_OFFSETS[i]!.rotate}deg) translateY(${CLOUD_OFFSETS[i]!.y + (stackInView ? 0 : 22)}px)`, '--delay': staggerDelay(i) }"
         >
           <span class="flex flex-col items-center gap-1.5">
             <TechLogo :tech="tech" :size="40" />
@@ -374,12 +415,12 @@ const levelCounts = computed(() => {
          floating code-snippet pattern: a step counter, one confident
          claim, and a real endpoint shown bare (no IDE chrome), cycling
          automatically. Built from this API's own documented routes. -->
-    <section class="relative overflow-hidden bg-canvas-dark px-6 py-16 sm:py-20">
+    <section ref="methodTarget" class="relative overflow-hidden bg-canvas-dark px-6 py-16 sm:py-20">
       <p class="hud absolute right-6 top-5 text-white/40" aria-hidden="true">03 — METHOD</p>
       <div class="pointer-events-none absolute inset-0" aria-hidden="true">
         <div class="absolute left-1/3 top-1/2 size-[20rem] -translate-y-1/2 rounded-full bg-accent-500/10 blur-[100px]" />
       </div>
-      <div class="relative mx-auto max-w-2xl text-center">
+      <div class="scroll-reveal relative mx-auto max-w-2xl text-center" :class="{ 'is-visible': methodInView }">
         <p class="hud text-accent-400">{{ String(activeStep + 1).padStart(2, '0') }} / {{ String(methodSteps.length).padStart(2, '0') }}</p>
         <div v-for="(step, i) in methodSteps" v-show="i === activeStep" :key="step.title">
           <h2 class="font-display mt-4 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
@@ -405,7 +446,7 @@ const levelCounts = computed(() => {
 
     <!-- Course grid — Coursera's "New and popular" pattern: a level-filter
          pill bar over a real, filterable course grid. -->
-    <section v-if="courses?.length" class="relative mx-auto max-w-6xl px-6 pb-20 pt-14">
+    <section v-if="courses?.length" ref="catalogTarget" class="relative mx-auto max-w-6xl px-6 pb-20 pt-14">
       <p class="hud absolute right-6 top-6 text-zinc-300 dark:text-zinc-700" aria-hidden="true">04 — CATALOG</p>
       <div class="mb-6 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <h2 class="font-display text-2xl font-bold tracking-tight sm:text-3xl">{{ t('landing.startWithACourse') }}</h2>
@@ -433,10 +474,12 @@ const levelCounts = computed(() => {
 
       <div v-if="filteredCourses.length" class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
         <NuxtLink
-          v-for="course in filteredCourses"
+          v-for="(course, i) in filteredCourses"
           :key="course.id"
           :to="firstLessonId(course) ? `/courses/${firstLessonId(course)}` : '/courses'"
-          class="card group flex flex-col gap-4 p-6 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+          class="card scroll-reveal group flex flex-col gap-4 p-6 transition-all duration-200 hover:!-translate-y-1 hover:shadow-lg"
+          :class="{ 'is-visible': catalogInView }"
+          :style="{ '--delay': staggerDelay(i) }"
         >
           <div class="flex items-center justify-between gap-2">
             <span
@@ -498,7 +541,7 @@ const levelCounts = computed(() => {
       <div class="relative mx-auto max-w-6xl">
       <h2 class="font-display mb-8 text-center text-2xl font-bold tracking-tight text-white sm:text-3xl">{{ t('landing.whyMindspace') }}</h2>
       <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
-        <article class="dossier-card p-6">
+        <article class="dossier-card scroll-reveal p-6" :class="{ 'is-visible': statsInView }">
           <div class="flex items-center justify-between">
             <p class="dossier-label">FILE NUMBER: CRS-01</p>
             <span class="dossier-tag bg-accent-100 text-accent-700">CATALOG</span>
@@ -517,7 +560,7 @@ const levelCounts = computed(() => {
           </div>
         </article>
 
-        <article class="dossier-card p-6">
+        <article class="dossier-card scroll-reveal p-6" :class="{ 'is-visible': statsInView }" style="--delay: 0.1s">
           <div class="flex items-center justify-between">
             <p class="dossier-label">FILE NUMBER: LSN-01</p>
             <span class="dossier-tag bg-ai-100 text-ai-700">DEPTH</span>
@@ -547,12 +590,14 @@ const levelCounts = computed(() => {
          breathe underneath. One per full-width row so each claim gets the
          same "one idea, fully stated" weight the reference gives every
          scene — not four equally-small tiles competing for attention. -->
-    <section class="relative mx-auto max-w-4xl divide-y divide-divider border-y border-divider px-6 dark:divide-divider-dark dark:border-divider-dark">
+    <section ref="featuresTarget" class="relative mx-auto max-w-4xl divide-y divide-divider border-y border-divider px-6 dark:divide-divider-dark dark:border-divider-dark">
       <p class="hud absolute -top-6 right-6 text-zinc-300 dark:text-zinc-700" aria-hidden="true">06 — FEATURES</p>
       <article
         v-for="(feature, i) in features"
         :key="feature.title"
-        class="grid grid-cols-1 gap-3 py-10 sm:grid-cols-[6rem_1fr] sm:gap-8 sm:py-12"
+        class="scroll-reveal grid grid-cols-1 gap-3 py-10 sm:grid-cols-[6rem_1fr] sm:gap-8 sm:py-12"
+        :class="{ 'is-visible': featuresInView }"
+        :style="{ '--delay': staggerDelay(i) }"
       >
         <p class="hud text-zinc-400 dark:text-zinc-600">FIG. 0{{ i + 1 }}</p>
         <div>
@@ -563,9 +608,12 @@ const levelCounts = computed(() => {
     </section>
 
     <!-- Closing promo banner -->
-    <section class="relative mx-auto max-w-6xl px-6 pb-20">
+    <section ref="closingTarget" class="relative mx-auto max-w-6xl px-6 pb-20">
       <p class="hud absolute right-6 top-2 text-zinc-300 dark:text-zinc-700" aria-hidden="true">07 — START</p>
-      <div class="flex flex-col items-center gap-5 rounded-3xl border border-accent-100 bg-accent-50 px-6 py-10 text-center dark:border-accent-400/20 dark:bg-accent-400/[0.06] sm:flex-row sm:justify-between sm:px-10 sm:text-left">
+      <div
+        class="scroll-reveal flex flex-col items-center gap-5 rounded-3xl border border-accent-100 bg-accent-50 px-6 py-10 text-center dark:border-accent-400/20 dark:bg-accent-400/[0.06] sm:flex-row sm:justify-between sm:px-10 sm:text-left"
+        :class="{ 'is-visible': closingInView }"
+      >
         <div>
           <p class="text-[11px] font-semibold uppercase tracking-[0.15em] text-accent-700 dark:text-accent-400">{{ t('landing.ctaEyebrow') }}</p>
           <p class="font-display mt-1.5 text-xl font-bold tracking-tight">{{ t('landing.ctaTitle') }}</p>
