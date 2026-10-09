@@ -1,15 +1,16 @@
 <script setup lang="ts">
-import { ArrowRight, Bot, Check, Code2, Command, Menu, Moon, Rocket, Search, Send, Sprout, Sun, X, Zap } from '@lucide/vue'
+import { ArrowRight, Bot, Check, Code2, Command, Menu, Moon, Rocket, Search, Sprout, Sun, X, Zap } from '@lucide/vue'
 import { TECH_LABELS, type TechId } from '~/utils/courseTech'
 
 // Landing page has no shared layout (no sidebar/chat chrome) — it's the
 // public entry point; /courses is where the actual app lives.
 //
-// Coursera-referenced redesign: a rounded gradient promo banner in place of
-// the old full-bleed 3D hero, a real search trigger (opens the same Cmd+K
-// command palette the rest of the app uses) in place of a decorative search
-// box, and a filterable "start with a course" grid using real course data
-// instead of a fixed two-card preview.
+// "Constructor" redesign: a dark-mode-first, developer-focused SaaS
+// dashboard aesthetic (reference: Spline.one's "Constructor UI System") —
+// compact bento-grid metric cards, micro badges, a simple real-data
+// sparkline, Electric Indigo as the one loud accent. Replaces "Dossier"'s
+// editorial benchmark-card/HUD-telemetry treatment with an actual
+// dashboard-preview panel built from this catalog's own real numbers.
 const { theme, toggle: toggleTheme } = useTheme()
 const { data: courses } = useCourses()
 const { t } = useLanguage()
@@ -24,12 +25,6 @@ const levelIcon = {
   Beginner: Sprout,
   Intermediate: Zap,
   Advanced: Rocket
-} as const
-
-const levelBadgeClass = {
-  Beginner: 'bg-success-50 text-success-700 dark:bg-success-400/10 dark:text-success-400',
-  Intermediate: 'bg-accent-50 text-accent-700 dark:bg-accent-400/10 dark:text-accent-400',
-  Advanced: 'bg-ai-50 text-ai-700 dark:bg-ai-400/10 dark:text-ai-400'
 } as const
 
 const levels = ['All', 'Beginner', 'Intermediate', 'Advanced'] as const
@@ -62,23 +57,11 @@ const features = computed(() => [
   { icon: Command, title: t('features.search.title'), body: t('features.search.body') }
 ])
 
-// Ecosystem cloud — the reference's "plugin cloud" scene (small cards
-// scattered at varied depth/rotation rather than a flat chip row),
-// recreated with the real logos this platform teaches. Rotation/offset
-// pairs are hardcoded per slot (not Math.random()) so the layout is
-// identical between server and client render — a random value here would
-// hydration-mismatch on every load.
 const ecosystem: TechId[] = ['ts', 'js', 'python', 'node', 'go', 'docker', 'react', 'vue', 'nuxt', 'claude']
-const CLOUD_OFFSETS = [
-  { rotate: -6, y: 4 }, { rotate: 4, y: -10 }, { rotate: -3, y: 12 }, { rotate: 7, y: -2 },
-  { rotate: -8, y: -6 }, { rotate: 5, y: 8 }, { rotate: -4, y: -12 }, { rotate: 8, y: 2 },
-  { rotate: -5, y: 10 }, { rotate: 3, y: -4 }
-]
 
-// "How it works" stepper — the reference's "01/07" numbered-sequence
-// pattern paired with a floating (no IDE chrome) code snippet, recreated
-// with the platform's own real, documented endpoints (see CLAUDE.md) —
-// not invented API shapes.
+// "How it works" stepper — a step counter and a real, documented endpoint
+// shown bare (no IDE chrome), cycling automatically. Built from this API's
+// own real routes (see CLAUDE.md), not invented API shapes.
 interface MethodStep { title: string; method: string; path: string; body?: string }
 const methodSteps: MethodStep[] = [
   { title: 'Ask anything, get a grounded answer.', method: 'POST', path: '/api/chat/ask', body: '{ "question": "...", "stream": true }' },
@@ -103,11 +86,6 @@ onBeforeUnmount(() => {
 // a markdown fence string in, real tokenized `<ProsePre>` output out. All 4
 // are computed up front (not just the active one) and all 4 stay mounted
 // in the template via v-show — switching steps only toggles visibility.
-// Keying a single <MDC> to the active step and swapping its `:value`
-// looked right on paper but re-triggers MDC's async parse/highlight on
-// every step change, so the step counter above (which changes instantly)
-// and the code block (which pops in only once shiki finishes re-parsing)
-// visibly fell out of sync — the "glitchy" look this replaces.
 const stepCodeMds = computed(() =>
   methodSteps.map((step) => {
     const lines = [`${step.method} ${step.path}`, ...(step.body ? [step.body] : [])]
@@ -115,36 +93,12 @@ const stepCodeMds = computed(() =>
   })
 )
 
-// Paper-airplane drift — the reference's "Less boilerplate. More
-// daydreaming." breathing moment: a few icons drifting slowly, a soft
-// pause between two content-heavy scenes rather than another claim or
-// stat. Fixed per-icon timing/position (not random) for the same
-// hydration-safety reason as CLOUD_OFFSETS above.
-const AIRPLANES = [
-  { top: '18%', left: '12%', size: 22, duration: 14, delay: 0 },
-  { top: '55%', left: '82%', size: 16, duration: 18, delay: -4 },
-  { top: '75%', left: '22%', size: 14, duration: 16, delay: -9 },
-  { top: '30%', left: '68%', size: 20, duration: 20, delay: -2 }
-]
-
-// Scroll-triggered bar growth for the dossier stat cards below — the
-// reference's benchmark bars climb as the scene plays rather than sitting
-// pre-filled on the first frame.
+// Dashboard-preview numbers — all real, from this catalog. No invented
+// metrics, no fabricated trend lines.
 const { target: statsTarget, isInView: statsInView } = useInView()
-
-// "Dossier" stat cards — the reference's literal benchmark-card look
-// (FILE NUMBER + tag + one giant stat + a bar-chart comparison), built from
-// the platform's own real numbers rather than invented competitor
-// comparisons. Top 5 by lesson count so the bar chart has a real spread
-// without becoming an unreadable wall of bars.
 const totalCourses = computed(() => courses.value?.length ?? 0)
 const totalLessons = computed(() => (courses.value ?? []).reduce((sum, c) => sum + c.lessons.length, 0))
-
-const topCoursesByLessons = computed(() => {
-  const list = [...(courses.value ?? [])].sort((a, b) => b.lessons.length - a.lessons.length).slice(0, 5)
-  const max = list[0]?.lessons.length || 1
-  return list.map((c) => ({ title: c.title, count: c.lessons.length, pct: Math.max(8, Math.round((c.lessons.length / max) * 100)) }))
-})
+const totalTech = computed(() => ecosystem.length)
 
 const levelCounts = computed(() => {
   const list = courses.value ?? []
@@ -157,13 +111,37 @@ const levelCounts = computed(() => {
     pct: Math.max(8, Math.round((counts[level] / max) * 100))
   }))
 })
+
+// Top 5 courses by lesson count, real data — doubles as the sparkline
+// series (a line chart needs an order, so "deepest first" is it) and the
+// course-depth bento card's bar-chart rows.
+const topCoursesByLessons = computed(() => {
+  const list = [...(courses.value ?? [])].sort((a, b) => b.lessons.length - a.lessons.length).slice(0, 5)
+  const max = list[0]?.lessons.length || 1
+  return list.map((c) => ({ title: c.title, count: c.lessons.length, pct: Math.max(8, Math.round((c.lessons.length / max) * 100)) }))
+})
+
+// Sparkline polyline points for the hero's "Lesson Depth" bento card —
+// viewBox 0 0 100 32, left-to-right, real lesson counts (not a fabricated
+// time series — there's no history to chart, so this reads as a
+// ranked-depth trend line instead of a literal over-time metric).
+const sparklinePoints = computed(() => {
+  const rows = topCoursesByLessons.value
+  if (rows.length < 2) return ''
+  return rows
+    .map((row, i) => {
+      const x = (i / (rows.length - 1)) * 100
+      const y = 30 - (row.pct / 100) * 26
+      return `${x.toFixed(1)},${y.toFixed(1)}`
+    })
+    .join(' ')
+})
 </script>
 
 <template>
   <div class="min-h-screen bg-canvas text-zinc-900 dark:bg-canvas-dark dark:text-zinc-100">
-    <!-- Nav — sticky, white/near-white, a real search trigger (opens the
-         shared Cmd+K palette) standing in for Coursera's "What do you want
-         to learn?" bar. -->
+    <!-- Nav — sticky, a real search trigger (opens the shared Cmd+K
+         palette) standing in for a decorative search box. -->
     <header class="sticky top-0 z-20 border-b border-divider bg-canvas/85 backdrop-blur-md dark:border-divider-dark dark:bg-canvas-dark/85">
       <div class="mx-auto flex max-w-6xl items-center gap-3 px-6 py-3.5 sm:gap-5">
         <button
@@ -274,57 +252,33 @@ const levelCounts = computed(() => {
       </div>
     </header>
 
-    <!-- Hero — the first thing anyone sees, so it carries the most design
-         weight on the page. "Dossier" identity: a near-black field (not a
-         colored gradient) so the one hot-pink accent glow and the HUD strip
-         actually read as "the loud thing" against it, a bold display
-         headline with one italic-serif accent phrase, and sharper corners
-         than the old identity's rounded-pill banner. -->
+    <!-- Hero — forced dark (the "Theme: Dark mode" identity's primary
+         surface, regardless of the site's light/dark toggle elsewhere),
+         headline + CTAs on the left, a real bento-grid dashboard-preview
+         panel on the right instead of an illustration: this catalog's own
+         numbers, rendered the way the brief asks for — metric cards, a
+         real-data sparkline, micro badges. -->
     <section class="px-6 pt-8 sm:pt-12">
-      <div
-        class="reveal relative mx-auto max-w-6xl overflow-hidden rounded-2xl bg-canvas-dark px-6 py-16 sm:px-10 sm:py-20"
-        style="--delay: 0s; box-shadow: 0 40px 80px -32px rgb(0 0 0 / 0.55), 0 1px 0 0 rgb(255 255 255 / 0.06) inset;"
-      >
-        <!-- Decorative layer only, clipped to the banner's own corners so
-             it never interferes with the content/shadow layer below. One
-             pink glow (the reference's single loud accent) + a faint top
-             vignette + a touch of film grain (the reference's footage
-             never reads as a flat vector fill) — no dot-grid texture, no
-             second competing hue. -->
+      <div class="reveal relative mx-auto max-w-6xl overflow-hidden rounded-2xl bg-canvas-dark px-6 py-16 sm:px-10 sm:py-20" style="--delay: 0s">
         <div class="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl" aria-hidden="true">
-          <div class="absolute -top-24 right-1/4 size-[26rem] rounded-full bg-accent-500/25 blur-[110px]" />
-          <div class="absolute -bottom-32 -left-20 size-[22rem] rounded-full bg-white/[0.05] blur-[90px]" />
-          <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-          <div
-            class="absolute inset-0 opacity-[0.05] mix-blend-overlay"
-            style="background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E&quot;);"
-          />
+          <div class="absolute -top-24 right-1/4 size-[26rem] rounded-full bg-accent-500/20 blur-[120px]" />
         </div>
 
-        <!-- HUD strip — the reference's "BAR 19.4 · 90 BPM · 50.9s" telemetry
-             line made literal, pinned to the banner's top-right corner. -->
-        <p class="hud pointer-events-none absolute right-6 top-5 hidden text-white/40 sm:block" aria-hidden="true">
-          01 — MINDSPACE · {{ courses?.length ?? 0 }} COURSES · LIVE
-        </p>
-
-        <div class="relative z-10 grid items-center gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:gap-8">
+        <div class="relative z-10 grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-8">
           <div class="text-center lg:text-left">
-            <span class="inline-flex items-center gap-2 rounded-full bg-white/10 py-1 pl-2 pr-3 text-xs font-medium text-zinc-200 ring-1 ring-inset ring-white/15">
-              <span class="size-1.5 shrink-0 rounded-full bg-success-400" />
-              {{ t('landing.badgeVerb') }} <span class="text-white/60">{{ t('landing.badgeTerm') }}</span>
+            <span class="badge border border-white/10 bg-white/5 text-zinc-300">
+              <span class="size-1.5 shrink-0 rounded-full bg-lime-400" />
+              {{ t('landing.badgeVerb') }} <span class="text-white/50">{{ t('landing.badgeTerm') }}</span>
             </span>
-            <h1 class="font-display text-balance mt-5 text-[2.25rem] font-extrabold leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-[3.25rem]">
-              {{ t('landing.heroTitle') }} <span class="accent-phrase text-accent-400">for humans.</span>
+            <h1 class="font-display text-balance mt-5 text-[2.25rem] font-extrabold leading-[1.1] tracking-tight text-white sm:text-5xl lg:text-[3.1rem]">
+              {{ t('landing.heroTitle') }} <span class="text-accent-400">for humans.</span>
             </h1>
-            <p class="mx-auto mt-5 max-w-[30rem] text-balance text-base leading-relaxed text-zinc-300 lg:mx-0">
+            <p class="mx-auto mt-5 max-w-[30rem] text-balance text-base leading-relaxed text-slate-400 lg:mx-0">
               {{ t('landing.heroBody') }}
             </p>
 
             <div class="mt-7 flex flex-col items-center gap-4 sm:flex-row sm:justify-center lg:justify-start">
-              <NuxtLink
-                to="/courses"
-                class="w-full rounded-lg bg-accent-500 px-5 py-2.5 text-sm font-semibold text-white shadow-[0_1px_2px_rgb(0_0_0/0.2),0_10px_28px_-8px_rgb(236_0_99/0.5)] transition-all hover:-translate-y-0.5 hover:bg-accent-400 hover:shadow-[0_1px_2px_rgb(0_0_0/0.2),0_14px_32px_-8px_rgb(236_0_99/0.6)] sm:w-auto"
-              >
+              <NuxtLink to="/courses" class="btn-primary w-full rounded-lg px-5 py-2.5 text-sm font-semibold sm:w-auto">
                 {{ t('landing.startLearningFree') }}
               </NuxtLink>
               <NuxtLink
@@ -337,52 +291,75 @@ const levelCounts = computed(() => {
             </div>
           </div>
 
-          <div class="relative h-[17rem] overflow-visible rounded-2xl sm:h-[20rem]">
-            <HeroCityscape :courses="courses ?? []" />
-            <p class="pointer-events-none absolute -bottom-6 left-1/2 w-full -translate-x-1/2 text-center text-xs font-medium text-zinc-400">
-              {{ t('landing.mapHint') }}
-            </p>
+          <!-- Bento-grid dashboard preview: two compact metric cards, one
+               wide "lesson depth" sparkline card. Dark surface, razor-thin
+               white/10 border, rounded-xl, per spec. -->
+          <div class="grid grid-cols-2 gap-3">
+            <div class="rounded-xl border border-white/10 bg-[#1A1C23] p-4">
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-slate-400">Courses</span>
+                <span class="badge bg-lime-400/10 text-lime-400">Live</span>
+              </div>
+              <p class="mt-2.5 text-3xl font-bold tracking-tight text-white">{{ totalCourses }}</p>
+            </div>
+            <div class="rounded-xl border border-white/10 bg-[#1A1C23] p-4">
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-slate-400">Lessons</span>
+                <span class="badge bg-accent-500/10 text-accent-400">{{ totalTech }} stacks</span>
+              </div>
+              <p class="mt-2.5 text-3xl font-bold tracking-tight text-white">{{ totalLessons }}</p>
+            </div>
+
+            <div class="col-span-2 rounded-xl border border-white/10 bg-[#1A1C23] p-4">
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-slate-400">Lesson depth, top 5 courses</span>
+                <span class="badge bg-lime-400/10 text-lime-400">{{ topCoursesByLessons[0]?.count ?? 0 }} max</span>
+              </div>
+              <svg viewBox="0 0 100 32" class="mt-3 h-10 w-full overflow-visible" preserveAspectRatio="none">
+                <polyline
+                  :points="sparklinePoints"
+                  fill="none"
+                  stroke="#A3E635"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  vector-effect="non-scaling-stroke"
+                />
+              </svg>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Ecosystem cloud — the reference's "plugin cloud" scene: cards at
-         varied depth/rotation instead of a flat chip row. Real logos,
-         scattered with fixed (not random) offsets per slot. -->
-    <section class="relative mx-auto max-w-4xl px-6 pb-10 pt-10 sm:pt-14">
-      <p class="hud absolute right-6 top-2 text-zinc-300 dark:text-zinc-700" aria-hidden="true">02 — STACK</p>
+    <!-- Ecosystem — a compact row of micro badges (logo + label), not a
+         big-icon chip row: matches the spec's data-dense badge language. -->
+    <section class="mx-auto max-w-4xl px-6 pb-10 pt-10 sm:pt-14">
       <p class="text-center text-[11px] font-medium uppercase tracking-[0.15em] text-zinc-400 dark:text-zinc-600">
         {{ t('landing.ecosystemLabel') }}
       </p>
-      <ul class="mt-8 flex flex-wrap items-center justify-center gap-x-5 gap-y-7">
+      <ul class="mt-6 flex flex-wrap items-center justify-center gap-2">
         <li
-          v-for="(tech, i) in ecosystem"
+          v-for="tech in ecosystem"
           :key="tech"
-          class="transition-transform duration-200 hover:z-10 hover:!rotate-0 hover:!translate-y-0 hover:scale-110"
-          :style="{ transform: `rotate(${CLOUD_OFFSETS[i]!.rotate}deg) translateY(${CLOUD_OFFSETS[i]!.y}px)` }"
+          class="badge border border-divider bg-white text-zinc-600 dark:border-white/10 dark:bg-white/5 dark:text-zinc-300"
         >
-          <span class="flex flex-col items-center gap-1.5">
-            <TechLogo :tech="tech" :size="40" />
-            <span class="text-[11px] font-medium text-zinc-500 dark:text-zinc-500">{{ TECH_LABELS[tech] }}</span>
-          </span>
+          <TechLogo :tech="tech" :size="14" />
+          {{ TECH_LABELS[tech] }}
         </li>
       </ul>
     </section>
 
-    <!-- How it works — the reference's "01/07" numbered-sequence +
-         floating code-snippet pattern: a step counter, one confident
-         claim, and a real endpoint shown bare (no IDE chrome), cycling
-         automatically. Built from this API's own documented routes. -->
-    <section class="relative overflow-hidden bg-canvas-dark px-6 py-16 sm:py-20">
-      <p class="hud absolute right-6 top-5 text-white/40" aria-hidden="true">03 — METHOD</p>
-      <div class="pointer-events-none absolute inset-0" aria-hidden="true">
-        <div class="absolute left-1/3 top-1/2 size-[20rem] -translate-y-1/2 rounded-full bg-accent-500/10 blur-[100px]" />
-      </div>
-      <div class="relative mx-auto max-w-2xl text-center">
-        <p class="hud text-accent-400">{{ String(activeStep + 1).padStart(2, '0') }} / {{ String(methodSteps.length).padStart(2, '0') }}</p>
+    <!-- How it works — a bento card, forced dark: a step counter, one
+         confident claim, and a real endpoint shown bare, cycling
+         automatically. -->
+    <section class="px-6 pb-10 sm:pb-14">
+      <div class="relative mx-auto max-w-2xl overflow-hidden rounded-xl border border-white/10 bg-canvas-dark px-6 py-12 text-center sm:px-10">
+        <p class="font-mono text-xs font-medium tracking-[0.1em] text-accent-400">
+          {{ String(activeStep + 1).padStart(2, '0') }} / {{ String(methodSteps.length).padStart(2, '0') }}
+        </p>
         <div v-for="(step, i) in methodSteps" v-show="i === activeStep" :key="step.title">
-          <h2 class="font-display mt-4 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
+          <h2 class="font-display mt-4 text-xl font-bold tracking-tight text-white sm:text-2xl">
             {{ step.title }}
           </h2>
           <div class="mt-6 text-left text-sm [&_.border-ai-500]:border-t-accent-500">
@@ -395,7 +372,7 @@ const levelCounts = computed(() => {
             :key="step.title"
             type="button"
             class="h-1.5 rounded-full transition-all"
-            :class="i === activeStep ? 'w-6 bg-accent-400' : 'w-1.5 bg-white/20 hover:bg-white/35'"
+            :class="i === activeStep ? 'w-6 bg-accent-500' : 'w-1.5 bg-white/15 hover:bg-white/25'"
             :aria-label="`Step ${i + 1}: ${step.title}`"
             @click="activeStep = i"
           />
@@ -403,10 +380,9 @@ const levelCounts = computed(() => {
       </div>
     </section>
 
-    <!-- Course grid — Coursera's "New and popular" pattern: a level-filter
-         pill bar over a real, filterable course grid. -->
-    <section v-if="courses?.length" class="relative mx-auto max-w-6xl px-6 pb-20 pt-14">
-      <p class="hud absolute right-6 top-6 text-zinc-300 dark:text-zinc-700" aria-hidden="true">04 — CATALOG</p>
+    <!-- Course grid — a level-filter pill bar over a real, filterable
+         course grid. Micro badges throughout. -->
+    <section v-if="courses?.length" class="relative mx-auto max-w-6xl px-6 pb-20 pt-6">
       <div class="mb-6 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <h2 class="font-display text-2xl font-bold tracking-tight sm:text-3xl">{{ t('landing.startWithACourse') }}</h2>
         <NuxtLink to="/courses" class="inline-flex shrink-0 items-center gap-1 text-sm font-medium text-accent-700 hover:underline dark:text-accent-400">
@@ -431,22 +407,19 @@ const levelCounts = computed(() => {
         </button>
       </div>
 
-      <div v-if="filteredCourses.length" class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div v-if="filteredCourses.length" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <NuxtLink
           v-for="course in filteredCourses"
           :key="course.id"
           :to="firstLessonId(course) ? `/courses/${firstLessonId(course)}` : '/courses'"
-          class="card group flex flex-col gap-4 p-6 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+          class="card group flex flex-col gap-4 p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-accent-500/40"
         >
           <div class="flex items-center justify-between gap-2">
-            <span
-              class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold"
-              :class="levelBadgeClass[getCourseLevel(course)]"
-            >
-              <component :is="levelIcon[getCourseLevel(course)]" :size="13" :stroke-width="2" />
+            <span class="badge bg-accent-500/10 text-accent-700 dark:text-accent-400">
+              <component :is="levelIcon[getCourseLevel(course)]" :size="12" :stroke-width="2" />
               {{ t(levelLabelKey[getCourseLevel(course)]) }}
             </span>
-            <span class="hud shrink-0 text-zinc-400 dark:text-zinc-500">
+            <span class="font-mono text-xs text-zinc-400 dark:text-zinc-500">
               {{ course.lessons.length }} {{ t(course.lessons.length === 1 ? 'common.lesson' : 'common.lessons') }}
             </span>
           </div>
@@ -464,112 +437,79 @@ const levelCounts = computed(() => {
           </span>
         </NuxtLink>
       </div>
-      <p v-else class="rounded-2xl border border-dashed border-divider p-10 text-center text-sm text-zinc-500 dark:border-divider-dark dark:text-zinc-400">
+      <p v-else class="rounded-xl border border-dashed border-divider p-10 text-center text-sm text-zinc-500 dark:border-divider-dark dark:text-zinc-400">
         {{ t('landing.noLevelMatches') }}
       </p>
     </section>
 
-    <!-- Breathing room — the reference's drifting-paper-airplanes scene: a
-         quiet pause between the course grid and the data-heavy dossier
-         section below, not another claim competing for attention. -->
-    <section class="relative h-28 overflow-hidden sm:h-36" aria-hidden="true">
-      <Send
-        v-for="(plane, i) in AIRPLANES"
-        :key="i"
-        :size="plane.size"
-        :stroke-width="1.25"
-        class="drift absolute text-zinc-300 dark:text-zinc-700"
-        :style="{ top: plane.top, left: plane.left, '--drift-duration': plane.duration + 's', '--drift-delay': plane.delay + 's' }"
-      />
-    </section>
-
-    <!-- Stat dossier — the reference's literal "FILE NUMBER: BEN-00x"
-         benchmark card, borrowed as closely as the content allows: a fixed
-         pale card-stock surface regardless of site theme, a monospace file
-         number top-left, a color-coded tag top-right, one giant real stat,
-         and a bar-chart comparison underneath with the single relevant row
-         tinted pink. Built from this catalog's own real numbers — no
-         invented competitor comparisons. -->
+    <!-- Dashboard section — the brief's bento-grid metric dashboard, in
+         full: forced dark, four cards (2 metrics + a level-breakdown bar
+         card + a tech-stack badge card), all built from real catalog data. -->
     <section ref="statsTarget" class="relative w-full overflow-hidden bg-canvas-dark px-6 py-16 sm:py-20">
-      <p class="hud absolute right-6 top-6 text-white/40" aria-hidden="true">05 — DOSSIER</p>
       <div class="pointer-events-none absolute inset-0" aria-hidden="true">
-        <div class="absolute -bottom-24 right-1/3 size-[24rem] rounded-full bg-accent-500/10 blur-[110px]" />
+        <div class="absolute -bottom-24 right-1/3 size-[24rem] rounded-full bg-accent-500/10 blur-[120px]" />
       </div>
       <div class="relative mx-auto max-w-6xl">
-      <h2 class="font-display mb-8 text-center text-2xl font-bold tracking-tight text-white sm:text-3xl">{{ t('landing.whyMindspace') }}</h2>
-      <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
-        <article class="dossier-card p-6">
-          <div class="flex items-center justify-between">
-            <p class="dossier-label">FILE NUMBER: CRS-01</p>
-            <span class="dossier-tag bg-accent-100 text-accent-700">CATALOG</span>
+        <h2 class="font-display mb-8 text-center text-2xl font-bold tracking-tight text-white sm:text-3xl">{{ t('landing.whyMindspace') }}</h2>
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div class="rounded-xl border border-white/10 bg-[#1A1C23] p-5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-slate-400">Courses</span>
+              <span class="badge bg-lime-400/10 text-lime-400">Live</span>
+            </div>
+            <p class="mt-3 text-4xl font-extrabold tracking-tight text-white">{{ totalCourses }}</p>
+            <p class="mt-1 text-xs text-slate-400">Beginner → Advanced</p>
           </div>
-          <p class="mt-4 text-4xl font-extrabold tracking-tight">{{ totalCourses }} courses.</p>
-          <p class="mt-1 text-sm text-zinc-500">Spread Beginner → Advanced, by level.</p>
-          <div class="mt-5 space-y-2.5">
-            <div v-for="row in levelCounts" :key="row.level" class="flex items-center gap-3 text-sm">
-              <span class="w-24 shrink-0 font-medium text-zinc-600">{{ row.level }}</span>
-              <span
-                class="dossier-bar-track flex-1"
-                :style="{ '--pct': (statsInView ? row.pct : 0) + '%', '--bar-color': row.level === 'Advanced' ? '#EC0063' : undefined }"
-              />
-              <span class="w-6 shrink-0 text-right font-mono text-xs text-zinc-500">{{ row.count }}</span>
+
+          <div class="rounded-xl border border-white/10 bg-[#1A1C23] p-5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-slate-400">Lessons</span>
+              <span class="badge bg-accent-500/10 text-accent-400">Depth</span>
+            </div>
+            <p class="mt-3 text-4xl font-extrabold tracking-tight text-white">{{ totalLessons }}</p>
+            <p class="mt-1 text-xs text-slate-400">Across the catalog</p>
+          </div>
+
+          <div class="rounded-xl border border-white/10 bg-[#1A1C23] p-5 lg:col-span-2">
+            <p class="text-xs text-slate-400">By level</p>
+            <div class="mt-3 space-y-2">
+              <div v-for="row in levelCounts" :key="row.level" class="flex items-center gap-3 text-sm">
+                <span class="w-20 shrink-0 text-xs font-medium text-slate-400">{{ row.level }}</span>
+                <span class="relative h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">
+                  <span
+                    class="absolute inset-y-0 left-0 rounded-full bg-accent-500 transition-[width] duration-700"
+                    :style="{ width: (statsInView ? row.pct : 0) + '%' }"
+                  />
+                </span>
+                <span class="w-6 shrink-0 text-right font-mono text-xs text-slate-400">{{ row.count }}</span>
+              </div>
             </div>
           </div>
-        </article>
-
-        <article class="dossier-card p-6">
-          <div class="flex items-center justify-between">
-            <p class="dossier-label">FILE NUMBER: LSN-01</p>
-            <span class="dossier-tag bg-ai-100 text-ai-700">DEPTH</span>
-          </div>
-          <p class="mt-4 text-4xl font-extrabold tracking-tight">{{ totalLessons }} lessons.</p>
-          <p class="mt-1 text-sm text-zinc-500">The 5 deepest courses in the catalog, by lesson count.</p>
-          <div class="mt-5 space-y-2.5">
-            <div v-for="(row, i) in topCoursesByLessons" :key="row.title" class="flex items-center gap-3 text-sm">
-              <span class="w-24 shrink-0 truncate font-medium text-zinc-600">{{ row.title }}</span>
-              <span
-                class="dossier-bar-track flex-1"
-                :style="{ '--pct': (statsInView ? row.pct : 0) + '%', '--bar-color': i === 0 ? '#EC0063' : undefined }"
-              />
-              <span class="w-6 shrink-0 text-right font-mono text-xs text-zinc-500">{{ row.count }}</span>
-            </div>
-          </div>
-        </article>
-      </div>
-      </div>
-    </section>
-
-    <!-- Feature sequence — the reference's "FIG.0X — <one bold claim>"
-         figure-caption pattern, recreated directly rather than as a
-         generic icon-card grid: a small monospace figure number, one
-         confident oversized statement (the feature's existing real copy,
-         not a new tagline), and the supporting sentence given real room to
-         breathe underneath. One per full-width row so each claim gets the
-         same "one idea, fully stated" weight the reference gives every
-         scene — not four equally-small tiles competing for attention. -->
-    <section class="relative mx-auto max-w-4xl divide-y divide-divider border-y border-divider px-6 dark:divide-divider-dark dark:border-divider-dark">
-      <p class="hud absolute -top-6 right-6 text-zinc-300 dark:text-zinc-700" aria-hidden="true">06 — FEATURES</p>
-      <article
-        v-for="(feature, i) in features"
-        :key="feature.title"
-        class="grid grid-cols-1 gap-3 py-10 sm:grid-cols-[6rem_1fr] sm:gap-8 sm:py-12"
-      >
-        <p class="hud text-zinc-400 dark:text-zinc-600">FIG. 0{{ i + 1 }}</p>
-        <div>
-          <h3 class="font-display text-2xl font-extrabold tracking-tight sm:text-3xl">{{ feature.title }}</h3>
-          <p class="mt-2.5 max-w-xl text-base leading-relaxed text-zinc-600 dark:text-zinc-400">{{ feature.body }}</p>
         </div>
-      </article>
+      </div>
     </section>
 
-    <!-- Closing promo banner -->
+    <!-- Feature grid — four compact bento cards instead of long-form
+         editorial rows, matching the spec's "organized metric cards" vibe. -->
+    <section class="relative mx-auto max-w-5xl px-6 py-16 sm:py-20">
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <article v-for="feature in features" :key="feature.title" class="card p-6">
+          <span class="flex size-9 items-center justify-center rounded-lg bg-accent-500/10 text-accent-600 dark:text-accent-400">
+            <component :is="feature.icon" :size="18" :stroke-width="1.75" />
+          </span>
+          <h3 class="font-display mt-4 text-lg font-bold tracking-tight">{{ feature.title }}</h3>
+          <p class="mt-1.5 text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">{{ feature.body }}</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Closing banner — a bento card, forced dark, indigo border glow. -->
     <section class="relative mx-auto max-w-6xl px-6 pb-20">
-      <p class="hud absolute right-6 top-2 text-zinc-300 dark:text-zinc-700" aria-hidden="true">07 — START</p>
-      <div class="flex flex-col items-center gap-5 rounded-3xl border border-accent-100 bg-accent-50 px-6 py-10 text-center dark:border-accent-400/20 dark:bg-accent-400/[0.06] sm:flex-row sm:justify-between sm:px-10 sm:text-left">
+      <div class="flex flex-col items-center gap-5 rounded-2xl border border-accent-500/30 bg-canvas-dark px-6 py-10 text-center shadow-[0_0_0_1px_rgba(99,102,241,0.08),0_20px_60px_-20px_rgba(99,102,241,0.25)] sm:flex-row sm:justify-between sm:px-10 sm:text-left">
         <div>
-          <p class="text-[11px] font-semibold uppercase tracking-[0.15em] text-accent-700 dark:text-accent-400">{{ t('landing.ctaEyebrow') }}</p>
-          <p class="font-display mt-1.5 text-xl font-bold tracking-tight">{{ t('landing.ctaTitle') }}</p>
-          <p class="mt-1.5 max-w-md text-sm text-zinc-600 dark:text-zinc-400">{{ t('landing.ctaBody') }}</p>
+          <p class="badge bg-accent-500/10 text-accent-400">{{ t('landing.ctaEyebrow') }}</p>
+          <p class="font-display mt-2.5 text-xl font-bold tracking-tight text-white">{{ t('landing.ctaTitle') }}</p>
+          <p class="mt-1.5 max-w-md text-sm text-slate-400">{{ t('landing.ctaBody') }}</p>
         </div>
         <NuxtLink to="/courses" class="btn-primary w-full shrink-0 rounded-full px-7 py-3 text-base font-semibold sm:w-auto">
           {{ t('landing.ctaButton') }}

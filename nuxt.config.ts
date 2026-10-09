@@ -36,23 +36,18 @@ export default defineNuxtConfig({
    * `font-family` text in compiled CSS — which never reliably sees fonts
    * referenced only via Tailwind's JS config (tailwind.config.ts).
    *
-   * "Dossier": Plus Jakarta Sans stays as `sans` (body/UI text). Bricolage
-   * Grotesque is new — the bold, slightly irregular display grotesk used
-   * for headlines/wordmark (see tailwind.config.ts for the full rationale).
-   * Instrument Serif is also new — an italic editorial serif reserved for
-   * short accent phrases inside a headline, never body copy. JetBrains
-   * Mono stays for `mono` — both real code AND the new small-caps "HUD"
-   * meta-strip treatment (see `.hud` in tailwind.css). Sarabun is the Thai
-   * fallback in every stack (see tailwind.config.ts) — none of the four
-   * Latin faces above have Thai glyphs of their own — but it's loaded via
-   * the `<link>` in `app.head` above, not listed here (see the comment
-   * there for why).
+   * "Constructor": Inter is now the ONLY Latin face for `sans`/`display`
+   * (see tailwind.config.ts for the full rationale) — a single clean
+   * geometric sans for a developer-dashboard aesthetic, replacing the old
+   * display-grotesk + accent-serif split. JetBrains Mono stays for `mono`,
+   * strictly real code. Sarabun is the Thai fallback in every stack (see
+   * tailwind.config.ts) — Inter has no Thai glyphs of its own — but it's
+   * loaded via the `<link>` in `app.head` above, not listed here (see the
+   * comment there for why).
    */
   fonts: {
     families: [
-      { name: 'Plus Jakarta Sans', provider: 'google', weights: [400, 500, 600, 700, 800], global: true },
-      { name: 'Bricolage Grotesque', provider: 'google', weights: [500, 600, 700, 800], global: true },
-      { name: 'Instrument Serif', provider: 'google', weights: [400], styles: ['italic'], global: true },
+      { name: 'Inter', provider: 'google', weights: [400, 500, 600, 700, 800], global: true },
       { name: 'JetBrains Mono', provider: 'google', weights: [400, 500, 600, 700], global: true }
     ]
   },
