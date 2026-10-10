@@ -37,6 +37,11 @@ function toggleSidebarCollapsed() {
   sidebarCollapsed.value = !sidebarCollapsed.value
 }
 
+// Small colored square per course in the sidebar, cycling through the
+// existing semantic palette — echoes a reference task-manager's per-project
+// color swatches without inventing a new "course color" concept.
+const SWATCH_COLORS = ['bg-accent-500', 'bg-ai-500', 'bg-success-500', 'bg-warning-500', 'bg-info-500', 'bg-critical-500']
+
 function toggleCourse(courseId: string) {
   const next = new Set(collapsedCourses.value)
   if (next.has(courseId)) next.delete(courseId)
@@ -320,7 +325,7 @@ function courseCompletedCount(course: Course): number {
              course accordion buried the one actually being read among
              unrelated ones. -->
         <nav v-else-if="currentCourse" class="px-2 py-2">
-          <div class="flex items-center gap-2 px-1 py-1">
+          <div class="flex items-center gap-2 border-l-2 border-accent-500 py-1 pl-2">
             <span class="flex-1 truncate text-[11px] font-semibold uppercase tracking-[0.1em] text-zinc-700 dark:text-zinc-300">
               {{ currentCourse.title }}
             </span>
@@ -354,6 +359,7 @@ function courseCompletedCount(course: Course): number {
               class="group flex w-full items-center gap-2 px-1 py-1 text-left transition-colors"
               @click="toggleCourse(course.id)"
             >
+              <span class="size-2 shrink-0 rounded-[3px]" :class="SWATCH_COLORS[i % SWATCH_COLORS.length]" aria-hidden="true" />
               <span class="shrink-0 text-[10px] tabular-nums text-zinc-400 dark:text-zinc-600">{{ String(i + 1).padStart(2, '0') }}</span>
               <span class="flex-1 truncate text-[11px] font-semibold uppercase tracking-[0.1em] text-zinc-700 group-hover:text-accent-700 dark:text-zinc-300 dark:group-hover:text-accent-400">
                 {{ course.title }}

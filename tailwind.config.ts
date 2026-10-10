@@ -6,75 +6,77 @@ export default <Partial<Config>>{
   theme: {
     extend: {
       /**
-       * "Dossier": the site's fourth identity — moving off "Studio
-       * Dashboard"'s quiet indigo SaaS look toward a bolder, editorial,
-       * benchmark-report aesthetic (reference: a framework's own motion-
-       * graphics showreel — stark black/white, one loud accent, big
-       * confident display type, monospace used as a deliberate "live
-       * telemetry" texture rather than just a code font). Bricolage
-       * Grotesque is the new display face — a bold, slightly irregular
-       * grotesk with real personality instead of a generic geometric sans
-       * — reserved for headlines/wordmark. Instrument Serif is new too: an
-       * italic editorial serif used ONLY for short accent phrases inside a
-       * headline (the reference's cursive "...humans." treatment), never
-       * for UI text or body copy. Plus Jakarta Sans stays as the actual
-       * body/UI workhorse — swapping it out everywhere would hurt
-       * readability for no aesthetic gain. JetBrains Mono is promoted
-       * beyond code: it's now also the "HUD" face for small uppercase
-       * meta strips (see `.hud` in tailwind.css) — the reference's
-       * BPM/timer counter made literal as a reusable UI pattern.
+       * "Constructor": the site's sixth identity — a dark-mode-first,
+       * developer-focused SaaS dashboard look (reference: Spline.one's
+       * "Constructor UI System"), replacing "Atelier"'s quiet editorial
+       * calm with a structured, high-density bento-grid aesthetic. One
+       * clean geometric sans (Inter) for every role — display, body, UI —
+       * rather than splitting the job across a display face and a body
+       * face; this identity reads as a developer tool, not an editorial
+       * site, and a single consistent face is more legible at the small
+       * sizes a data-dense dashboard needs. JetBrains Mono stays for real
+       * code only, same as the last few identities. Electric Indigo
+       * (`accent`) is the primary action/active-status color; a new
+       * neon-lime family (`lime`) marks positive metrics/sparkline trends
+       * specifically, so "this number is up" has its own color distinct
+       * from "click this button."
        *
-       * Plus Jakarta Sans/Bricolage Grotesque have no Thai glyphs, so Thai
-       * copy was silently falling back to whatever sans-serif the OS
-       * ships — inconsistent weight/x-height next to the Latin type.
-       * Sarabun is the Thai fallback in every stack: the standard
-       * long-form/formal Thai reading face (used across Thai government
-       * and business documents), with real loops for letter
-       * differentiation — read as noticeably easier to scan than a
-       * loopless pick like IBM Plex Sans Thai at body-text sizes
-       * (@nuxt/fonts' Google provider can't serve its Thai subset
-       * correctly, so it's loaded via a direct Google Fonts <link> in
-       * nuxt.config.ts instead, same workaround, different font). The
-       * browser picks per-character automatically from stack order — no
-       * lang-specific CSS needed.
+       * Inter has no Thai glyphs, so Thai copy still falls back to Sarabun
+       * in every stack (see nuxt.config.ts's app.head comment for why it's
+       * loaded via a direct Google Fonts <link> rather than through
+       * @nuxt/fonts like Inter/JetBrains Mono).
        */
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', '"Sarabun"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        display: ['"Bricolage Grotesque"', '"Sarabun"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        serif: ['"Instrument Serif"', '"Sarabun"', 'ui-serif', 'Georgia', 'serif'],
+        sans: ['"Inter"', '"Sarabun"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['"Inter"', '"Sarabun"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        serif: ['"Inter"', '"Sarabun"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         mono: ['"JetBrains Mono"', '"Sarabun"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace']
       },
       colors: {
-        // Near-white canvas / pure-white surface by day, near-black by
-        // night — pushed closer to true black/white than the old slate-navy
-        // dark mode, matching the reference's stark high-contrast scenes.
-        // Cards lean on a hairline border as much as shadow now (the old
-        // "shadow-only" signal read as too soft/quiet for this identity).
+        // Clean near-white canvas by day; a near-black, very slightly
+        // blue-tinted `#0B0C10` by night — the dashboard's primary,
+        // highest-visibility surface. Cards are a step up in luminance
+        // (`surface`) from the canvas they sit on, with a razor-thin
+        // white/10 border doing the separation, not a heavy shadow.
         canvas: {
-          DEFAULT: '#FAFAFA',
-          dark: '#0A0A0A'
+          DEFAULT: '#F7F8FA',
+          dark: '#0B0C10'
         },
         surface: {
           DEFAULT: '#FFFFFF',
-          dark: '#141414'
+          dark: '#1A1C23'
         },
         divider: {
-          DEFAULT: '#E5E5E5',
-          dark: '#2A2A2A'
+          DEFAULT: '#E5E7EB',
+          dark: 'rgba(255, 255, 255, 0.08)'
         },
-        // Hot pink/magenta (`accent`) replaces the old indigo — the
-        // reference's one loud accent color against an otherwise
-        // black/white/gray palette. Still needs WHITE text on filled
-        // chips/buttons (400/500/600 are all mid-to-high saturation).
+        // Electric Indigo (`accent`) — the primary action color: CTAs,
+        // active/selected status, key metrics. Used sparingly against an
+        // otherwise near-monochrome dashboard, per the reference's "one
+        // loud color" rule. Still needs WHITE text on filled chips/buttons
+        // (400/500/600 are all mid-to-high saturation).
         accent: {
-          50: '#FFF0F6',
-          100: '#FFE0EE',
-          300: '#FF9AC4',
-          400: '#FF5FA0',
-          500: '#FF2D7F',
-          600: '#EC0063',
-          700: '#C2004F',
-          900: '#780033'
+          50: '#EEF0FF',
+          100: '#E0E3FF',
+          300: '#A5ADFB',
+          400: '#818CF8',
+          500: '#6366F1',
+          600: '#4F46E5',
+          700: '#4338CA',
+          900: '#312E81'
+        },
+        // Neon lime (`lime`) — positive metrics and upward sparkline
+        // trends specifically, kept distinct from the indigo accent so
+        // "this number is up" never gets confused with "click this."
+        lime: {
+          50: '#F7FEE7',
+          100: '#ECFCCB',
+          300: '#BEF264',
+          400: '#A3E635',
+          500: '#84CC16',
+          600: '#65A30D',
+          700: '#4D7C0F',
+          900: '#365314'
         },
         // Violet (`ai`) marks anything AI/tutor-related — badges, the chat
         // chrome, the "AI Brain" mark — kept a distinct hue from the
